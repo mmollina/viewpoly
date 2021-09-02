@@ -1,0 +1,12 @@
+name: bt_map
+title:
+username:
+account: gt4sp-genetic-map
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 695121
+bundleId: 2194751
+url: https://gt4sp-genetic-map.shinyapps.io/bt_map/
+when: 1562087721.2999
+asMultiple: FALSE
+asStatic: FALSE
