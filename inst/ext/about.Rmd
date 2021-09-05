@@ -1,0 +1,8 @@
+---
+title: "About"
+output: html_document
+---
+
+R package to visualize genetic maps and QTL analysis.
+
+Place to cite papers and projects.
