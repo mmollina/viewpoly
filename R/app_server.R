@@ -6,5 +6,13 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # Your application server logic 
-  mod_map_view_server("map_view_ui_1")
+  
+  
+  ## Start modules
+  datas <- callModule(mod_upload_server,"upload_ui_1", parent_session=session)
+  
+  # Map view
+  callModule(mod_map_view_server,
+             "map_view_ui_1", 
+             loadMap = datas$loadMap)
 }
