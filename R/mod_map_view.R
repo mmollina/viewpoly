@@ -15,7 +15,7 @@ mod_map_view_ui <- function(id){
         plotOutput(ns("plot1"), height = "500px"),
         wellPanel(
           sliderInput(ns("range"), "Map range (cM)", 0, 300,
-                      value = c(0, 20), step = 1) , style = "padding: 6px;"
+                      value = c(0, 20), step = 1), style = "padding: 6px;"
         ),
         fluidRow(
       column(2,
@@ -73,25 +73,31 @@ mod_map_view_server <-  function(input, output, session, loadMap){
                      ph.p = loadMap()$ph.p, 
                      ph.q = loadMap()$ph.q,
                      snp.names = input$op)
-      output$text1 <- renderPrint({
-        map_summary(left.lim = input$range[1],
-                    right.lim = input$range[2],
-                    ch = input$select,
-                    maps = loadMap()$maps,
-                    dp = loadMap()$dp,
-                    dq = loadMap()$dq)[1]
-      })
-      output$text2 <- renderPrint({
-        map_summary(left.lim = input$range[1],
-                    right.lim = input$range[2],
-                    ch = input$select,
-                    maps = loadMap()$maps,
-                    dp = loadMap()$dp,
-                    dq = loadMap()$dq)[2:4]
-      })
+    output$text1 <- renderPrint({
+      map_summary(left.lim = input$range[1],
+                  right.lim = input$range[2],
+                  ch = input$select,
+                  maps = loadMap()$maps,
+                  dp = loadMap()$dp,
+                  dq = loadMap()$dq)[[1]]
+    })
+    output$text2 <- renderPrint({
+      map_summary(left.lim = input$range[1],
+                  right.lim = input$range[2],
+                  ch = input$select,
+                  maps = loadMap()$maps,
+                  dp = loadMap()$dp,
+                  dq = loadMap()$dq)[2:4]
+    })
+      output$text3 = map_summary(left.lim = input$range[1],
+                  right.lim = input$range[2],
+                  ch = input$select,
+                  maps = loadMap()$maps,
+                  dp = loadMap()$dp,
+                  dq = loadMap()$dq)[5]
     })
 }
-    
+
 ## To be copied in the UI
 # mod_map_view_ui("map_view_ui_1")
     
