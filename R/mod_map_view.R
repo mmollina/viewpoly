@@ -12,23 +12,39 @@ mod_map_view_ui <- function(id){
   tagList(
     fluidPage(
       verticalLayout(
-        selectInput(inputId = ns('select'), label = '', choices = paste("Linkage Group", 1:15), selected = "Linkage Group 1"),
         plotOutput(ns("plot1"), height = "500px"),
         wellPanel(
-          sliderInput(ns("range"), "Centimorgans", 0, 300,
+          sliderInput(ns("range"), "Map range (cM)", 0, 300,
                       value = c(0, 20), step = 1) , style = "padding: 6px;"
         ),
-        checkboxInput(ns("op"), label = "Show SNP names?", value = TRUE),
-        splitLayout(cellWidths = c("10%", "15%","5%", "15%", "5%","55%"), h4("Legend"),h4("Number of SNPs per dosage"),"",h4("Summary"),"", h4("   Notes")),
-        splitLayout(cellWidths = c("10%", "15%","5%", "15%", "5%","55%"), 
-                    includeHTML(system.file("ext/include.html", package = "viewpoly")), verbatimTextOutput(ns("text1")), "", verbatimTextOutput(ns("text2")), "",
-                    includeHTML(system.file("ext/include2.html", package="viewpoly"))),
-        splitLayout(cellWidths = c("10%", "15%","5%", "15%", "5%","55%"), "", HTML("rows: parent 1"),"","", "",""),
-        splitLayout(cellWidths = c("10%", "15%","5%", "15%", "5%","55%"), "", HTML("columns: parent 2"),"","", "","")
+        fluidRow(
+      column(2,
+             selectInput(inputId = ns('select'), label = '', choices = paste("Linkage Group", 1:15), selected = "Linkage Group 1"),
+             checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
+             ),
+      column(1,
+             h4("Legend"),
+             includeHTML(system.file("ext/include.html", package="viewpoly"))
+             ),
+      column(2,
+             h4("Number of SNPs per dosage"),
+             verbatimTextOutput(ns("text1")),
+             HTML("Rows: Parent 1<br>Columns: Parent 2")
+             ),
+      column(2,
+             h4("Summary"),
+             verbatimTextOutput(ns("text2"))
+             ),
+      column(4,
+             h4("Notes"),
+             includeHTML(system.file("ext/include2.html", package="viewpoly"))
+             )
+      )
       )
     )
   )
 }
+
     
 #' map_view Server Functions
 #'
