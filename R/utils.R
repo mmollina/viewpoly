@@ -211,7 +211,7 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
     for(j in as.character(0:ploidy))
       M[i,j]<-w[paste(i,j,sep = "-")]
   M[is.na(M)]<-0
-  return(list(doses = M, number.snps = length(curx), length = diff(range(curx)), cM.per.snp = round(diff(range(curx))/length(curx), 3), full.size = (maps[[ch]][length(maps[[ch]])])))
+  return(list(doses = M, number.snps = length(curx), length = diff(range(curx)), cM.per.snp = round(diff(range(curx))/length(curx), 3)))
 }
 ## full.size = maps[[ch]][length(maps[[ch]])]#round(cumsum(c(0, imf_h(maps[[ch]]$maps[[1]]$seq.rf))),2)
 #row: beauregard; column: tanzania

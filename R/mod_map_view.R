@@ -89,12 +89,6 @@ mod_map_view_server <-  function(input, output, session, loadMap){
                   dp = loadMap()$dp,
                   dq = loadMap()$dq)[2:4]
     })
-      output$text3 = map_summary(left.lim = input$range[1],
-                  right.lim = input$range[2],
-                  ch = input$select,
-                  maps = loadMap()$maps,
-                  dp = loadMap()$dp,
-                  dq = loadMap()$dq)[5]
     })
 }
 
