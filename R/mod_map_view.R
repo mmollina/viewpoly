@@ -50,29 +50,29 @@ mod_map_view_ui <- function(id){
 #'
 #' @noRd 
 mod_map_view_server <-  function(input, output, session, loadMap){
-    ns <- session$ns
-    # loadMap<-reactive({
-    #   load(file = system.file("ext/maps.rda", package = "viewpoly"))
-    #   return(maps)
-    # })
-    # loadPh<-reactive({
-    #   load(file = system.file("ext/phs.rda", package = "viewpoly"))
-    #   return(list(ph.br = ph.br, ph.tz = ph.tz))
-    # })
-    # loadDose<-reactive({
-    #   load(file = system.file("ext/ds.rda", package = "viewpoly"))
-    #   return(list(d.br = d.br, d.tz = d.tz))
-    # })
-    output$plot1 <- renderPlot({
-      draw_map_shiny(left.lim = input$range[1], 
-                     right.lim = input$range[2], 
-                     ch = input$select,
-                     dp = loadMap()$dp,
-                     dq = loadMap()$dq, 
-                     maps = loadMap()$maps, 
-                     ph.p = loadMap()$ph.p, 
-                     ph.q = loadMap()$ph.q,
-                     snp.names = input$op)
+  ns <- session$ns
+  # loadMap<-reactive({
+  #   load(file = system.file("ext/maps.rda", package = "viewpoly"))
+  #   return(maps)
+  # })
+  # loadPh<-reactive({
+  #   load(file = system.file("ext/phs.rda", package = "viewpoly"))
+  #   return(list(ph.br = ph.br, ph.tz = ph.tz))
+  # })
+  # loadDose<-reactive({
+  #   load(file = system.file("ext/ds.rda", package = "viewpoly"))
+  #   return(list(d.br = d.br, d.tz = d.tz))
+  # })
+  output$plot1 <- renderPlot({
+    draw_map_shiny(left.lim = input$range[1], 
+                   right.lim = input$range[2], 
+                   ch = input$select,
+                   dp = loadMap()$dp,
+                   dq = loadMap()$dq, 
+                   maps = loadMap()$maps, 
+                   ph.p = loadMap()$ph.p, 
+                   ph.q = loadMap()$ph.q,
+                   snp.names = input$op)
     output$text1 <- renderPrint({
       map_summary(left.lim = input$range[1],
                   right.lim = input$range[2],
@@ -89,7 +89,16 @@ mod_map_view_server <-  function(input, output, session, loadMap){
                   dp = loadMap()$dp,
                   dq = loadMap()$dq)[2:4]
     })
+    max_updated = reactive({
+      map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$select, maps = loadMap()$maps, dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
     })
+    observeEvent(max_updated, {
+      updateSliderInput(inputId = "range", max = max_updated())
+    })
+    number_of_lgs = reactive({
+      map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$select, maps = loadMap()$maps, dp = loadMap()$dp, dq = loadMap()$dq)[[6]]
+  })
+  })
 }
 
 ## To be copied in the UI
