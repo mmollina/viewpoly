@@ -34,6 +34,8 @@ mod_upload_ui <- function(id){
              fileInput(ns("dosages"), label = h6("File: dosages.csv"), multiple = F),
              fileInput(ns("genetic_map"), label = h6("File: genetic_map.csv"), multiple = F),
              fileInput(ns("phases"), label = h6("File: phases.csv"), multiple = F),
+             p("Upload here an RDS file with table with three columns: 1) marker ID; 2) genome position; 3) chromosome"),
+             fileInput(ns("mks.pos"), label = h6("File: marker information"), multiple = F),
              "Check the input file formats with the example files:", br(),
              radioButtons(ns("downloadType"), "", 
                           choices = c("dosages.csv" = "dosages",
@@ -65,15 +67,16 @@ mod_upload_ui <- function(id){
     column(width = 6,
            fluidPage(
              tags$h4(tags$b("View genomes")), hr(),
-             tags$h5(tags$b("Upload .fasta file with genome information")),
-             fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = F),
+             tags$h5(tags$b("Upload genome information")),
+             p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
+             fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = T),
            )
     ),
     column(width = 6,
            fluidPage(
              tags$h4(tags$b("View genes")), hr(),
              tags$h5(tags$b("Upload .gff3 file with genes information")),
-             fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = F),
+             fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = T),
            )
     )
   )
@@ -117,6 +120,7 @@ mod_upload_server <- function(input, output, session, parent_session){
       
       loadJBrowse = reactive({list(fasta = input$fasta,
                                    gff3 = input$gff3,
+                                   mks.pos = input$mks.pos,
                                    example = input$example_map)})
     )
   )

@@ -42,6 +42,7 @@ mod_map_view_ui <- function(id){
         ),
         plotOutput(ns("plot1"), height = "500px"), hr(),
         actionButton(ns("create_server"), "Create local server",icon("refresh")), br(),
+        actionButton(ns("server_off"), "Turn off local server",icon("refresh")), br(),
         JBrowseROutput(ns("browserOutput"))
       )
     )
@@ -54,7 +55,7 @@ mod_map_view_ui <- function(id){
 #' @import JBrowseR
 #'
 #' @noRd 
-mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
+mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
   ns <- session$ns
   
   observe({
@@ -105,27 +106,52 @@ mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
   # })
   
   button <- eventReactive(input$create_server, {
-    if(loadJBrowse()$example == "bt_map"){
+    
+    if(!is.null(loadJBrowse()$fasta)){
+      cat("genome")
+      str(loadJBrowse()$fasta)
+      cat("gff")
+      str(loadJBrowse()$gff3)
+      
+      server_dir <- tempdir()
+      
+      path.fa <- paste0(server_dir, "/", loadJBrowse()$fasta$name[1])
+      path.fai <- paste0(server_dir, "/", loadJBrowse()$fasta$name[2])
+      path.gzi <- paste0(server_dir, "/", loadJBrowse()$fasta$name[3])
+      path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
+      path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
+      
+      file.rename(loadJBrowse()$fasta$datapath[1], path.fa)
+      file.rename(loadJBrowse()$fasta$datapath[2], path.fai)
+      file.rename(loadJBrowse()$fasta$datapath[3], path.gzi)
+      file.rename(loadJBrowse()$gff$datapath[1], path.gff)
+      file.rename(loadJBrowse()$gff$datapath[2], path.tbi)
+      cat("path")
+      print(path.fa)
+      
+      mk.pos <- readRDS(loadJBrowse()$mks.pos$datapath)
+      
+    } else if(loadJBrowse()$example == "bt_map"){
       path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
-      path.ann <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
+      path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
       mk.pos <- readRDS(system.file("ext/mk_pos.rds", package = "viewpoly"))
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
-    } else {
-      path.fa <- loadJBrowse()$fasta
-      path.ann <- loadJBrowse()$gff3
-      # Add other tracks
-    }
+    } 
     
-    if(!is.null(data_server))
+    if(exists("data_server"))
       data_server$stop_server()
     
     data_server <- serve_data(dirname(path.fa), port = 5000)
     
-    list(path.fa, path.ann)
+    list(path.fa, path.gff, data_server, mk.pos)
   })
   
+  #  Trying to fix server issue
+  observeEvent(input$server_off, {
+    httpuv::stopAllServers()
+  })
   
   # link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
@@ -144,11 +170,10 @@ mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
     # create the tracks array to pass to browser
     tracks <- tracks(annotations_track)
     
-    
     # # Select default window
     group <- as.numeric(input$group)
     mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
-    mk.pos <- filter(mk.pos, chr == group)
+    mk.pos <- filter(button()[[4]], chr == group)
     mks <- merge(mk.pos, mk.cM, by = c("mk"))
     mks <- mks[order(mks$cM),]
     mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
@@ -159,7 +184,7 @@ mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
       assembly,
       c(annotations_track)
     )
-
+    
     JBrowseR(
       "View",
       assembly = assembly,
