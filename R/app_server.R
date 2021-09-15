@@ -14,5 +14,10 @@ app_server <- function( input, output, session ) {
   # Map view
   callModule(mod_map_view_server,
              "map_view_ui_1", 
-             loadMap = datas$loadMap)
+             loadMap = datas$loadMap,
+             loadJBrowse = datas$loadJBrowse)
+  
+  # Download
+  callModule(mod_download_server,
+             "download_ui_1")
 }

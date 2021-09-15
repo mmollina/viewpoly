@@ -19,18 +19,17 @@ prepare_Mapdata <- function(mappoly_in = NULL,
                             example_map){
   
   if(!is.null(mappoly_in)){
-    print(mappoly_in)
     viewmap <- read_mappoly_lst(mappoly_prep = mappoly_in)
-  } else if(example_map != "none"){
+  } else if(example_map == "bt_map"){
     viewmap <- read_custom_files(system.file("ext/dosage.rds", package = "viewpoly"),
                                  system.file("ext/phases.rds", package = "viewpoly"),
                                  system.file("ext/map.rds", package = "viewpoly"))
   } else if(!(is.null(dosages) | is.null(phases) | is.null(genetic_map))){
     viewmap <- read_custom_files(dosages, phases, genetic_map) 
+    return(viewmap)
   } else {
     stop("Please choose one of the option in the previous screen.")
   }
-  return(viewmap)
 }
 
 #' Read input custom format files
@@ -87,7 +86,7 @@ read_custom_files <- function(dosages, phases, genetic_map){
 }
 
 
-#' Change mappoly::: prepare_map output format
+#' Change mappoly:::prepare_map output format
 #' 
 read_mappoly_lst <- function(mappoly_prep){
   cat(mappoly_prep$datapath)
