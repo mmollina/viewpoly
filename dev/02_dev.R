@@ -15,12 +15,14 @@
 
 ## Dependencies ----
 ## Add one line by package you want to add as dependency
-usethis::use_package( "thinkr" )
+usethis::use_package( "mappoly" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "map_view" ) # Name of the module
 golem::add_module( name = "upload")
+golem::add_module( name = "download_infos")
+
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*

@@ -20,6 +20,8 @@ app_ui <- function(request) {
                         ),
                tabPanel("Map", value = "map",
                         mod_map_view_ui("map_view_ui_1")),
+               tabPanel("Download infos", value = "download",
+                        mod_download_ui("download_ui_1")),
                navbarMenu("More",
                           tabPanel("Summary", "Under development..."),
                           tabPanel("Table", "Under development...")

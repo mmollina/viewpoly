@@ -96,9 +96,10 @@
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
                          maps, ph.p, ph.q, dp, dq, snp.names=TRUE)
 {
+  ch <- as.numeric(ch)
   ploidy <- dim(ph.p[[1]])[2]
-  if(is.character(ch))
-    ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
+  # if(is.character(ch))
+  #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
   var.col <- RColorBrewer::brewer.pal(n = 4, name = "Set1")
   names(var.col) <- c("A", "T", "C", "G")
   d.col<-c(NA, RColorBrewer::brewer.pal(n = ploidy, name = "Dark2"))
@@ -193,8 +194,9 @@ imf_h <- function(r) {
 
 map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
                       maps, dp, dq){
-  if(is.character(ch))
-    ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
+  ch <- as.numeric(ch)
+  # if(is.character(ch))
+  #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
   x <- maps[[ch]]
   lab <- names(maps[[ch]])
   ploidy = max(c(dp[[ch]], dq[[ch]])) 
