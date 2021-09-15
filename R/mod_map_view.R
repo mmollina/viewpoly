@@ -41,6 +41,7 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), style = "padding: 6px;"
         ),
         plotOutput(ns("plot1"), height = "500px"), hr(),
+        actionButton(ns("create_server"), "Create local server",icon("refresh")), br(),
         JBrowseROutput(ns("browserOutput"))
       )
     )
@@ -65,7 +66,7 @@ mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
                       choices = group_choices,
                       selected= group_choices[[1]])
   })
-
+  
   output$plot1 <- renderPlot({
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
@@ -85,7 +86,6 @@ mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
     })
   })
   
-  
   # output$text1 <- renderPrint({
   #   map_summary(left.lim = input$range[1],
   #               right.lim = input$range[2],
@@ -104,82 +104,71 @@ mod_map_view_server <-  function(input, output, session, loadMap, loadJBrowse){
   #               dq = loadMap()$dq)[2:4]
   # })
   
-  # if(loadJBrowse()$example == "bt_map"){
-  #   assembly <- assembly(system.file("ext/NSP306_trifida_chr_v3.fa.gz", package = "viewpoly"), bgzip = TRUE)
-  #   annotations_track <- track_feature(system.file("ext/NSP306_trifida_v3.hc.gene_models.gff3", package = "viewpoly"),
-  #                                      assembly)
-  #   mk.pos <- readRDS(system.file("ext/mk_pos.rds", package = "viewpoly"))
-  #   # Add tracks
-  #   # variants_track <- track_variant()
-  #   # alignments_track <- track_alignments()
-  # } else {
-  #   assembly <- assembly(loadJBrowse()$fasta, bgzip = TRUE)
-  #   annotations_track <- track_feature(loadJBrowse()$gff3, assembly)
-  #   # Add tracks
-  # }
-
-  assembly <- assembly(
-    system.file("ext/NSP306_trifida_chr_v3.fa.gz", package = "viewpoly"),
-    bgzip = TRUE
-  )
+  button <- eventReactive(input$create_server, {
+    if(loadJBrowse()$example == "bt_map"){
+      path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
+      path.ann <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
+      mk.pos <- readRDS(system.file("ext/mk_pos.rds", package = "viewpoly"))
+      # Add other tracks
+      # variants_track <- track_variant()
+      # alignments_track <- track_alignments()
+    } else {
+      path.fa <- loadJBrowse()$fasta
+      path.ann <- loadJBrowse()$gff3
+      # Add other tracks
+    }
+    
+    if(!is.null(data_server))
+      data_server$stop_server()
+    
+    data_server <- serve_data(dirname(path.fa), port = 5000)
+    
+    list(path.fa, path.ann)
+  })
   
-  # create configuration for a JB2 GFF FeatureTrack
-  annotations_track <- track_feature(
-    system.file("ext/NSP306_trifida_v3.hc.gene_models.gff3", package = "viewpoly"),
-    assembly
-  )
-  
-  # create the tracks array to pass to browser
-  tracks <- tracks(annotations_track)
-  
-  default_session <- default_session(
-    assembly,
-    c(annotations_track)
-  )
   
   # link the UI with the browser widget
-  output$browserOutput <- renderJBrowseR(
+  output$browserOutput <- renderJBrowseR({
+    
+    assembly <- assembly(
+      paste0("http://127.0.0.1:5000/", basename(button()[[1]])), 
+      bgzip = TRUE
+    )
+    
+    # create configuration for a JB2 GFF FeatureTrack
+    annotations_track <- track_feature(
+      paste0("http://127.0.0.1:5000/", basename(button()[[2]])), 
+      assembly
+    )
+    
+    # create the tracks array to pass to browser
+    tracks <- tracks(annotations_track)
+    
+    
+    # # Select default window
+    group <- as.numeric(input$group)
+    mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
+    mk.pos <- filter(mk.pos, chr == group)
+    mks <- merge(mk.pos, mk.cM, by = c("mk"))
+    mks <- mks[order(mks$cM),]
+    mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
+    mks.range.1 <- mks$pos[mks.range[1]]
+    mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
+    
+    default_session <- default_session(
+      assembly,
+      c(annotations_track)
+    )
+
     JBrowseR(
       "View",
       assembly = assembly,
       # pass our tracks here
       tracks = tracks,
-      location = "Chr01:1..100",
+      location = paste0("Chr01:", mks.range.1,"..",mks.range.2),
       defaultSession = default_session
     )
-  )
-  
-  # create the tracks array to pass to browser
-  # tracks <- tracks(annotations_track) # ,variants_track, alignments_track)
-
-  # # set up the default session for the browser
-  # default_session <- default_session(
-  #   assembly,
-  #   c(annotations_track)
-  # )
-  # 
-  # # Select default window
-  # mk.cM <- data.frame(mk= names(loadMap()$maps[[input$select]]), cM = loadMap()$maps[[input$select]])
-  # mk.pos <- filter(mk.pos, chr == input$select)
-  # mks <- merge(mk.pos, mk.cM, by = c("mk"))
-  # mks <- mks[order(mks$cM),]
-  # mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
-  # mks.range.1 <- mks$pos[mks.range[1]]
-  # mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
-
-  # link the UI with the browser widget
-  # output$browserOutput <- renderJBrowseR(
-  #   if(!is.null(assembly)){
-  #     JBrowseR(
-  #       "View",
-  #       assembly = assembly,
-  #       tracks = tracks
-  #     )
-  #   } else {
-  #     cat("Genome information not provided in upload session.")
-  #   }
-  # )
-  
+  })
 }
 
 ## To be copied in the UI
