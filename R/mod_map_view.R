@@ -13,7 +13,12 @@ mod_map_view_ui <- function(id){
     fluidPage(
       verticalLayout(
         fluidRow(
-          tags$h4(tags$b("View Map")), hr(),
+          column(width = 12,
+                 div(style = "position:absolute;right:1em;", 
+                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), 
+                 )
+          ),
+          tags$h2(tags$b("View Map")), br(), hr(),
           column(2,
                  selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
                  checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
@@ -57,6 +62,11 @@ mod_map_view_ui <- function(id){
 #' @noRd 
 mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
   ns <- session$ns
+  
+  #  Trying to fix server issue
+  observeEvent(input$server_off, {
+    httpuv::stopAllServers()
+  })
   
   observe({
     group_choices <- as.list(1:length(loadMap()$dp))
@@ -146,11 +156,6 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
     data_server <- serve_data(dirname(path.fa), port = 5000)
     
     list(path.fa, path.gff, data_server, mk.pos)
-  })
-  
-  #  Trying to fix server issue
-  observeEvent(input$server_off, {
-    httpuv::stopAllServers()
   })
   
   # link the UI with the browser widget
