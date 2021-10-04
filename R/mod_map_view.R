@@ -39,7 +39,7 @@ mod_map_view_ui <- function(id){
           ),
           column(5,
                  selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
-                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE), br(), br(), 
+                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE), br(), br(), br(),
                  actionButton(ns("create_server"), "Create local server",icon("refresh"))
           ),
         ), hr(),
@@ -113,33 +113,53 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   qtl.int <- reactive({
     data <- loadQTL() %>% filter(pheno %in% input$phenotypes & LG == input$group)
-    data <- data[order(data$Pos_lower),]
+
+    if(dim(data)[1] == 0) stop("No QTLs available in this group")
     
-    max_updated <- map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$group, maps = loadMap()$maps, dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
-    ints <- round((data[,3:4]*100)/max_updated,0)
+    data <- data[order(data$Pos_lower, data$Pos_upper),]
+    command <- paste0(round(data$Pos_lower,0), ":", round(data$Pos_upper, 0))
+    seqs <- list()
+    for(i in 1:length(command))
+      seqs[[i]] <- eval(parse(text = command[i]))
+    
+    max_updated <- map_summary(left.lim = input$range[1], 
+                               right.lim = input$range[2], 
+                               ch = input$group, maps = loadMap()$maps, 
+                               dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
+    
+    qtls_pos <- Reduce(union, seqs)
+    chr_all <- 0:max_updated
+    
+    idx.comp <-  chr_all %in% qtls_pos
+    int <- chr_all[sequence(rle(idx.comp)$length) == 1]
+    
+    int <- (int*100)/max_updated
+    # add start and end
+    ints_all <- unique(c(0,int, 100))
+    # add qtls 
+    qtls <- unique(sort(data$Pos))
+    
+    ints_all <- diff(ints_all)
+    ints_all[length(ints_all)] <- ints_all[length(ints_all)] -1.5
     
     divs <- vector()
-    for(i in 1:dim(ints)[1]){
-      if(i == 1 & ints[i,1] -0 > 0){
-        divs1 <- paste0("display:inline-block; width: ",ints[i,1],"% ; background-color: gray;")
-      } else divs1 = NULL
-      divs2 <- paste0("display:inline-block; width: ", ints[i,2] - ints[i,1],"% ; background-color: blue;")
-      if(!is.na(ints[i+1,1]))
-        divs3 <- paste0("display:inline-block; width: ", ints[i+1,1] - ints[i,2],"% ; background-color: gray;")
-      else divs3 <- NULL
-      if(i == dim(ints)[1]){
-        if(100 - ints[i,2] > 0){
-          divs4 <- paste0("display:inline-block; width: ", 99 - ints[i,2],"% ; background-color: gray;")
+    for(i in 1:length(ints_all)){
+      if(idx.comp[1]){ # If 0 is included in some qtl
+        if(i %% 2 != 0){
+          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: blue;")
         } else {
-          divs2 <- paste0("display:inline-block; width: ", ints[i,2] -1 - ints[i,1],"% ; background-color: blue;")
-          divs4 <- NULL
+          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: gray;")
         }
       } else {
-        divs4 <- NULL
+        if(i %% 2 != 0){
+          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: gray;")
+        } else {
+          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: blue;")
+        }
       }
-      divs <- c(divs, divs1, divs2, divs3, divs4)
+      divs <- c(divs, divs_temp)
     }
-    
+
     if(!is.null(input$phenotypes)){
       divs_lst <- list()
       for(i in 1:length(divs)){
