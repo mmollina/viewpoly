@@ -98,3 +98,35 @@ read_mappoly_lst <- function(mappoly_prep){
                       maps = lapply(prep, "[[", 2))
 }
 
+# take all information needed from qtlpoly objects
+prepare_qtl <- function(remim.mod){
+  int_phenos <- data.frame()
+  for(i in 1:length(remim.mod$results)){
+    lower <- remim.mod$results[[i]]$lower[,1:2]
+    upper <- remim.mod$results[[i]]$upper[,1:2]
+    int <- merge(lower, upper)
+    int <- cbind(pheno = names(remim.mod$results)[i], int)
+    int_phenos <- rbind(int_phenos, int)
+  }
+  return(int_phenos)
+}
+
+prepare_QTLdata <- function(qtlpoly_in = NULL,
+                            p_values = NULL,
+                            intervals = NULL,
+                            qtls = NULL,
+                            example_qtl){
+  if(!is.null(qtlpoly_in)){
+    qtls <- qtlpoly_in
+  } else if(example_qtl == "bt_map"){
+    temp <- load(system.file("ext", "qtl_in.rda", package = "viewpoly"))
+    qtls <- get(temp)
+  } else if(!(is.null(p_values) | is.null(intervals) | is.null(qtls))){
+    qtls <- read_custom_files(dosages, phases, genetic_map) 
+    return(qtls)
+  } else {
+    stop("Please choose one of the option in the previous screen.")
+  }
+  
+}
+

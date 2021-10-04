@@ -13,54 +13,54 @@ mod_map_view_ui <- function(id){
     fluidPage(
       verticalLayout(
         fluidRow(
+          inlineCSS(".form-group {margin-bottom: 0;}
+                                .irs-with-grid {bottom: 0px;}
+                                .irs-grid {height: 13px;}
+                                .irs-grid-text {height: 0px;}
+                                "
+          ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), 
+                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),
                  )
           ),
           tags$h2(tags$b("View Map")), br(), hr(),
-          column(2,
+          
+          # column(3,
+          #        h4("Legend"),
+          #        includeHTML(system.file("ext/include.html", package="viewpoly"))
+          # ),
+          column(4,
+                 checkboxGroupInput(ns("phenotypes"),
+                                    label = h4("Phenotypes"),
+                                    choices = "This will be updated",
+                                    selected = "This will be updated"), br(),
+                 
+          ),
+          column(5,
                  selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
-                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
+                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE), br(), br(), 
+                 actionButton(ns("create_server"), "Create local server",icon("refresh"))
           ),
-          column(1,
-                 h4("Legend"),
-                 includeHTML(system.file("ext/include.html", package="viewpoly"))
-          ),
-          # column(2,
-          #        h4("Number of SNPs per dosage"),
-          #        verbatimTextOutput(ns("text1")),
-          #        HTML("Rows: Parent 1<br>Columns: Parent 2")
-          # ),
-          # column(2,
-          #        h4("Summary"),
-          #        verbatimTextOutput(ns("text2"))
-          # ),
-          # column(4,
-          #        h4("Notes"),
-          #        includeHTML(system.file("ext/include2.html", package="viewpoly"))
-          # )
         ), hr(),
         wellPanel(
           sliderInput(ns("range"), "Map range (cM)", min = 0, max = 300,
-                      value = c(0, 20), step = 1), style = "padding: 6px;"
+                      value = c(0, 20), step = 1), 
+          uiOutput(ns("interval"))
         ),
         plotOutput(ns("plot1"), height = "500px"), hr(),
-        actionButton(ns("create_server"), "Create local server",icon("refresh")), br(),
-        actionButton(ns("server_off"), "Turn off local server",icon("refresh")), br(),
         JBrowseROutput(ns("browserOutput"))
       )
     )
   )
 }
 
-
 #' map_view Server Functions
 #'
 #' @import JBrowseR
 #'
 #' @noRd 
-mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
+mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
   ns <- session$ns
   
   #  Trying to fix server issue
@@ -68,7 +68,9 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
     httpuv::stopAllServers()
   })
   
+  
   observe({
+    # Dynamic linkage group number
     group_choices <- as.list(1:length(loadMap()$dp))
     names(group_choices) <- 1:length(loadMap()$dp)
     
@@ -76,7 +78,17 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
                       label="Linkage group",
                       choices = group_choices,
                       selected= group_choices[[1]])
+    
+    # Dynamic QTLs
+    pheno_choices <- as.list(unique(loadQTL()$pheno))
+    names(pheno_choices) <- unique(loadQTL()$pheno)
+    
+    updateCheckboxGroupInput(session, "phenotypes",
+                             label = "Phenotypes",
+                             choices = pheno_choices,
+                             selected=unlist(pheno_choices)[1])
   })
+  
   
   output$plot1 <- renderPlot({
     draw_map_shiny(left.lim = input$range[1], 
@@ -92,28 +104,55 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse){
     max_updated = reactive({
       map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$group, maps = loadMap()$maps, dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
     })
+    
     observeEvent(max_updated, {
       updateSliderInput(inputId = "range", max = max_updated())
     })
   })
   
-  # output$text1 <- renderPrint({
-  #   map_summary(left.lim = input$range[1],
-  #               right.lim = input$range[2],
-  #               ch = input$group,
-  #               maps = loadMap()$maps,
-  #               dp = loadMap()$dp,
-  #               dq = loadMap()$dq)[[1]]
-  # })
-  # 
-  # output$text2 <- renderPrint({
-  #   map_summary(left.lim = input$range[1],
-  #               right.lim = input$range[2],
-  #               ch = input$group,
-  #               maps = loadMap()$maps,
-  #               dp = loadMap()$dp,
-  #               dq = loadMap()$dq)[2:4]
-  # })
+  
+  qtl.int <- reactive({
+    data <- loadQTL() %>% filter(pheno %in% input$phenotypes & LG == input$group)
+    data <- data[order(data$Pos_lower),]
+    
+    max_updated <- map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$group, maps = loadMap()$maps, dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
+    ints <- round((data[,3:4]*100)/max_updated,0)
+    
+    divs <- vector()
+    for(i in 1:dim(ints)[1]){
+      if(i == 1 & ints[i,1] -0 > 0){
+        divs1 <- paste0("display:inline-block; width: ",ints[i,1],"% ; background-color: gray;")
+      } else divs1 = NULL
+      divs2 <- paste0("display:inline-block; width: ", ints[i,2] - ints[i,1],"% ; background-color: blue;")
+      if(!is.na(ints[i+1,1]))
+        divs3 <- paste0("display:inline-block; width: ", ints[i+1,1] - ints[i,2],"% ; background-color: gray;")
+      else divs3 <- NULL
+      if(i == dim(ints)[1]){
+        if(100 - ints[i,2] > 0){
+          divs4 <- paste0("display:inline-block; width: ", 99 - ints[i,2],"% ; background-color: gray;")
+        } else {
+          divs2 <- paste0("display:inline-block; width: ", ints[i,2] -1 - ints[i,1],"% ; background-color: blue;")
+          divs4 <- NULL
+        }
+      } else {
+        divs4 <- NULL
+      }
+      divs <- c(divs, divs1, divs2, divs3, divs4)
+    }
+    
+    if(!is.null(input$phenotypes)){
+      divs_lst <- list()
+      for(i in 1:length(divs)){
+        divs_lst[[i]] <- div(id= paste0("belowslider",i), style= divs[i], p())
+      }
+      p(divs_lst, "QTLs")
+    }
+  })
+  
+  output$interval <- renderUI({ 
+    qtl.int()
+  })
+  
   
   button <- eventReactive(input$create_server, {
     

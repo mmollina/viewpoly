@@ -5,7 +5,8 @@
 #' @import shiny
 #' @noRd
 app_server <- function( input, output, session ) {
-  # Your application server logic 
+  # Your application server logic
+  # Upload size
   options(shiny.maxRequestSize=200*1024^2)
   
   ## Start modules
@@ -15,7 +16,8 @@ app_server <- function( input, output, session ) {
   callModule(mod_map_view_server,
              "map_view_ui_1", 
              loadMap = datas$loadMap,
-             loadJBrowse = datas$loadJBrowse)
+             loadJBrowse = datas$loadJBrowse,
+             loadQTL = datas$loadQTL)
   
   # Download
   callModule(mod_download_server,

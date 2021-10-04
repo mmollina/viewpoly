@@ -50,12 +50,12 @@ mod_upload_ui <- function(id){
       column(width = 6,
              fluidPage(
                tags$h4(tags$b("View QTLs")), hr(),
-               tags$h5(tags$b("Upload QTLpoly final object:")),
+               tags$h5(tags$b("Upload mappoly:::prepare_qtl list:")),
                fileInput(ns("qtlpoly_in"), label = h6("File: QTLpoly.RData"), multiple = F),
-               "Or upload the markers dosages, genetic map and phases information.", br(),
-               fileInput(ns("dosages"), label = h6("File: dosages.csv"), multiple = F),
-               fileInput(ns("genetic_map"), label = h6("File: genetic_map.csv"), multiple = F),
-               fileInput(ns("phases"), label = h6("File: phases.csv"), multiple = F),
+               "Or upload the markers p-values, qtls and lower and upper interval information.", br(),
+               fileInput(ns("p_values"), label = h6("File: dosages.csv"), multiple = F),
+               fileInput(ns("qtls"), label = h6("File: genetic_map.csv"), multiple = F),
+               fileInput(ns("intervals"), label = h6("File: phases.csv"), multiple = F),
                "Check the input format with the example file:", br(), br(),
                downloadButton("downloadQTL", "Download QTL input example file"), hr()
              ),
@@ -129,7 +129,14 @@ mod_upload_server <- function(input, output, session, parent_session){
       loadJBrowse = reactive({list(fasta = input$fasta,
                                    gff3 = input$gff3,
                                    mks.pos = input$mks.pos,
-                                   example = input$example_map)})
+                                   example = input$example_map)}),
+      
+      loadQTL = reactive({prepare_QTLdata(input$qtlpoly_in,
+                                          input$p_values,
+                                          input$qtls,
+                                          input$intervals,
+                                          input$example_map)})
+      
     )
   )
 }
