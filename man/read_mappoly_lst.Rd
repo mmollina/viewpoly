@@ -2,10 +2,10 @@
 % Please edit documentation in R/upload_functions.R
 \name{read_mappoly_lst}
 \alias{read_mappoly_lst}
-\title{Change mappoly::: prepare_map output format}
+\title{Change mappoly:::prepare_map output format}
 \usage{
 read_mappoly_lst(mappoly_prep)
 }
 \description{
-Change mappoly::: prepare_map output format
+Change mappoly:::prepare_map output format
 }

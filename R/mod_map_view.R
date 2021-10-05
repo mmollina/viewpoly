@@ -4,6 +4,9 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
+#' @importFrom shinyjs inlineCSS
+#' @importFrom RColorBrewer brewer.pal
+#' 
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
@@ -58,6 +61,7 @@ mod_map_view_ui <- function(id){
 #' map_view Server Functions
 #'
 #' @import JBrowseR
+#' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
 mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
@@ -113,8 +117,8 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   qtl.int <- reactive({
     data <- loadQTL() %>% filter(pheno %in% input$phenotypes & LG == input$group)
-
-    if(dim(data)[1] == 0) stop("No QTLs available in this group")
+    
+    if(dim(data)[1] == 0) stop("No QTL available in this group")
     
     data <- data[order(data$Pos_lower, data$Pos_upper),]
     command <- paste0(round(data$Pos_lower,0), ":", round(data$Pos_upper, 0))
@@ -137,35 +141,32 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     # add start and end
     ints_all <- unique(c(0,int, 100))
     # add qtls 
-    qtls <- unique(sort(data$Pos))
+    qtls <- (unique(sort(data$Pos))*100)/max_updated
+    qtls <- sort(c(qtls -0.3, qtls +0.3))
     
-    ints_all <- diff(ints_all)
-    ints_all[length(ints_all)] <- ints_all[length(ints_all)] -1.5
+    labs <- c(rep("int", length(ints_all)), rep(c("red","#34495E "), length(qtls/2)))
+    labs <- labs[order(c(ints_all, qtls))]
+    labs[which(labs == "red")-1] <- "#34495E "
+    labs[which(labs == "int")] <- "#D5D8DC"
+    labs <- labs[-length(labs)]
     
-    divs <- vector()
-    for(i in 1:length(ints_all)){
-      if(idx.comp[1]){ # If 0 is included in some qtl
-        if(i %% 2 != 0){
-          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: blue;")
-        } else {
-          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: gray;")
-        }
-      } else {
-        if(i %% 2 != 0){
-          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: gray;")
-        } else {
-          divs_temp <- paste0("display:inline-block; width: ", ints_all[i] ,"% ; background-color: blue;")
-        }
-      }
-      divs <- c(divs, divs_temp)
-    }
+    ints_all <- diff(sort(c(ints_all, qtls)))
 
+    # Each interval add small blank space to the scale - need to remove
+    reduce <- cumsum(ints_all)[length(cumsum(ints_all))] - 99.7
+    ints_all[which(labs != "red")] <- ints_all[which(labs != "red")] - reduce
+
+    # Add gradient colors
+    qtl.colors <- brewer.pal(length(labs[which(labs == "red")]), name = "OrRd")
+    labs[which(labs == "red")][order(as.numeric(data$Pval), decreasing = T)] <- qtl.colors
+    
+    divs <- paste0("display:inline-block; width: ", ints_all ,"% ; background-color: ", labs, ";")
     if(!is.null(input$phenotypes)){
       divs_lst <- list()
       for(i in 1:length(divs)){
         divs_lst[[i]] <- div(id= paste0("belowslider",i), style= divs[i], p())
       }
-      p(divs_lst, "QTLs")
+      p(divs_lst, "QTL")
     }
   })
   
