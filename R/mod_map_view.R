@@ -151,13 +151,18 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     labs <- labs[-length(labs)]
     
     ints_all <- diff(sort(c(ints_all, qtls)))
-
+    
     # Each interval add small blank space to the scale - need to remove
     reduce <- cumsum(ints_all)[length(cumsum(ints_all))] - 99.7
     ints_all[which(labs != "red")] <- ints_all[which(labs != "red")] - reduce
-
+    
     # Add gradient colors
-    qtl.colors <- brewer.pal(length(labs[which(labs == "red")]), name = "OrRd")
+    if(length(labs[which(labs == "red")]) < 3){
+      qtl.colors <- brewer.pal(7, name = "OrRd")[-c(1:5)][1:length(labs[which(labs == "red")])]
+    } else {
+      qtl.colors <- brewer.pal(length(labs[which(labs == "red")]), name = "OrRd")
+    }
+    
     labs[which(labs == "red")][order(as.numeric(data$Pval), decreasing = T)] <- qtl.colors
     
     divs <- paste0("display:inline-block; width: ", ints_all ,"% ; background-color: ", labs, ";")
