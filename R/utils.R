@@ -180,9 +180,9 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #'
 #' @export plot_profile
 #' @import ggplot2
+#' 
+plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TRUE, main = NULL, legend="bottom", ylim = NULL, grid = TRUE, lgs.id = NULL, range.min = NULL, range.max = NULL) {
 
-plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = FALSE, main = NULL, legend="bottom", ylim = NULL, grid = FALSE) {
-  
   lgs.size <- sapply(lgs.info[[2]], function(x) x[length(x)])
   lines <- points <- thre <- map <- data.frame()
   y.dat <- trait.names <- c()
@@ -237,27 +237,41 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = FA
   if(max(lines$SIG[is.finite(lines$SIG)]) < 10) cuty <- 2 else cuty <- 4
   if(length(lgs.info[[1]]) > 10) { addx <- 50; linesize <- 1} else { addx <- 10 ; cutx <- 50; linesize <- 1.25}
   
-  pl <- ggplot(data = lines, aes(x = POS)) +
-    {if(grid) facet_grid(TRT ~ LGS, scales = "free", space = "free", shrink = TRUE) else facet_grid(~ LGS, scales = "free_x", space = "free_x")} +
-    {if(nrow(points) > 0 & sup.int) geom_rect(data=points, aes(xmin = INF, xmax = SUP, ymin = -Inf, ymax = Inf, fill = TRT), alpha = 0.2)} +
-    geom_line(data=lines, aes(y = SIG, color = TRT), size=linesize, alpha=0.8, lineend = "round") +
-    geom_point(data=map, aes(y=0, x=POS), shape="|", alpha=200/dim(map)[1]) +
-    {if(nrow(points) > 0) geom_point(data=points, aes(y = y.dat, color = TRT), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-    scale_x_continuous(breaks=seq(0,max(lgs.size),cutx), expand = expansion(add=addx)) +
-    # {if(!is.null(ylim)) scale_y_continuous(limits = ylim) else scale_y_continuous(limits = c(min(y.dat), 10))} +
+  # Filter group
+  if(!is.null(lgs.id)){
+    lines <- lines[which(lines$LGS %in% lgs.id),]
+    points <- points[which(points$LGS %in% lgs.id),]
+  }
+  
+  lines$INT <- NA
+
+  for(i in 1:dim(points)[1]){
+    lines$INT[which(lines$POS >= points$INF[i] & lines$POS <= points$SUP[i])] <- lines$POS[which(lines$POS >= points$INF[i] & lines$POS <= points$SUP[i])]
+  }
+  
+  # Filter position
+  lines$range <- NA
+  if(!is.null(range.min)){
+    lines$range[which(lines$POS >= range.min & lines$POS <= range.max)] <- lines$SIG[which(lines$POS >= range.min & lines$POS <= range.max)]
+    lines$SIG[which(lines$POS > range.min & lines$POS < range.max)] <- NA
+  }
+  
+  colnames(lines) <- c("Trait", "LG", "Position (cM)", "LOP", "INT", "range")
+  colnames(points)[1:3] <- c("Trait", "LG", "Position (cM)")
+  
+  pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+    {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
+    geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
+    geom_line(data=lines, aes(y = LOP, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
+    {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
     {if(!is.null(ylim)) scale_y_continuous(limits = c(min(y.dat), ylim[2]))} +
-    {if(grid) scale_y_continuous(breaks = seq(0, max(lines$SIG[is.finite(lines$SIG)]), cuty), expand = expansion(add=c(0.5, 0.5)))} +
-    # {if(grid) scale_y_continuous(breaks = seq(0, max(lines$SIG), cuty), expand = c(0.05,0.15))} +
-    # {if((!is.null(ylim) & length(pheno.col) == 1) | (!is.null(ylim) & !grid)) scale_y_continuous(limits = ylim)} +
-    {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=SIG, color=TRT), linetype="dashed", size=.5, alpha=0.8)} + #threshold
+    {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
     guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
-    labs(title=main, y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
-    # {if(!is.null(main)) labs(title=main)} +
-    theme_minimal() +
-    theme(legend.position=legend, plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5),
-          panel.spacing.x = unit(0.01, "lines"), panel.spacing.y = unit(0.05, "lines"), strip.text.y = element_blank(),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-    {if(is.null(legend)) guides(color = FALSE)}
-  print(pl)
+    labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
+    theme_minimal()
+  
+  pl <- ggplotly(pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
+  
+  return(pl)
 }
 

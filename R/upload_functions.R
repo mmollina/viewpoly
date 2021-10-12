@@ -120,8 +120,9 @@ prepare_qtl <- function(remim.mod, data){
   lgs.info <- list()
   lgs.info[[1]] <- data$lgs
   lgs.info[[2]] <- data$lgs.all
+  lgs.info[[3]] <- remim.mod
   
-  result <- list(int_phenos, lgs.info)
+  result <- list(int_phenos, lgs.info, remim.mod)
   return(result)
 }
 

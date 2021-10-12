@@ -51,8 +51,9 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        plotOutput(ns("plot1"), height = "500px"), hr(),
-        JBrowseROutput(ns("browserOutput"))
+        plotOutput(ns("plot_map"), height = "500px"), hr(),
+        JBrowseROutput(ns("browserOutput")),
+        plotlyOutput(ns("plot_qtl")), hr(),
       )
     )
   )
@@ -94,7 +95,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   # Plot map
-  output$plot1 <- renderPlot({
+  output$plot_map <- renderPlot({
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
                    ch = input$group,
@@ -265,6 +266,14 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   # Plot QTL profile
+  output$plot_qtl <- renderPlotly({
+    idx <- which(names(qtls[[3]]$results) %in% input$phenotypes)
+    plot_profile(lgs.info = qtls[[2]], model = qtls[[3]], 
+                 pheno.col = idx, 
+                 lgs.id = input$group,
+                 range.min = input$range[1], 
+                 range.max = input$range[2])
+  })
   
 }
 
