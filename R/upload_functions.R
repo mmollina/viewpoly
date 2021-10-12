@@ -98,8 +98,14 @@ read_mappoly_lst <- function(mappoly_prep){
                       maps = lapply(prep, "[[", 2))
 }
 
-# take all information needed from qtlpoly objects
-prepare_qtl <- function(remim.mod){
+#' take all information needed from qtlpoly objects
+#' 
+#' @param remim.mod object of class "qtlpoly.model" "qtlpoly.remim".
+#' 
+#' @param data object of class "qtlpoly.data"
+#' 
+#' @export
+prepare_qtl <- function(remim.mod, data){
   int_phenos <- data.frame()
   for(i in 1:length(remim.mod$results)){
     lower <- remim.mod$results[[i]]$lower[,1:2]
@@ -110,7 +116,13 @@ prepare_qtl <- function(remim.mod){
     int <- cbind(pheno = names(remim.mod$results)[i], int)
     int_phenos <- rbind(int_phenos, int)
   }
-  return(int_phenos)
+  
+  lgs.info <- list()
+  lgs.info[[1]] <- data$lgs
+  lgs.info[[2]] <- data$lgs.all
+  
+  result <- list(int_phenos, lgs.info)
+  return(result)
 }
 
 prepare_QTLdata <- function(qtlpoly_in = NULL,
@@ -129,6 +141,5 @@ prepare_QTLdata <- function(qtlpoly_in = NULL,
   } else {
     stop("Please choose one of the option in the previous screen.")
   }
-  
 }
 

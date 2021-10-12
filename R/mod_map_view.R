@@ -84,8 +84,8 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                       selected= group_choices[[1]])
     
     # Dynamic QTLs
-    pheno_choices <- as.list(unique(loadQTL()$pheno))
-    names(pheno_choices) <- unique(loadQTL()$pheno)
+    pheno_choices <- as.list(unique(loadQTL()[[1]]$pheno))
+    names(pheno_choices) <- unique(loadQTL()[[1]]$pheno)
     
     updateCheckboxGroupInput(session, "phenotypes",
                              label = "Phenotypes",
@@ -93,7 +93,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                              selected=unlist(pheno_choices)[1])
   })
   
-  
+  # Plot map
   output$plot1 <- renderPlot({
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
@@ -114,9 +114,9 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     })
   })
   
-  
+  # Plot QTL bar
   qtl.int <- reactive({
-    data <- loadQTL() %>% filter(pheno %in% input$phenotypes & LG == input$group)
+    data <- loadQTL()[[1]] %>% filter(pheno %in% input$phenotypes & LG == input$group)
     
     if(dim(data)[1] == 0) stop("No QTL available in this group")
     
@@ -179,7 +179,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     qtl.int()
   })
   
-  
+  # Open server 
   button <- eventReactive(input$create_server, {
     
     if(!is.null(loadJBrowse()$fasta)){
@@ -223,7 +223,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     list(path.fa, path.gff, data_server, mk.pos)
   })
   
-  # link the UI with the browser widget
+  # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
     
     assembly <- assembly(
@@ -231,16 +231,16 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
       bgzip = TRUE
     )
     
-    # create configuration for a JB2 GFF FeatureTrack
+    ## create configuration for a JB2 GFF FeatureTrack
     annotations_track <- track_feature(
       paste0("http://127.0.0.1:5000/", basename(button()[[2]])), 
       assembly
     )
     
-    # create the tracks array to pass to browser
+    ## create the tracks array to pass to browser
     tracks <- tracks(annotations_track)
     
-    # # Select default window
+    ## select default window
     group <- as.numeric(input$group)
     mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
     mk.pos <- filter(button()[[4]], chr == group)
@@ -258,12 +258,14 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     JBrowseR(
       "View",
       assembly = assembly,
-      # pass our tracks here
       tracks = tracks,
-      location = paste0("Chr01:", mks.range.1,"..",mks.range.2),
+      location = paste0("Chr01:", mks.range.1,"..",mks.range.2), ## Update here!
       defaultSession = default_session
     )
   })
+  
+  # Plot QTL profile
+  
 }
 
 ## To be copied in the UI
