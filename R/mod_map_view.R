@@ -53,6 +53,7 @@ mod_map_view_ui <- function(id){
         ),
         plotOutput(ns("plot_map"), height = "500px"), hr(),
         plotlyOutput(ns("plot_qtl")), hr(),
+        tableOutput(ns("text")), hr(),
         JBrowseROutput(ns("browserOutput")),
       )
     )
@@ -65,7 +66,7 @@ mod_map_view_ui <- function(id){
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
-mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
+mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
   ns <- session$ns
   
   #  Trying to fix server issue
@@ -268,13 +269,22 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
     idx <- which(names(qtls[[3]]$results) %in% input$phenotypes)
-    plot_profile(lgs.info = qtls[[2]], model = qtls[[3]], 
-                 pheno.col = idx, 
-                 lgs.id = input$group,
-                 range.min = input$range[1], 
-                 range.max = input$range[2])
+    pl <- plot_profile(lgs.info = qtls[[2]], model = qtls[[3]],
+                       pheno.col = idx,
+                       lgs.id = input$group,
+                       range.min = input$range[1],
+                       range.max = input$range[2])
+    ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
   })
   
+  # Reactive to change page with click
+  s <- reactive({
+    event_data("plotly_click", source = "qtl_profile")
+  })
+  
+  observeEvent(s(), {
+    updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
+  })
 }
 
 ## To be copied in the UI

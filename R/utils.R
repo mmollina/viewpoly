@@ -269,9 +269,7 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
     {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
     guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
     labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
-    theme_minimal() 
-  
-  pl <- ggplotly(pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
+    theme_minimal()
   
   return(pl)
 }

@@ -16,10 +16,11 @@ app_ui <- function(request) {
                         includeMarkdown(system.file("ext", "about.Rmd", package = "viewpoly"))
                         ),
                tabPanel("Upload data", value = "upload",
-                        mod_upload_ui("upload_ui_1")
-                        ),
+                        mod_upload_ui("upload_ui_1")),
                tabPanel("Map", value = "map",
                         mod_map_view_ui("map_view_ui_1")),
+               tabPanel("QTL", value = "qtl",
+                        mod_qtl_view_ui("qtl_view_ui_1")),
                tabPanel("Download infos", value = "download",
                         mod_download_ui("download_ui_1")),
                navbarMenu("More",

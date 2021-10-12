@@ -17,6 +17,14 @@ app_server <- function( input, output, session ) {
              "map_view_ui_1", 
              loadMap = datas$loadMap,
              loadJBrowse = datas$loadJBrowse,
+             loadQTL = datas$loadQTL,
+             parent_session=session)
+  
+  # QTL view
+  callModule(mod_qtl_view_server,
+             "map_qtl_ui_1", 
+             loadMap = datas$loadMap,
+             loadJBrowse = datas$loadJBrowse,
              loadQTL = datas$loadQTL)
   
   # Download
