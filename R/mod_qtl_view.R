@@ -14,7 +14,26 @@ mod_qtl_view_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidPage(
-      "Under development.."
+      verticalLayout(
+        fluidRow(
+          column(width = 12,
+                 div(style = "position:absolute;right:1em;", 
+                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),
+                 )
+          ),
+          tags$h2(tags$b("View QTL")), br(), hr(),
+
+          column(4,
+                 checkboxGroupInput(ns("phenotypes"),
+                                    label = h4("Phenotypes"),
+                                    choices = "This will be updated",
+                                    selected = "This will be updated"), br(),
+          ),
+          column(5,
+                 selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1)
+          )
+        )
+      )
     )
   )
 }

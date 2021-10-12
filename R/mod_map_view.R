@@ -273,7 +273,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                        pheno.col = idx,
                        lgs.id = input$group,
                        range.min = input$range[1],
-                       range.max = input$range[2])
+                       range.max = input$range[2], by_range=T)
     ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
   })
   
