@@ -43,7 +43,7 @@ mod_map_view_ui <- function(id){
           column(5,
                  selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
                  checkboxInput(ns("op"), label = "Show SNP names", value = TRUE), br(), br(), br(),
-                 actionButton(ns("create_server"), "Create local server",icon("refresh"))
+                 actionButton(ns("create_server"), "Open JBrowseR",icon("refresh"))
           ),
         ), hr(),
         wellPanel(
@@ -52,8 +52,8 @@ mod_map_view_ui <- function(id){
           uiOutput(ns("interval"))
         ),
         plotOutput(ns("plot_map"), height = "500px"), hr(),
-        JBrowseROutput(ns("browserOutput")),
         plotlyOutput(ns("plot_qtl")), hr(),
+        JBrowseROutput(ns("browserOutput")),
       )
     )
   )

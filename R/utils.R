@@ -227,7 +227,7 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
     y.lab <- expression(-log[10](italic(P)))
   }
   if(is.null(y.dat)) y.dat <- ylim[1]
-  if(grid) y.dat <- -max(lines$SIG[is.finite(lines$SIG)])/10
+  if(grid) y.dat <- -max(lines$SIG[is.finite(lines$SIG)])/7
   
   for(c in 1:length(lgs.info[[1]])) {
     LGS <- rep(c, length(lgs.info[[2]][[c]]))
@@ -263,12 +263,13 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
     {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
     geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
     geom_line(data=lines, aes(y = LOP, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
+    scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
     {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-    {if(!is.null(ylim)) scale_y_continuous(limits = c(min(y.dat), ylim[2]))} +
+    scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
     {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
     guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
     labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
-    theme_minimal()
+    theme_minimal() 
   
   pl <- ggplotly(pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
   
