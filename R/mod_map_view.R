@@ -6,6 +6,7 @@
 #'
 #' @importFrom shinyjs inlineCSS
 #' @importFrom RColorBrewer brewer.pal
+#' @import plotly
 #' 
 #' @noRd 
 #'
@@ -51,8 +52,8 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        plotOutput(ns("plot_map"), height = "500px"), hr(),
         plotlyOutput(ns("plot_qtl")), hr(),
+        plotOutput(ns("plot_map"), height = "500px"), hr(),
         tableOutput(ns("text")), hr(),
         JBrowseROutput(ns("browserOutput")),
       )
@@ -268,8 +269,8 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
-    idx <- which(names(qtls[[3]]$results) %in% input$phenotypes)
-    pl <- plot_profile(lgs.info = qtls[[2]], model = qtls[[3]],
+    idx <- which(names(loadQTL()[[3]]$results) %in% input$phenotypes)
+    pl <- plot_profile(lgs.info = loadQTL()[[2]], model = loadQTL()[[3]],
                        pheno.col = idx,
                        lgs.id = input$group,
                        range.min = input$range[1],
