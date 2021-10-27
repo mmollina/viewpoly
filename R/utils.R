@@ -183,8 +183,8 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' 
 plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TRUE, 
                          main = NULL, legend="bottom", ylim = NULL, grid = TRUE, 
-                         lgs.id = NULL, range.min = NULL, range.max = NULL, by_range = TRUE) {
-
+                         lgs.id = NULL, range.min = NULL, range.max = NULL, by_range = TRUE, plot=TRUE) {
+  
   lgs.size <- sapply(lgs.info[[2]], function(x) x[length(x)])
   lines <- points <- thre <- map <- data.frame()
   y.dat <- trait.names <- c()
@@ -246,9 +246,9 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
   }
   
   lines$INT <- NA
-
+  
   for(i in 1:dim(points)[1]){
-    lines$INT[which(lines$POS >= points$INF[i] & lines$POS <= points$SUP[i])] <- lines$POS[which(lines$POS >= points$INF[i] & lines$POS <= points$SUP[i])]
+    lines$INT[which(lines$POS >= points$INF[i] & lines$POS <= points$SUP[i] & lines$LGS == points$LGS[i])] <- lines$POS[which(lines$POS >= points$INF[i] & lines$POS <= points$SUP[i] & lines$LGS == points$LGS[i])]
   }
   
   # Filter position
@@ -260,31 +260,111 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
   
   colnames(lines) <- c("Trait", "LG", "Position (cM)", "LOP", "INT", "range")
   colnames(points)[1:3] <- c("Trait", "LG", "Position (cM)")
+  points <- cbind(points, y.dat)
   
-  if(by_range){
-  pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
-    {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
-    geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
-    geom_line(data=lines, aes(y = LOP, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
-    scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-    {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-    scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
-    {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
-    guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
-    labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
-    theme_minimal()
+  if(plot){
+    if(by_range){
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+        {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
+        geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
+        geom_line(data=lines, aes(y = LOP, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
+        scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
+        {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+        scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+        {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
+        guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
+        labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
+        theme_classic()
+    } else {
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+        facet_grid(.~LG, space = "free") +
+        {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
+        geom_line(data=lines, aes(y = LOP, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
+        scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
+        {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+        scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+        {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
+        guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
+        labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
+        theme_classic()
+    }
   } else {
+    pl <- list(lines, points, thre, sup.int, linesize, lgs.size, cutx, main, y.dat)
+  }
+  return(pl)
+}
+
+#' Only the plot part of plot_profile function
+#' 
+only_plot_profile <- function(lines, points, thre,sup.int, linesize, lgs.size, cutx, main, y.dat,by_range=FALSE){
+  if(by_range){
     pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
       {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
-      geom_line(data=lines, aes(y = LOP, color = Trait), size=linesize, alpha=0.8, lineend = "round") +
+      geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
+      geom_line(data=lines, aes(y = LOP, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
       scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
       {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
       scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
       {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
       guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
       labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
-      theme_minimal()
+      theme_classic()
+  } else {
+    pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+      facet_grid(.~LG, space = "free") +
+      {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
+      geom_line(data=lines, aes(y = LOP, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
+      scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
+      {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+      scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+      {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
+      guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
+      labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
+      theme_classic()
   }
   return(pl)
 }
 
+#' Adapted function from QTLpoly
+#' 
+plot_qtlpoly.effects <- function(x, pheno.col = NULL, p1 = "P1", p2 = "P2", df.info=NULL, lgs = NULL, position = NULL) {
+  if(is.null(pheno.col)) {
+    pheno.col <- 1:length(x$results)
+  } else {
+    pheno.col <- which(x$pheno.col %in% pheno.col)
+  }
+
+  df.info.sub <- df.info %>% filter(pheno %in% unique(df.info$pheno)[pheno.col])
+  group.idx <- which(df.info.sub$Pos %in% position & df.info.sub$LG %in% lgs)
+  
+  plots2 <- list()
+  for(p in pheno.col) {
+    nqtl <- length(x$results[[p]]$effects[group.idx])
+    if(nqtl > 0) {
+      plots1 <- list()
+      for(q in group.idx) {
+        if(x$ploidy == 4) {
+          data <- unlist(x$results[[p]]$effects[[q]])[1:36]
+          data <- data.frame(Estimates=as.numeric(data), Alleles=names(data), Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+          data <- data[-c(12:15,18:21,23:30),]
+        }
+        if(x$ploidy == 6) {
+          data <- unlist(x$results[[p]]$effects[[q]])[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763)]
+          data <- data.frame(Estimates=as.numeric(data), Alleles=names(data), Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
+        }
+        data$Parent <- factor(data$Parent, levels=unique(data$Parent))
+        plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
+          geom_bar(stat="identity") +
+          scale_fill_gradient2(low = "red", high = "blue", guide = "none") +
+          labs(title=names(x$results)[p], subtitle=paste("QTL", q, "\n")) +
+          facet_wrap(. ~ Parent, scales="free_x", ncol = 2, strip.position="bottom") +
+          # facet_grid(Effects ~ Parent, scales="free_x", space="free_x") +
+          theme_minimal() +
+          theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
+        plots1[[q]] <- plot
+      }
+      plots2[[p]] <- plots1
+    }
+  }
+  return(plots2)
+}

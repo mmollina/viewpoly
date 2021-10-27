@@ -105,7 +105,7 @@ read_mappoly_lst <- function(mappoly_prep){
 #' @param data object of class "qtlpoly.data"
 #' 
 #' @export
-prepare_qtl <- function(remim.mod, data){
+prepare_qtl <- function(remim.mod, data, est.effects){
   int_phenos <- data.frame()
   for(i in 1:length(remim.mod$results)){
     lower <- remim.mod$results[[i]]$lower[,1:2]
@@ -121,6 +121,7 @@ prepare_qtl <- function(remim.mod, data){
   lgs.info[[1]] <- data$lgs
   lgs.info[[2]] <- data$lgs.all
   lgs.info[[3]] <- remim.mod
+  lgs.info[[4]] <- est.effects
   
   result <- list(int_phenos, lgs.info, remim.mod)
   return(result)
@@ -137,7 +138,7 @@ prepare_QTLdata <- function(qtlpoly_in = NULL,
     temp <- load(system.file("ext", "qtl_in.rda", package = "viewpoly"))
     qtls <- get(temp)
   } else if(!(is.null(p_values) | is.null(intervals) | is.null(qtls))){
-    qtls <- read_custom_files(dosages, phases, genetic_map) 
+    qtls <- read_custom_files(dosages, phases, genetic_map) # update here
     return(qtls)
   } else {
     stop("Please choose one of the option in the previous screen.")
