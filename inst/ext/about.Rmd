@@ -3,6 +3,27 @@ title: "About"
 output: html_document
 ---
 
-R package to visualize genetic maps and QTL analysis.
+`ViewPoly` is a R package for visualizing and exploring results from polyploid computational tools using an interactive graphical user interface. The package allows users to directly upload output files from polyploid tool, (polymapR, MAPpoly, PolyOrigin, polyqtlR, QTLpoly) and genomic assembly and annotation files. ViewPoly uses Shiny, Plotly, and JBrowseR libraries to graphically display the SNP dosages in parentals and offspring, and their respective haplotypes in the genetic map. It also shows the results of QTL analysis, including confidence intervals, estimated effects, and their corresponding genomic positions, which can be interactively explored with a genome browser, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables for further analysis and presentation.
 
-Place to cite papers and projects.
+### Quick Start
+
+You can run `ViewPoly` locally installing the package and accessing the graphical interface through a web browser:
+
+```{r}
+devtools::install_github("mmollina/viewpoly")
+viewpoly::run_app()
+```
+
+The `Upload` tab has options for diverse types of inputs. You can upload directly outputs from:
+
+* MAPpoly
+* QTLpoly
+
+To associate the genetic maps and QTLs with genomic information, it is also required:
+
+* FASTA reference genome
+* GFF3 annotation file
+
+### Overview of features
+
+<div><img src="features_overview.png" alt="alt" style="width:500px;height:570px;"></div>
