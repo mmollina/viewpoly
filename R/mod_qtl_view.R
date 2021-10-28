@@ -6,6 +6,8 @@
 #'
 #' @importFrom shinyjs inlineCSS
 #' @importFrom RColorBrewer brewer.pal
+#' @import ggpubr
+#' @import shinydashboard
 #' 
 #' @noRd 
 #'
@@ -22,19 +24,25 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           tags$h2(tags$b("View QTL")), br(), hr(),
-          
-          column(4,
-                 checkboxGroupInput(ns("phenotypes"),
-                                    label = h4("Phenotypes"),
-                                    choices = "This will be updated",
-                                    selected = "This will be updated"), br(),
-                 
-          ),
-          column(5,
-                 checkboxGroupInput(ns("group"),
-                                    label = h4("Linkage group"),
-                                    choices = "This will be updated",
-                                    selected = "This will be updated"), br(),
+          column(6,
+                 column(6,
+                        box(width = 6, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, status="primary", title = h4("Linkage group"),
+                            checkboxGroupInput(ns("group"),
+                                               label = h6("Select linkage groups"),
+                                               choices = "This will be updated",
+                                               selected = "This will be updated"), 
+                            actionLink(ns("selectall1"),"Select all groups"), br(),
+                        )
+                 ),
+                 column(6,
+                        box(width = 6, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
+                            checkboxGroupInput(ns("phenotypes"),
+                                               label = h6("Select phenotypes"),
+                                               choices = "This will be updated",
+                                               selected = "This will be updated"), 
+                            actionLink(ns("selectall2"),"Select all phenotypes"), br(),
+                        )
+                 )
           ),
           column(12,
                  plotOutput(ns("plot_qtl"), 
@@ -63,19 +71,40 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     group_choices <- as.list(1:length(loadMap()$dp))
     names(group_choices) <- 1:length(loadMap()$dp)
     
-    updateCheckboxGroupInput(session, "group",
-                             label="Linkage group",
-                             choices = group_choices,
-                             selected= group_choices[[1]])
+    
+    if (input$selectall1%%2 == 0)
+    {
+      updateCheckboxGroupInput(session, "group",
+                               label="Select linkage groups",
+                               choices = group_choices,
+                               selected= group_choices[[1]])
+    }
+    else
+    {
+      updateCheckboxGroupInput(session, "group",
+                               label="Select linkage groups",
+                               choices = group_choices,
+                               selected= unlist(group_choices))
+    }
     
     # Dynamic QTLs
     pheno_choices <- as.list(unique(loadQTL()[[1]]$pheno))
     names(pheno_choices) <- unique(loadQTL()[[1]]$pheno)
     
-    updateCheckboxGroupInput(session, "phenotypes",
-                             label = "Phenotypes",
-                             choices = pheno_choices,
-                             selected=unlist(pheno_choices)[1])
+    if (input$selectall2%%2 == 0)
+    {
+      updateCheckboxGroupInput(session, "phenotypes",
+                               label = "Select phenotypes",
+                               choices = pheno_choices,
+                               selected=unlist(pheno_choices)[1])
+    }
+    else
+    {
+      updateCheckboxGroupInput(session, "phenotypes",
+                               label = "Select phenotypes",
+                               choices = pheno_choices,
+                               selected=unlist(pheno_choices))
+    }
   })
   
   qtl.data <- reactive({

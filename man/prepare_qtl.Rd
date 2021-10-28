@@ -4,7 +4,7 @@
 \alias{prepare_qtl}
 \title{take all information needed from qtlpoly objects}
 \usage{
-prepare_qtl(remim.mod, data)
+prepare_qtl(remim.mod, data, est.effects)
 }
 \arguments{
 \item{remim.mod}{object of class "qtlpoly.model" "qtlpoly.remim".}

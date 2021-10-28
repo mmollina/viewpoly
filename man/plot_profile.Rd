@@ -16,7 +16,8 @@ plot_profile(
   lgs.id = NULL,
   range.min = NULL,
   range.max = NULL,
-  by_range = TRUE
+  by_range = TRUE,
+  plot = TRUE
 )
 }
 \arguments{
