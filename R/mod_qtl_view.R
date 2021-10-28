@@ -71,7 +71,6 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     group_choices <- as.list(1:length(loadMap()$dp))
     names(group_choices) <- 1:length(loadMap()$dp)
     
-    
     if (input$selectall1%%2 == 0)
     {
       updateCheckboxGroupInput(session, "group",
@@ -115,17 +114,8 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     pl
   })
   
-  
   output$plot_qtl <- renderPlot({
-    only_plot_profile(qtl.data()[[1]], 
-                      qtl.data()[[2]], 
-                      qtl.data()[[3]], 
-                      qtl.data()[[4]], 
-                      qtl.data()[[5]], 
-                      qtl.data()[[6]],
-                      qtl.data()[[7]],
-                      qtl.data()[[8]],
-                      qtl.data()[[9]])
+    only_plot_profile(qtl.data())
   })
   
   output$info <- renderTable({

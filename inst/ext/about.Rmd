@@ -23,3 +23,7 @@ To associate the genetic maps and QTLs with genomic information, it is also requ
 
 * FASTA reference genome
 * GFF3 annotation file
+
+### Overview of features
+
+<div><img src="features_overview.png" alt="alt" style="width:500px;height:570px;"></div>

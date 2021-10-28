@@ -289,37 +289,40 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
         theme_classic()
     }
   } else {
-    pl <- list(lines, points, thre, sup.int, linesize, lgs.size, cutx, main, y.dat)
+    pl <- list(lines = lines, points =points, thre =thre, 
+               sup.int = sup.int, linesize = linesize, 
+               lgs.size = lgs.size, cutx = cutx, 
+               main = main, y.dat =y.dat)
   }
   return(pl)
 }
 
 #' Only the plot part of plot_profile function
 #' 
-only_plot_profile <- function(lines, points, thre,sup.int, linesize, lgs.size, cutx, main, y.dat,by_range=FALSE){
+only_plot_profile <- function(pl.in, by_range=FALSE){
   if(by_range){
-    pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
-      {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
-      geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
-      geom_line(data=lines, aes(y = LOP, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
-      scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-      {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-      scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
-      {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
+    pl <- ggplot(data = pl.in$lines, aes(x = `Position (cM)`, color = Trait)) +
+      {if(!all(is.na(pl.in$lines$INT)) & pl.in$sup.int) geom_path(data=pl.in$lines, aes(x = INT, y =pl.in$y.dat), colour = "black")} +
+      geom_line(data=pl.in$lines, aes(y = range, color = Trait), size=pl.in$pl.in$linesize, alpha=0.8, lineend = "round", show.legend = F) +
+      geom_line(data=pl.in$lines, aes(y = LOP, shape = Trait),  colour = "gray", size=pl.in$pl.in$linesize, alpha=0.8, lineend = "round") +
+      scale_x_continuous(breaks=seq(0,max(pl.in$lgs.size),pl.in$cutx)) +
+      {if(!all(is.na(pl.in$lines$INT))) geom_point(data=pl.in$points, aes(y = pl.in$y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+      scale_y_continuous(breaks=seq(0,max(pl.in$lgs.size, na.rm = T))) +
+      {if(nrow(pl.in$thre) > 0) geom_hline(data=pl.in$thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
       guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
-      labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
+      labs(title=pl.in$main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
       theme_classic()
   } else {
-    pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+    pl <- ggplot(data = pl.in$lines, aes(x = `Position (cM)`, color = Trait)) +
       facet_grid(.~LG, space = "free") +
-      {if(!all(is.na(lines$INT)) & sup.int) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
-      geom_line(data=lines, aes(y = LOP, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
-      scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-      {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-      scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
-      {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
+      {if(!all(is.na(pl.in$lines$INT)) & pl.in$sup.int) geom_path(data=pl.in$lines, aes(x = INT, y =pl.in$y.dat), colour = "black")} +
+      geom_line(data=pl.in$lines, aes(y = LOP, color = Trait), size=pl.in$pl.in$linesize, alpha=0.8, lineend = "round", show.legend = F) +
+      scale_x_continuous(breaks=seq(0,max(pl.in$lgs.size),pl.in$cutx)) +
+      {if(!all(is.na(pl.in$lines$INT))) geom_point(data=pl.in$points, aes(y = pl.in$y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+      scale_y_continuous(breaks=seq(0,max(pl.in$lgs.size, na.rm = T))) +
+      {if(nrow(pl.in$thre) > 0) geom_hline(data=pl.in$thre, aes(yintercept=LOP, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
       guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
-      labs(title=main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
+      labs(title=pl.in$main, y = "LOP", x = "Position (cM)", subtitle="Linkage group") +
       theme_classic()
   }
   return(pl)
