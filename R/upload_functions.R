@@ -111,8 +111,8 @@ prepare_qtl <- function(remim.mod, data, est.effects){
     lower <- remim.mod$results[[i]]$lower[,1:2]
     upper <- remim.mod$results[[i]]$upper[,1:2]
     qtl <- remim.mod$results[[i]]$qtls[,c(1,2,6)]
-    int <- merge(lower, upper)
-    int <- merge(int, qtl)
+    int <- cbind(LG = lower$LG, Pos_lower = lower$Pos_lower, 
+                 Pos_upper = upper$Pos_upper, qtl[,2:3])
     int <- cbind(pheno = names(remim.mod$results)[i], int)
     int_phenos <- rbind(int_phenos, int)
   }

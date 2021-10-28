@@ -115,7 +115,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   output$plot_qtl <- renderPlot({
-    only_plot_profile(qtl.data())
+    only_plot_profile(pl.in = qtl.data())
   })
   
   output$info <- renderTable({
@@ -129,7 +129,9 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     plots <- plot_qtlpoly.effects(x = loadQTL()[[4]], 
                                   pheno.col = which(unique(loadQTL()[[1]]$pheno) %in% as.character(df$Trait)), 
                                   df.info = loadQTL()[[1]], lgs = df$LG, position = df$`Position (cM)`)
-    ggarrange(plotlist = unlist(plots, recursive = F), ncol = 4)
+
+    rows <- ceiling(length(plots)/4)
+    ggarrange(plotlist = plots, ncol = 4, nrow = rows)
   })
 }
 

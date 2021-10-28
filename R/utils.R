@@ -316,7 +316,7 @@ only_plot_profile <- function(pl.in, by_range=FALSE){
     pl <- ggplot(data = pl.in$lines, aes(x = `Position (cM)`, color = Trait)) +
       facet_grid(.~LG, space = "free") +
       {if(!all(is.na(pl.in$lines$INT)) & pl.in$sup.int) geom_path(data=pl.in$lines, aes(x = INT, y =pl.in$y.dat), colour = "black")} +
-      geom_line(data=pl.in$lines, aes(y = LOP, color = Trait), size=pl.in$pl.in$linesize, alpha=0.8, lineend = "round", show.legend = F) +
+      geom_line(data=pl.in$lines, aes(y = LOP, color = Trait), size=pl.in$linesize, alpha=0.8, lineend = "round", show.legend = F) +
       scale_x_continuous(breaks=seq(0,max(pl.in$lgs.size),pl.in$cutx)) +
       {if(!all(is.na(pl.in$lines$INT))) geom_point(data=pl.in$points, aes(y = pl.in$y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
       scale_y_continuous(breaks=seq(0,max(pl.in$lgs.size, na.rm = T))) +
@@ -337,15 +337,28 @@ plot_qtlpoly.effects <- function(x, pheno.col = NULL, p1 = "P1", p2 = "P2", df.i
     pheno.col <- which(x$pheno.col %in% pheno.col)
   }
 
-  df.info.sub <- df.info %>% filter(pheno %in% unique(df.info$pheno)[pheno.col])
-  group.idx <- which(df.info.sub$Pos %in% position & df.info.sub$LG %in% lgs)
+  df.info.sub <- df.info %>% filter(pheno %in% unique(df.info$pheno)[pheno.col]) %>%
+    filter(Pos %in% position) %>% filter(LG %in% lgs)
+  
+  total <- split(df.info, df.info$pheno)
+  total <- lapply(total, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
+  total <- total[match(names(x$results), names(total))]
+    
+  sub <- split(df.info.sub, df.info.sub$pheno)
+  sub <- lapply(sub, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
+  
+  group.idx <- list()
+  for(i in 1:length(pheno.col)){
+    idx <- match(names(sub)[i], names(total))
+    group.idx[[idx]] <- match(sub[[i]], total[[idx]])
+  }
   
   plots2 <- list()
   for(p in pheno.col) {
-    nqtl <- length(x$results[[p]]$effects[group.idx])
+    nqtl <- length(x$results[[p]]$effects[group.idx[[p]]])
     if(nqtl > 0) {
       plots1 <- list()
-      for(q in group.idx) {
+      for(q in group.idx[[p]]) {
         if(x$ploidy == 4) {
           data <- unlist(x$results[[p]]$effects[[q]])[1:36]
           data <- data.frame(Estimates=as.numeric(data), Alleles=names(data), Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
@@ -369,5 +382,8 @@ plot_qtlpoly.effects <- function(x, pheno.col = NULL, p1 = "P1", p2 = "P2", df.i
       plots2[[p]] <- plots1
     }
   }
-  return(plots2)
+  p.t <- unlist(plots2, recursive = F)
+  nulls <- which(sapply(p.t, is.null))
+  p.t <- p.t[-nulls]
+  return(p.t)
 }

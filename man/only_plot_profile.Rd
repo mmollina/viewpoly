@@ -4,18 +4,7 @@
 \alias{only_plot_profile}
 \title{Only the plot part of plot_profile function}
 \usage{
-only_plot_profile(
-  lines,
-  points,
-  thre,
-  sup.int,
-  linesize,
-  lgs.size,
-  cutx,
-  main,
-  y.dat,
-  by_range = FALSE
-)
+only_plot_profile(pl.in, by_range = FALSE)
 }
 \description{
 Only the plot part of plot_profile function
