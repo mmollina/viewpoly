@@ -178,9 +178,8 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' @references
 #'     Pereira GS, Gemenet DC, Mollinari M, Olukolu BA, Wood JC, Mosquera V, Gruneberg WJ, Khan A, Buell CR, Yencho GC, Zeng ZB (2020) Multiple QTL mapping in autopolyploids: a random-effect model approach with application in a hexaploid sweetpotato full-sib population, \emph{Genetics} 215 (3): 579-595. \url{http://doi.org/10.1534/genetics.120.303080}.
 #'
-#' @export plot_profile
 #' @import ggplot2
-#' 
+#' @export 
 plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TRUE, 
                          main = NULL, legend="bottom", ylim = NULL, grid = TRUE, 
                          lgs.id = NULL, range.min = NULL, range.max = NULL, by_range = TRUE, plot=TRUE) {
@@ -209,7 +208,8 @@ plot_profile <- function(lgs.info, model = model, pheno.col = NULL, sup.int = TR
       POS <- model$results[[t]]$qtls[,"Pos"]
       INF <- model$results[[t]]$lower[,"Pos_lower"]
       SUP <- model$results[[t]]$upper[,"Pos_upper"]
-      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP))
+      PVAL <- model$results[[t]]$qtls[,"Pval"]
+      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL))
       count <- count+1
       y.dat <- c(y.dat, rep((-0.3*count), nqtls))
     }

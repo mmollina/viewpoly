@@ -3,6 +3,7 @@
 export(plot_profile)
 export(prepare_qtl)
 export(run_app)
+import(DT)
 import(JBrowseR)
 import(dplyr)
 import(ggplot2)

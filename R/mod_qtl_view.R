@@ -8,6 +8,7 @@
 #' @importFrom RColorBrewer brewer.pal
 #' @import ggpubr
 #' @import shinydashboard
+#' @import DT
 #' 
 #' @noRd 
 #'
@@ -45,10 +46,17 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           column(12,
-                 plotOutput(ns("plot_qtl"), 
-                            click=ns("plot_click"), brush = ns("plot_brush")),
-                 uiOutput(ns("plot.ui")),
-                 tableOutput(ns("info"))
+                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("LOD curve"),
+                     plotOutput(ns("plot_qtl"), 
+                                click=ns("plot_click"), brush = ns("plot_brush")),
+                     
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
+                         uiOutput(ns("plot.ui"))
+                     ), br(),
+                     box(width = 6, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Info table"),
+                         DT::dataTableOutput(ns("info"))
+                     )
+                 )
           )
         )
       )
@@ -60,6 +68,7 @@ mod_qtl_view_ui <- function(id){
 #'
 #' @import JBrowseR
 #' @import ggpubr
+#' @import DT
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
@@ -86,7 +95,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                                selected= unlist(group_choices))
     }
     
-    # Dynamic QTLs
+    # Dynamic QTL
     pheno_choices <- as.list(unique(loadQTL()[[1]]$pheno))
     names(pheno_choices) <- unique(loadQTL()[[1]]$pheno)
     
@@ -124,7 +133,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     } else if(!is.null(input$plot_click)){
       df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
     } else {
-      stop("Select a point or region on graphic.") 
+      stop("Select a point or region on LOD profile graphic.") 
     }
     
     plots <- plot_qtlpoly.effects(x = loadQTL()[[4]], 
@@ -133,7 +142,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     
     rows <- ceiling(length(plots)/4)
     if(rows == 0) rows <- 1
-
+    
     ggarrange(plotlist = plots, ncol = 4, nrow = rows)
   })
   
@@ -143,7 +152,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     } else if(!is.null(input$plot_click)){
       dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
     } else {
-      stop("Select a point or region on graphic.")
+      stop("Select a point or region on LOD profile graphic.")
     }
     counts <- nrow(dframe)
     counts <- ceiling(counts/4)
@@ -151,17 +160,30 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     size <- counts*350
     size
   })
-
+  
   output$plot.ui <- renderUI({
     plotOutput(ns("effects"), height = plotHeight())
   })
   
-  output$info <- renderTable({
-    req(input$plot_brush)
-    brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+  output$info <- DT::renderDataTable({
+    if(!is.null(input$plot_brush)){
+      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+    } else if(!is.null(input$plot_click)){
+      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+    } else {
+      stop("Select a point or region on graphic.")
+    }
+    dframe <- dframe[,-dim(dframe)[2]]
+    colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Inferior interval", "Superior interval", "p-value")
+    DT::datatable(dframe, extensions = 'Buttons',
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf')
+                  ),
+                  class = "display")
   })
 }
-
+# 
 # position = c(146.02,146.02,147.31,147.31,144.38,150.05,153.82,158.13)
 # lgs = 12.00
 # pheno.col <- which(unique(loadQTL()[[1]]$pheno) %in% c("Starch", "Sucrose", "Bcar", "Bcar0", "Protein", "DM", "Maltose", "Ca"))
