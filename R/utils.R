@@ -314,7 +314,7 @@ only_plot_profile <- function(pl.in, by_range=FALSE){
       theme_classic()
   } else {
     pl <- ggplot(data = pl.in$lines, aes(x = `Position (cM)`, color = Trait)) +
-      facet_grid(.~LG, space = "free") +
+      facet_grid(.~LG, scales = "free" ,space = "free") +
       {if(!all(is.na(pl.in$lines$INT)) & pl.in$sup.int) geom_path(data=pl.in$lines, aes(x = INT, y =pl.in$y.dat), colour = "black")} +
       geom_line(data=pl.in$lines, aes(y = LOP, color = Trait), size=pl.in$linesize, alpha=0.8, lineend = "round", show.legend = F) +
       scale_x_continuous(breaks=seq(0,max(pl.in$lgs.size),pl.in$cutx)) +
@@ -384,6 +384,6 @@ plot_qtlpoly.effects <- function(x, pheno.col = NULL, p1 = "P1", p2 = "P2", df.i
   }
   p.t <- unlist(plots2, recursive = F)
   nulls <- which(sapply(p.t, is.null))
-  p.t <- p.t[-nulls]
+  if(length(nulls) > 0)  p.t <- p.t[-nulls]
   return(p.t)
 }

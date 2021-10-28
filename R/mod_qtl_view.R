@@ -46,9 +46,9 @@ mod_qtl_view_ui <- function(id){
           ),
           column(12,
                  plotOutput(ns("plot_qtl"), 
-                            click=ns("plot_click")),
-                 tableOutput(ns("info")),
-                 plotOutput(ns("effects"),  width = "100%")
+                            click=ns("plot_click"), brush = ns("plot_brush")),
+                 uiOutput(ns("plot.ui")),
+                 tableOutput(ns("info"))
           )
         )
       )
@@ -118,22 +118,53 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     only_plot_profile(pl.in = qtl.data())
   })
   
-  output$info <- renderTable({
-    req(input$plot_click)
-    nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
-  })
-  
   output$effects <- renderPlot({
-    req(input$plot_click)
-    df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+    if(!is.null(input$plot_brush)){
+      df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+    } else if(!is.null(input$plot_click)){
+      df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+    } else {
+      stop("Select a point or region on graphic.") 
+    }
+    
     plots <- plot_qtlpoly.effects(x = loadQTL()[[4]], 
                                   pheno.col = which(unique(loadQTL()[[1]]$pheno) %in% as.character(df$Trait)), 
                                   df.info = loadQTL()[[1]], lgs = df$LG, position = df$`Position (cM)`)
-
+    
     rows <- ceiling(length(plots)/4)
+    if(rows == 0) rows <- 1
+
     ggarrange(plotlist = plots, ncol = 4, nrow = rows)
   })
+  
+  plotHeight <- reactive({
+    if(!is.null(input$plot_brush)){
+      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+    } else if(!is.null(input$plot_click)){
+      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+    } else {
+      stop("Select a point or region on graphic.")
+    }
+    counts <- nrow(dframe)
+    counts <- ceiling(counts/4)
+    if(counts == 0) counts <- 1
+    size <- counts*350
+    size
+  })
+
+  output$plot.ui <- renderUI({
+    plotOutput(ns("effects"), height = plotHeight())
+  })
+  
+  output$info <- renderTable({
+    req(input$plot_brush)
+    brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+  })
 }
+
+# position = c(146.02,146.02,147.31,147.31,144.38,150.05,153.82,158.13)
+# lgs = 12.00
+# pheno.col <- which(unique(loadQTL()[[1]]$pheno) %in% c("Starch", "Sucrose", "Bcar", "Bcar0", "Protein", "DM", "Maltose", "Ca"))
 
 ## To be copied in the UI
 # mod_qtl_view_ui("qtl_view_ui_1")
