@@ -12,6 +12,20 @@ app_server <- function( input, output, session ) {
   ## Start modules
   datas <- callModule(mod_upload_server,"upload_ui_1", parent_session=session)
   
+  # QTL view
+  callModule(mod_qtl_view_server,
+             "qtl_view_ui_1", 
+             loadMap = datas$loadMap,
+             loadJBrowse = datas$loadJBrowse,
+             loadQTL = datas$loadQTL)
+  
+  # Genes view
+  callModule(mod_genes_view_server,
+             "genes_view_ui_1", 
+             loadMap = datas$loadMap,
+             loadJBrowse = datas$loadJBrowse,
+             loadQTL = datas$loadQTL)
+  
   # Map view
   callModule(mod_map_view_server,
              "map_view_ui_1", 
@@ -19,13 +33,6 @@ app_server <- function( input, output, session ) {
              loadJBrowse = datas$loadJBrowse,
              loadQTL = datas$loadQTL,
              parent_session=session)
-  
-  # QTL view
-  callModule(mod_qtl_view_server,
-             "qtl_view_ui_1", 
-             loadMap = datas$loadMap,
-             loadJBrowse = datas$loadJBrowse,
-             loadQTL = datas$loadQTL)
   
   # Download
   callModule(mod_download_server,

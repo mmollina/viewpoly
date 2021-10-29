@@ -100,8 +100,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="242.80438"
-     inkscape:cy="397.18394"
+     inkscape:cx="46.329709"
+     inkscape:cy="437.59004"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1-7"
      showgrid="false"
@@ -118,7 +118,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -133,18 +133,20 @@
       <rect
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
-         ry="10.983412"
+         ry="8.9956703"
          y="19.174742"
          x="0.66959053"
-         height="230.3835"
+         height="188.68945"
          width="213.27826"
          id="rect3273"
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26783374;stroke-miterlimit:4;stroke-dasharray:0.26783372, 1.07133491;stroke-dashoffset:0" />
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.24238928;stroke-miterlimit:4;stroke-dasharray:0.24238926, 0.96955708;stroke-dashoffset:0"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png" />
       <g
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          transform="translate(0.40090429,0.03357709)"
-         id="g974">
+         id="g974"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <rect
            style="fill:#6c81c0;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332"
            id="rect892"
@@ -169,7 +171,8 @@
          id="g1044"
          transform="translate(0,0.50447502)"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003">
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <path
            inkscape:connector-curvature="0"
            id="path3188"
@@ -188,7 +191,8 @@
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          transform="translate(0.40090429,6.6066866)"
-         id="g979">
+         id="g979"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <rect
            style="fill:#6c81c0;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332"
            id="rect892-8"
@@ -213,7 +217,8 @@
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          transform="translate(0.40090429,20.796971)"
-         id="g984">
+         id="g984"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <rect
            style="fill:#6c81c0;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332"
            id="rect892-6"
@@ -238,7 +243,8 @@
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          transform="translate(0.40090429,37.659975)"
-         id="g989">
+         id="g989"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <rect
            style="fill:#6c81c0;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332"
            id="rect892-0"
@@ -259,59 +265,30 @@
              y="145.83553"
              style="fill:#21284c;fill-opacity:1;stroke-width:0.26458332">Map</tspan></text>
       </g>
-      <g
-         inkscape:export-ydpi="95.800003"
-         inkscape:export-xdpi="95.800003"
-         transform="translate(0.40090429,52.652097)"
-         id="g994">
-        <rect
-           style="fill:#6c81c0;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332"
-           id="rect892-84"
-           width="67.619186"
-           height="22.717911"
-           x="5.412209"
-           y="161.89525"
-           ry="10.958051" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#21284c;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-           x="13.055442"
-           y="177.19453"
-           id="text918-90"><tspan
-             sodipodi:role="line"
-             id="tspan916-20"
-             x="13.055442"
-             y="177.19453"
-             style="fill:#21284c;fill-opacity:1;stroke-width:0.26458332">Download</tspan></text>
-      </g>
       <path
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          inkscape:connector-curvature="0"
          id="path1018"
          d="M 39.622707,58.992042 V 74.760944"
-         style="fill:none;stroke:#000000;stroke-width:0.86500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)" />
+         style="fill:none;stroke:#000000;stroke-width:0.86500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png" />
       <path
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          style="fill:none;stroke:#000000;stroke-width:0.86500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker1452)"
          d="m 39.622707,104.18557 v 15.76899"
          id="path1448"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png" />
       <path
          inkscape:export-ydpi="95.800003"
          inkscape:export-xdpi="95.800003"
          inkscape:connector-curvature="0"
          id="path1994"
          d="m 39.622707,149.37913 v 15.76899"
-         style="fill:none;stroke:#000000;stroke-width:0.86500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker1998)" />
-      <path
-         inkscape:export-ydpi="95.800003"
-         inkscape:export-xdpi="95.800003"
-         style="fill:none;stroke:#000000;stroke-width:0.86500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker2598)"
-         d="m 39.622707,194.5727 v 15.76899"
-         id="path2594"
-         inkscape:connector-curvature="0" />
+         style="fill:none;stroke:#000000;stroke-width:0.86500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker1998)"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png" />
       <text
          id="text884"
          y="37.922058"
@@ -319,7 +296,8 @@
          style="font-style:normal;font-weight:normal;font-size:5.7322135px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14330533"
          xml:space="preserve"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003"><tspan
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png"><tspan
            style="font-size:5.64444447px;stroke-width:0.14330533"
            y="37.922058"
            x="83.927765"
@@ -344,7 +322,8 @@
          transform="translate(-7.9375004,3.3833037)"
          id="g1016"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003">
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <text
            xml:space="preserve"
            style="font-style:normal;font-weight:normal;font-size:5.03099489px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12577486"
@@ -387,7 +366,8 @@
          style="font-style:normal;font-weight:normal;font-size:5.90809107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.14770228"
          xml:space="preserve"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003"><tspan
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png"><tspan
            style="font-size:5.64444447px;stroke-width:0.14770228"
            y="82.025055"
            x="84.046989"
@@ -415,7 +395,8 @@
          style="font-style:normal;font-weight:normal;font-size:6.71109867px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.16777746"
          xml:space="preserve"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003"><tspan
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png"><tspan
            style="font-size:5.64444447px;stroke-width:0.16777746"
            y="138.88162"
            x="86.548744"
@@ -428,30 +409,19 @@
          style="font-style:normal;font-weight:normal;font-size:7.19927883px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.17998198"
          xml:space="preserve"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003"><tspan
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png"><tspan
            style="font-size:5.64444447px;stroke-width:0.17998198"
            y="184.79773"
            x="87.682648"
            id="tspan863"
            sodipodi:role="line">Markers doses</tspan></text>
-      <text
-         id="text1002"
-         y="229.64862"
-         x="86.060791"
-         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"
-         inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003"><tspan
-           style="font-size:5.64444447px;stroke-width:0.26458332"
-           y="229.64862"
-           x="86.060791"
-           id="tspan1000"
-           sodipodi:role="line">Haplotypes (FASTA/csv)</tspan></text>
       <g
          transform="translate(0,45.773259)"
          id="g1044-7"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003">
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <path
            inkscape:connector-curvature="0"
            id="path3188-4"
@@ -470,7 +440,8 @@
          transform="translate(0,91.042032)"
          id="g1044-5"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003">
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <path
            inkscape:connector-curvature="0"
            id="path3188-2"
@@ -486,29 +457,11 @@
            style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.34;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0" />
       </g>
       <g
-         transform="translate(0,136.31081)"
-         id="g1044-2"
-         inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003">
-        <path
-           inkscape:connector-curvature="0"
-           id="path3188-1"
-           d="m 72.936144,89.29069 7.139514,-9.258818"
-           style="fill:none;stroke:#000000;stroke-width:0.39343444;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.39343443, 0.39343443;stroke-dashoffset:0;stroke-opacity:1" />
-        <rect
-           ry="9.3363132"
-           y="75.093498"
-           x="78.859505"
-           height="33.701771"
-           width="129.91777"
-           id="rect3190-93"
-           style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.34;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0" />
-      </g>
-      <g
          transform="translate(0,-44.7643)"
          id="g1044-4"
          inkscape:export-xdpi="95.800003"
-         inkscape:export-ydpi="95.800003">
+         inkscape:export-ydpi="95.800003"
+         inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\inst\app\www\features_overview.png">
         <path
            inkscape:connector-curvature="0"
            id="path3188-7"

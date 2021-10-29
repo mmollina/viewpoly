@@ -27,7 +27,7 @@ mod_qtl_view_ui <- function(id){
           tags$h2(tags$b("View QTL")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 6, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, status="primary", title = h4("Linkage group"),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, status="primary", title = h4("Linkage group"),
                             checkboxGroupInput(ns("group"),
                                                label = h6("Select linkage groups"),
                                                choices = "This will be updated",
@@ -36,7 +36,7 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 6, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
                             checkboxGroupInput(ns("phenotypes"),
                                                label = h6("Select phenotypes"),
                                                choices = "This will be updated",
@@ -46,7 +46,7 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           column(12,
-                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("LOD curve"),
+                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("LOD curve"),
                      plotOutput(ns("plot_qtl"), 
                                 click=ns("plot_click"), brush = ns("plot_brush")),
                      

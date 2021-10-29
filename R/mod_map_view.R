@@ -30,21 +30,17 @@ mod_map_view_ui <- function(id){
           ),
           tags$h2(tags$b("View Map")), br(), hr(),
           
-          # column(3,
-          #        h4("Legend"),
-          #        includeHTML(system.file("ext/include.html", package="viewpoly"))
-          # ),
           column(4,
+                 box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
                  checkboxGroupInput(ns("phenotypes"),
                                     label = h4("Phenotypes"),
                                     choices = "This will be updated",
-                                    selected = "This will be updated"), br(),
-                 
+                                    selected = "This will be updated")
+                 ), br(),
           ),
           column(5,
                  selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
-                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE), br(), br(), br(),
-                 actionButton(ns("create_server"), "Open JBrowseR",icon("refresh"))
+                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE),
           ),
         ), hr(),
         wellPanel(
@@ -52,10 +48,12 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        plotlyOutput(ns("plot_qtl")), hr(),
-        plotOutput(ns("plot_map"), height = "500px"), hr(),
-        tableOutput(ns("text")), hr(),
-        JBrowseROutput(ns("browserOutput")),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("LOD curve"),
+            plotlyOutput(ns("plot_qtl")), 
+        ), br(),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Marker dose"),
+            plotOutput(ns("plot_map"), height = "500px")
+        )
       )
     )
   )
@@ -63,18 +61,11 @@ mod_map_view_ui <- function(id){
 
 #' map_view Server Functions
 #'
-#' @import JBrowseR
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
 mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
   ns <- session$ns
-  
-  #  Trying to fix server issue
-  observeEvent(input$server_off, {
-    httpuv::stopAllServers()
-  })
-  
   
   observe({
     # Dynamic linkage group number
@@ -182,90 +173,6 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     qtl.int()
   })
   
-  # Open server 
-  button <- eventReactive(input$create_server, {
-    
-    if(!is.null(loadJBrowse()$fasta)){
-      cat("genome")
-      str(loadJBrowse()$fasta)
-      cat("gff")
-      str(loadJBrowse()$gff3)
-      
-      server_dir <- tempdir()
-      
-      path.fa <- paste0(server_dir, "/", loadJBrowse()$fasta$name[1])
-      path.fai <- paste0(server_dir, "/", loadJBrowse()$fasta$name[2])
-      path.gzi <- paste0(server_dir, "/", loadJBrowse()$fasta$name[3])
-      path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
-      path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
-      
-      file.rename(loadJBrowse()$fasta$datapath[1], path.fa)
-      file.rename(loadJBrowse()$fasta$datapath[2], path.fai)
-      file.rename(loadJBrowse()$fasta$datapath[3], path.gzi)
-      file.rename(loadJBrowse()$gff$datapath[1], path.gff)
-      file.rename(loadJBrowse()$gff$datapath[2], path.tbi)
-      cat("path")
-      print(path.fa)
-      
-      mk.pos <- readRDS(loadJBrowse()$mks.pos$datapath)
-      
-    } else if(loadJBrowse()$example == "bt_map"){
-      path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
-      path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
-      mk.pos <- readRDS(system.file("ext/mk_pos.rds", package = "viewpoly"))
-      # Add other tracks
-      # variants_track <- track_variant()
-      # alignments_track <- track_alignments()
-    } 
-    
-    if(exists("data_server"))
-      data_server$stop_server()
-    
-    data_server <- serve_data(dirname(path.fa), port = 5000)
-    
-    list(path.fa, path.gff, data_server, mk.pos)
-  })
-  
-  # Link the UI with the browser widget
-  output$browserOutput <- renderJBrowseR({
-    
-    assembly <- assembly(
-      paste0("http://127.0.0.1:5000/", basename(button()[[1]])), 
-      bgzip = TRUE
-    )
-    
-    ## create configuration for a JB2 GFF FeatureTrack
-    annotations_track <- track_feature(
-      paste0("http://127.0.0.1:5000/", basename(button()[[2]])), 
-      assembly
-    )
-    
-    ## create the tracks array to pass to browser
-    tracks <- tracks(annotations_track)
-    
-    ## select default window
-    group <- as.numeric(input$group)
-    mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
-    mk.pos <- filter(button()[[4]], chr == group)
-    mks <- merge(mk.pos, mk.cM, by = c("mk"))
-    mks <- mks[order(mks$cM),]
-    mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
-    mks.range.1 <- mks$pos[mks.range[1]]
-    mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
-    
-    default_session <- default_session(
-      assembly,
-      c(annotations_track)
-    )
-    
-    JBrowseR(
-      "View",
-      assembly = assembly,
-      tracks = tracks,
-      location = paste0("Chr01:", mks.range.1,"..",mks.range.2), ## Update here!
-      defaultSession = default_session
-    )
-  })
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
