@@ -32,11 +32,11 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
             tabPanel("QTL", value = "qtl",
                      mod_qtl_view_ui("qtl_view_ui_1")),
             tabPanel("Genes", value = "genes",
-                     mod_genes_view_ui("genes_ui_1")),
+                     mod_genes_view_ui("genes_view_ui_1")),
             tabPanel("Map", value = "map",
-                     mod_map_view_ui("map_view_ui_1")),
-            tabPanel("Downloads", value = "download",
-                     mod_download_ui("download_ui_1"))
+                     mod_map_view_ui("map_view_ui_1"))
+            # tabPanel("Downloads", value = "download",
+            #          mod_download_ui("download_ui_1"))
             # navbarMenu("More",
             #            tabPanel("Summary", "Under development..."),
             #            tabPanel("Table", "Under development...")
