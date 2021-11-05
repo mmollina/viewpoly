@@ -58,7 +58,6 @@
 #' @import dplyr
 #' @import tidyr
 #' 
-#' @export 
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 
                          lgs.id = NULL, by_range = TRUE, range.min = NULL, range.max = NULL, plot=TRUE) {
   
