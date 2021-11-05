@@ -18,6 +18,7 @@ The `Upload` tab has options for diverse types of inputs. You can upload directl
 
 * MAPpoly
 * QTLpoly
+* CSV standard formats
 
 To associate the genetic maps and QTLs with genomic information, it is also required:
 

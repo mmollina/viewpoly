@@ -2,7 +2,16 @@
 
 R package to visualize genetic maps and QTL analysis.
 
-For developers:
+### Quick Start
+
+You can run `ViewPoly` locally installing the package and accessing the graphical interface through a web browser:
+
+```{r}
+devtools::install_github("mmollina/viewpoly")
+viewpoly::run_app()
+```
+
+### For developers:
 
 * Deploy package on RStudio running the file viewpoly/app.R
 
