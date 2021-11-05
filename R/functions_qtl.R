@@ -136,13 +136,13 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   if(plot){
     if(by_range){
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+        facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
-        {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=SIG, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
         theme_classic()
@@ -154,7 +154,6 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
-        {if(nrow(thre) > 0) geom_hline(data=thre, aes(yintercept=SIG, color=Trait), linetype="dashed", size=.5, alpha=0.8)} +  #threshold
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
         theme_classic()

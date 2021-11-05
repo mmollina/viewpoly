@@ -30,17 +30,21 @@ mod_map_view_ui <- function(id){
           ),
           tags$h2(tags$b("View Map")), br(), hr(),
           
-          column(4,
-                 box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
-                 checkboxGroupInput(ns("phenotypes"),
-                                    label = h4("Phenotypes"),
-                                    choices = "This will be updated",
-                                    selected = "This will be updated")
-                 ), br(),
-          ),
-          column(5,
-                 selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
-                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE),
+          column(6,
+                 column(6,
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
+                            checkboxGroupInput(ns("phenotypes"),
+                                               label = h4("Phenotypes"),
+                                               choices = "This will be updated",
+                                               selected = "This will be updated")
+                        ), br(),
+                 ),
+                 column(6,
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Linkage group"),
+                            selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
+                            checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
+                        ), br(),
+                 )
           ),
         ), hr(),
         wellPanel(
@@ -78,8 +82,8 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                       selected= group_choices[[1]])
     
     # Dynamic QTLs
-    pheno_choices <- as.list(unique(loadQTL()$qtl_info$pheno))
-    names(pheno_choices) <- unique(loadQTL()$qtl_info$pheno)
+    pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
+    names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
     updateCheckboxGroupInput(session, "phenotypes",
                              label = "Phenotypes",
@@ -176,7 +180,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
-    idx <- which(unique(loadQTL()$qtl_info$pheno) %in% input$phenotypes)
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
     pl <- plot_profile(loadQTL()$profile, loadQTL()$qtl_info, loadQTL()$selected_mks,
                        pheno.col = idx,
                        lgs.id = as.numeric(input$group),

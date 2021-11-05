@@ -24,7 +24,8 @@ app_server <- function( input, output, session ) {
              "genes_view_ui_1", 
              loadMap = datas$loadMap,
              loadJBrowse = datas$loadJBrowse,
-             loadQTL = datas$loadQTL)
+             loadQTL = datas$loadQTL,
+             parent_session=session)
   
   # Map view
   callModule(mod_map_view_server,

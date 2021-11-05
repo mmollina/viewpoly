@@ -99,8 +99,8 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     }
     
     # Dynamic QTL
-    pheno_choices <- as.list(unique(loadQTL()$qtl_info$pheno))
-    names(pheno_choices) <- unique(loadQTL()$qtl_info$pheno)
+    pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
+    names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
     if (input$selectall2%%2 == 0)
     {
@@ -119,7 +119,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   qtl.data <- reactive({
-    idx <- which(unique(loadQTL()$qtl_info$pheno) %in% input$phenotypes)
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
     pl <- plot_profile(profile = loadQTL()$profile, 
                        qtl_info = loadQTL()$qtl_info, 
                        selected_mks = loadQTL()$selected_mks,

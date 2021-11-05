@@ -29,17 +29,21 @@ mod_genes_view_ui <- function(id){
           ),
           tags$h2(tags$b("View Genes")), br(), hr(),
           
-          column(4,
-                 box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
-                 checkboxGroupInput(ns("phenotypes"),
-                                    label = h4("Phenotypes"),
-                                    choices = "This will be updated",
-                                    selected = "This will be updated")
-                 ), br(),
-          ),
-          column(5,
-                 selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
-                 checkboxInput(ns("op"), label = "Show SNP names", value = TRUE), 
+          column(6,
+                 column(6,
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
+                            checkboxGroupInput(ns("phenotypes"),
+                                               label = h4("Phenotypes"),
+                                               choices = "This will be updated",
+                                               selected = "This will be updated")
+                        ), br(),
+                 ),
+                 column(6,
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Linkage group"),
+                            selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
+                            checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
+                        ), br(),
+                 )
           ),
         ), hr(),
         wellPanel(
@@ -65,14 +69,13 @@ mod_genes_view_ui <- function(id){
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
-mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
+mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
   ns <- session$ns
   
   #  Trying to fix server issue
   observeEvent(input$server_off, {
     httpuv::stopAllServers()
   })
-  
   
   observe({
     # Dynamic linkage group number
@@ -84,16 +87,15 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
                       choices = group_choices,
                       selected= group_choices[[1]])
     
-    # Dynamic QTLs
-    pheno_choices <- as.list(unique(loadQTL()$qtl_info$pheno))
-    names(pheno_choices) <- unique(loadQTL()$qtl_info$pheno)
+    # Dynamic QTL
+    pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
+    names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
     updateCheckboxGroupInput(session, "phenotypes",
                              label = "Phenotypes",
                              choices = pheno_choices,
                              selected=unlist(pheno_choices)[1])
   })
-  
   
   # Plot QTL bar
   qtl.int <- reactive({
@@ -160,7 +162,27 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     qtl.int()
   })
   
-  # Open server 
+  # Plot QTL profile
+  output$plot_qtl <- renderPlotly({
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+    pl <- plot_profile(profile = loadQTL()$profile, qtl_info = loadQTL()$qtl_info, selected_mks = loadQTL()$selected_mks,
+                       pheno.col = idx,
+                       lgs.id = as.numeric(input$group),
+                       range.min = input$range[1],
+                       range.max = input$range[2], by_range=T)
+    ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
+  })
+  
+  # Reactive to change page with click
+  s <- reactive({
+    event_data("plotly_click", source = "qtl_profile")
+  })
+  
+  observeEvent(s(), {
+    updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
+  }) 
+  
+  # Open JBrowser server 
   button <- eventReactive(input$create_server, {
     
     if(!is.null(loadJBrowse()$fasta)){
@@ -245,25 +267,6 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     )
   })
   
-  # Plot QTL profile
-  output$plot_qtl <- renderPlotly({
-    idx <- which(unique(loadQTL()$qtl_info$pheno) %in% input$phenotypes)
-    pl <- plot_profile(loadQTL()$profile, loadQTL()$qtl_info, loadQTL()$selected_mks,
-                       pheno.col = idx,
-                       lgs.id = as.numeric(input$group),
-                       range.min = input$range[1],
-                       range.max = input$range[2], by_range=T)
-    ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
-  })
-  
-  # Reactive to change page with click
-  s <- reactive({
-    event_data("plotly_click", source = "qtl_profile")
-  })
-  
-  observeEvent(s(), {
-    updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
-  }) 
 }
 
 ## To be copied in the UI
