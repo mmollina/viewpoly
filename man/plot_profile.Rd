@@ -16,63 +16,6 @@ plot_profile(
   plot = TRUE
 )
 }
-\arguments{
-\item{pheno.col}{a numeric vector with the phenotype column numbers to be plotted; if \code{NULL}, all phenotypes from \code{'data'} will be included.}
-
-\item{lgs.info}{level $lgs and $lgs.all of an object of class \code{qtlpoly.data}. 
-\item{lgs}{a list with selected marker positions per linkage group.}
-\item{lgs.all}{a list with all marker positions per linkage group.}}
-
-\item{model}{an object of class \code{qtlpoly.profile} or \code{qtlpoly.remim}.}
-
-\item{sup.int}{if \code{TRUE}, support interval are shown as shaded areas; if \code{FALSE} (default), no support interval is show.}
-
-\item{main}{a character string with the main title; if \code{NULL}, no title is shown.}
-
-\item{legend}{legend position (either "bottom", "top", "left" or "right"); if \code{NULL}, no legend is shown.}
-
-\item{ylim}{a numeric value pair supplying the limits of y-axis, e.g. c(0,10); if \code{NULL} (default), limits will be provided automatically.}
-
-\item{grid}{if \code{TRUE}, profiles will be organized in rows (one per trait); if \code{FALSE} (default), profiles will appear superimposed. Only effective when plotting profiles from more than one trait.}
-}
-\value{
-A \pkg{ggplot2} with the LOP profiles for each trait.
-}
 \description{
 Plots profiled logarithm of score-based \emph{P}-values (LOP) from individual or combined traits.
-}
-\examples{
-  \dontrun{
-  # load raw data
-  data(maps)
-  data(pheno)
-
-  # estimate conditional probabilities using mappoly package
-  library(mappoly)
-  genoprob <- lapply(maps, calc_genoprob)
-
-  # prepare data
-  data <- read_data(ploidy = 6, geno.prob = genoprob, pheno = pheno, step = 1)
-
-  # perform remim
-  remim.mod <- remim(data = data, w.size = 15, sig.fwd = 0.01, sig.bwd = 0.0001,
-    d.sint = 1.5, n.clusters = 4, plot = "remim")
-
-  # plot profiles
-  for (p in remim.mod$pheno.col) { 
-    plot_profile(data = data, model = remim.mod, pheno.col = p, ylim = c(0, 10))
-  } # separate plots
-    
-  plot_profile(data = data, model = remim.mod, grid = FALSE) # combined plots
-  }
-
-}
-\references{
-Pereira GS, Gemenet DC, Mollinari M, Olukolu BA, Wood JC, Mosquera V, Gruneberg WJ, Khan A, Buell CR, Yencho GC, Zeng ZB (2020) Multiple QTL mapping in autopolyploids: a random-effect model approach with application in a hexaploid sweetpotato full-sib population, \emph{Genetics} 215 (3): 579-595. \url{http://doi.org/10.1534/genetics.120.303080}.
-}
-\seealso{
-\code{\link[qtlpoly]{profile_qtl}},  \code{\link[qtlpoly]{remim}}
-}
-\author{
-Guilherme da Silva Pereira, \email{gdasilv@ncsu.edu}
 }

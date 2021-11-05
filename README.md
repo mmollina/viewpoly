@@ -1,3 +1,8 @@
+<!-- badges: start -->
+[![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
+[![R-CMD-check](https://github.com/mmollina/viewpoly/workflows/R-CMD-check/badge.svg)](https://github.com/mmollina/viewpoly/actions)
+<!-- badges: end -->
+  
 # VIEWpoly
 
 R package to visualize genetic maps and QTL analysis.

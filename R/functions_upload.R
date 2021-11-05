@@ -103,10 +103,8 @@ read_mappoly_lst <- function(mappoly_prep){
 #' 
 #' @param data object of class "qtlpoly.data"
 #' 
-#' @import largeList
 #' @import tidyr
 #' 
-#' @export
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
   
   # Only selected markers
