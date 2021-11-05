@@ -117,7 +117,7 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
   }
   
   rownames(lgs) <- NULL
-  qtl_info <- u.hat <- beta.hat <- pvalue <- LOD <- data.frame()
+  qtl_info <- u.hat <- beta.hat <- pvalue <- profile <- effects <- data.frame()
   for(i in 1:length(remim.mod$results)){
     pheno = names(fitted.mod$results)[i]
     lower <- remim.mod$results[[i]]$lower[,1:2]
@@ -127,7 +127,12 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
                  Pos_upper = upper$Pos_upper, qtl[,2:3])
     int <- cbind(pheno = names(remim.mod$results)[i], int)
     
-    h2 <- fitted.mod$results[[i]]$qtls[-dim(fitted.mod$results[[i]]$qtls)[1],c(1:3,7)]
+    if(dim(fitted.mod$results[[i]]$qtls)[1] > 1) {
+      h2 <- fitted.mod$results[[i]]$qtls[-dim(fitted.mod$results[[i]]$qtls)[1],c(1:2,7)]
+      h2 <- data.frame(apply(h2, 2, unlist))
+    }else {
+      h2 <- fitted.mod$results[[i]]$qtls[,c(1:2,7)]
+    }
     
     int <- merge(int, h2, by = c("LG", "Pos"))
     
@@ -138,24 +143,29 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
     u.hat.t <- cbind(haplo = rownames(u.hat.t), pheno , as.data.frame(u.hat.t))
     u.hat.t <- pivot_longer(u.hat.t, cols = c(1:length(u.hat.t))[-c(1:2)], values_to = "u.hat", names_to = "qtl")
     u.hat <- rbind(u.hat, u.hat.t)
+    u.hat$qtl <- gsub("g", "", u.hat$qtl)
     
     beta.hat.t <- data.frame(pheno, beta.hat = fitted.mod$results[[i]]$fitted$beta.hat[,1])
     beta.hat <- rbind(beta.hat, beta.hat.t) 
     
-    if(is(remim.mod, "qtlpoly.feim")) SIG <- remim.mod$results[[t]][[3]] else SIG <- -log10(as.numeric(remim.mod$results[[t]][[3]]))
+    if(is(remim.mod, "qtlpoly.feim")) SIG <- remim.mod$results[[i]][[3]] else SIG <- -log10(as.numeric(remim.mod$results[[i]][[3]]))
     
-    LOD.t <- data.frame(pheno, SIG)
-    LOD <- rbind(LOD, LOD.t)
+    profile.t <- data.frame(pheno, LOP = SIG)
+    profile <- rbind(profile, profile.t)
+    
+    for(j in 1:length(est.effects$results[[i]]$effects)){
+      effects.t <- do.call(rbind, lapply(est.effects$results[[i]]$effects[[j]], function(x) data.frame(haplo = names(x), effect = x)))
+      effects.t <- cbind(pheno = pheno, qtl.id= j, effects.t)
+      effects <- rbind(effects, effects.t)
+    }
   }
   
   # Rearrange the progeny probabilities into a list
-  z <- lapply(seq(dim(data$Z)[2]), function(x) data$Z[ , x, ])
-  names(z) <- names(data$Z[1,,1])
-
-  path <- tempfile()
-  saveList(z, file = file.path(path, "test.llo"), compress = TRUE) # the example data is a subset of 5 individuals
-
-  result <- list(lgs, qtl_info, u.hat, beta.hat, LOD, probs = file.path(path, "test.llo"))
+  probs <- data$Z[,,1:5]
+  
+  result <- list(selected_mks = lgs, qtl_info = qtl_info, 
+                 blups = as.data.frame(u.hat), beta.hat = beta.hat, 
+                 profile = profile, effects = effects, probs = probs, software = "QTLpoly")
   return(result)
 }
 
@@ -169,7 +179,6 @@ prepare_QTLdata <- function(qtlpoly_in = NULL,
   } else if(example_qtl == "bt_map"){
     temp <- load(system.file("ext", "qtl_in.rda", package = "viewpoly"))
     qtls <- get(temp)
-    qtls[[6]] <- system.file("ext/probs.llo", package = "viewpoly")
   } else if(!(is.null(p_values) | is.null(intervals) | is.null(qtls))){
     qtls <- read_custom_files(dosages, phases, genetic_map) # update here
     return(qtls)

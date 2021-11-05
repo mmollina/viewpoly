@@ -78,8 +78,8 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                       selected= group_choices[[1]])
     
     # Dynamic QTLs
-    pheno_choices <- as.list(unique(loadQTL()[[1]]$pheno))
-    names(pheno_choices) <- unique(loadQTL()[[1]]$pheno)
+    pheno_choices <- as.list(unique(loadQTL()$qtl_info$pheno))
+    names(pheno_choices) <- unique(loadQTL()$qtl_info$pheno)
     
     updateCheckboxGroupInput(session, "phenotypes",
                              label = "Phenotypes",
@@ -110,7 +110,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   # Plot QTL bar
   qtl.int <- reactive({
-    data <- loadQTL()[[1]] %>% filter(pheno %in% input$phenotypes & LG == input$group)
+    data <- loadQTL()$qtl_info %>% filter(pheno %in% input$phenotypes & LG == input$group)
     
     if(dim(data)[1] == 0) stop("No QTL available in this group")
     
@@ -176,10 +176,10 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
-    idx <- which(names(loadQTL()[[3]]$results) %in% input$phenotypes)
-    pl <- plot_profile(lgs.info = loadQTL()[[2]], model = loadQTL()[[3]],
+    idx <- which(unique(loadQTL()$qtl_info$pheno) %in% input$phenotypes)
+    pl <- plot_profile(loadQTL()$profile, loadQTL()$qtl_info, loadQTL()$selected_mks,
                        pheno.col = idx,
-                       lgs.id = input$group,
+                       lgs.id = as.numeric(input$group),
                        range.min = input$range[1],
                        range.max = input$range[2], by_range=T)
     ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))

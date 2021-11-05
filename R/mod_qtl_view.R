@@ -99,8 +99,8 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     }
     
     # Dynamic QTL
-    pheno_choices <- as.list(unique(qtls[[1]]$pheno))
-    names(pheno_choices) <- unique(qtls[[1]]$pheno)
+    pheno_choices <- as.list(unique(loadQTL()$qtl_info$pheno))
+    names(pheno_choices) <- unique(loadQTL()$qtl_info$pheno)
     
     if (input$selectall2%%2 == 0)
     {
@@ -119,10 +119,14 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   qtl.data <- reactive({
-    idx <- which(names(qtls[[3]]$results) %in% input$phenotypes)
-    pl <- plot_profile(lgs.info = qtls[[2]], model = qtls[[3]],
+    idx <- which(unique(loadQTL()$qtl_info$pheno) %in% input$phenotypes)
+    pl <- plot_profile(profile = loadQTL()$profile, 
+                       qtl_info = loadQTL()$qtl_info, 
+                       selected_mks = loadQTL()$selected_mks,
                        pheno.col = idx,
-                       lgs.id = input$group, by_range=F, plot = F)
+                       lgs.id = as.numeric(input$group), 
+                       by_range=F, plot = F)
+
     pl
   })
   
@@ -138,10 +142,9 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     } else {
       stop("Select a point or region on LOD profile graphic.") 
     }
-    
-    plots <- plot_qtlpoly.effects(x = qtls[[4]], 
-                                  pheno.col = which(unique(qtls[[1]]$pheno) %in% as.character(df$Trait)), 
-                                  df.info = qtls[[1]], lgs = df$LG, position = df$`Position (cM)`)
+    plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
+                                  pheno.col = as.character(df$Trait), 
+                                  lgs = df$LG, position = df$`Position (cM)`)
     
     rows <- ceiling(length(plots)/4)
     if(rows == 0) rows <- 1
@@ -151,9 +154,9 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   plotHeight <- reactive({
     if(!is.null(input$plot_brush)){
-      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     } else if(!is.null(input$plot_click)){
-      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
     } else {
       stop("Select a point or region on LOD profile graphic.")
     }
@@ -170,13 +173,13 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   output$info <- DT::renderDataTable({
     if(!is.null(input$plot_brush)){
-      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     } else if(!is.null(input$plot_click)){
-      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
     } else {
       stop("Select a point or region on graphic.")
     }
-    dframe <- dframe[,-dim(dframe)[2]]
+    dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
     colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Inferior interval", "Superior interval", "p-value")
     DT::datatable(dframe, extensions = 'Buttons',
                   options = list(
@@ -189,15 +192,18 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   # Breeding values
   output$breeding_values <- DT::renderDataTable({
     if(!is.null(input$plot_brush)){
-      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "Position (cM)", yvar = "y.dat")
+      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     } else if(!is.null(input$plot_click)){
-      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "Position (cM)", yvar = "y.dat")
+      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
     } else {
       stop("Select a point or region on graphic.")
     }
-    
+
     pos <- split(dframe$`Position (cM)`, dframe$Trait)
-    dt <- breeding_values(qtls$probs, qtls$fitted, pos)
+    dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
+                          loadQTL()$selected_mks, loadQTL()$blups, 
+                          loadQTL()$beta.hat, pos)
+    print(dt)
     DT::datatable(dt, extensions = 'Buttons',
                   options = list(
                     dom = 'Bfrtlp',
