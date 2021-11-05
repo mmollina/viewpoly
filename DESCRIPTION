@@ -1,5 +1,5 @@
 Package: viewpoly
-Title: An Shiny App to visualize genetic maps and QTL analysis in polyploid species.
+Title: An Shiny App to Visualize Genetic Maps and QTL Analysis in Polyploid Species
 Version: 0.0.0.9000
 Authors@R:c(
            person(given = "Cristiane",
@@ -30,7 +30,7 @@ Authors@R:c(
                   email = "mmollin@ncsu.edu")
            )
 Maintainer: Cristiane Taniguti <chtaniguti@tamu.edu>
-Description: ViewPoly is a R package for visualizing and exploring results from polyploid 
+Description: This package is for visualizing and exploring results from polyploid 
          computational tools using an interactive graphical user interface. The package 
          allows users to directly upload output files from polyploid tools, and genomic 
          assembly and annotation files. ViewPoly displays the SNP dosages in parentals and offspring, and their 
@@ -50,6 +50,7 @@ Imports:
     htmltools,
     shiny (>= 1.6.0),
     shinyjs,
+    shinythemes,
     RColorBrewer,
     pkgload,
     JBrowseR,
