@@ -27,7 +27,7 @@ Authors@R:c(
            person(given = "Marcelo",
                   family = "Mollinari",
                   role = c("aut"),
-                  email = "mmollin@ncsu.edu"),   
+                  email = "mmollin@ncsu.edu")
            )
 Maintainer: Cristiane Taniguti <chtaniguti@tamu.edu>
 Description: ViewPoly is a R package for visualizing and exploring results from polyploid 
