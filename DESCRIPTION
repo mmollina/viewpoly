@@ -1,13 +1,47 @@
 Package: viewpoly
-Title: An Amazing Shiny App
+Title: An Shiny App to visualize genetic maps and QTL analysis in polyploid species.
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "firstname",
-           family = "lastname",
-           role = c("aut", "cre"),
-           email = "your@email.com")
-Description: What the package does (one paragraph).
-License: What license is it under?
+Authors@R:c(
+           person(given = "Cristiane",
+                  family = "Taniguti",
+                  role = c("aut", "cre"),
+                  email = "chtaniguti@tamu.edu"),
+           person(given = "Gabriel",
+                  family = "Gesteira",
+                  role = c("aut")),
+           person(given = "Jeekin",
+                  family = "Lau",
+                  role = c("ctb")),
+           person(given = "Guilherme",
+                  family = "Pereira",
+                  role = c("ctb")),
+           person(given = "David",
+                  family = "Byrne",
+                  role = c("ctb")),
+           person(given = "Zhao-Bang",
+                  family = "Zeng",
+                  role = c("ctb")),   
+           person(given = "Oscar",
+                  family = "Riera-Lizarau",
+                  role = c("ctb")),
+           person(given = "Marcelo",
+                  family = "Mollinari",
+                  role = c("aut"),
+                  email = "mmollin@ncsu.edu"),   
+           )
+Maintainer: Cristiane Taniguti <chtaniguti@tamu.edu>
+Description: ViewPoly is a R package for visualizing and exploring results from polyploid 
+         computational tools using an interactive graphical user interface. The package 
+         allows users to directly upload output files from polyploid tools, and genomic 
+         assembly and annotation files. ViewPoly displays the SNP dosages in parentals and offspring, and their 
+         respective haplotypes in the genetic map. It also shows the results of QTL analysis, 
+         including confidence intervals, estimated effects, and their corresponding genomic 
+         positions, which can be interactively explored with a genome browser, allowing the 
+         search for candidate genes. It also provides features to download specific information 
+         into comprehensive tables for further analysis and presentation.
+License: GPL-3
+Depends:
+    R (>= 3.5.0)
 Imports: 
     attempt,
     config (>= 0.3.1),
@@ -24,7 +58,8 @@ Imports:
     DT,
     ggplot2,
     ggpubr,
-    shinydashboard
+    shinydashboard,
+    plotly
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1.9001
