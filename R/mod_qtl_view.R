@@ -4,11 +4,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @importFrom shinyjs inlineCSS
-#' @importFrom RColorBrewer brewer.pal
-#' @import ggpubr
 #' @import shinydashboard
-#' @import DT
 #' 
 #' @noRd 
 #'
@@ -69,11 +65,9 @@ mod_qtl_view_ui <- function(id){
 
 #' qtl_view Server Functions
 #'
-#' @import JBrowseR
-#' @import ggpubr
-#' @import DT
-#' @importFrom shinyjs inlineCSS
-#'
+#' @importFrom ggpubr ggarrange
+#' @import shinydashboard
+#' 
 #' @noRd 
 mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
   ns <- session$ns

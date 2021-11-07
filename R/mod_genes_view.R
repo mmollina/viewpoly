@@ -5,7 +5,6 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @importFrom shinyjs inlineCSS
-#' @importFrom RColorBrewer brewer.pal
 #' 
 #' @noRd 
 #'
@@ -66,7 +65,8 @@ mod_genes_view_ui <- function(id){
 
 #' genes_view Server Functions
 #'
-#' @import JBrowseR
+#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR
+#' @importFrom RColorBrewer brewer.pal 
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 

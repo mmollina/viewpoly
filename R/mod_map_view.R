@@ -5,8 +5,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @importFrom shinyjs inlineCSS
-#' @importFrom RColorBrewer brewer.pal
-#' @import plotly
+#' @importFrom plotly plotlyOutput
 #' 
 #' @noRd 
 #'
@@ -66,7 +65,8 @@ mod_map_view_ui <- function(id){
 
 #' map_view Server Functions
 #'
-#' @importFrom shinyjs inlineCSS
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom plotly ggplotly renderPlotly
 #'
 #' @noRd 
 mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){

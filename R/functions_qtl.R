@@ -230,10 +230,10 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
     markers <- which((round(selected_mks$pos,2) %in% infos$Pos) & (selected_mks$LG %in% infos$LG))
     print(markers)
     Z <- probs[,markers,] # select by pos
-    
-    u.hat <- blups %>% filter(pheno == pheno.names[p])
+    str(beta.hat)
+    u.hat <- blups %>% filter(pheno %in% pheno.names[p])
     u.hat <- split(u.hat$u.hat, u.hat$qtl)
-    beta.hat <- beta.hat %>% filter(pheno == pheno.names[p])
+    beta.hat <- beta.hat %>% filter(pheno %in% pheno.names[p])
     beta.hat <- beta.hat$beta.hat
     
     Zu <- vector("list", nqtl)
@@ -244,7 +244,6 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
       nind <- dim(Z)[3]
       y.hat <- matrix(rep(beta.hat, nind), byrow = FALSE) + Reduce("+", Zu)
     } else if(nqtl == 1) {
-      str(Z)
       Zu <- t(Z) %*% u.hat[[1]]
       nind <- dim(Z)[2]
       y.hat <- matrix(rep(beta.hat, nind), byrow = FALSE) + Zu
