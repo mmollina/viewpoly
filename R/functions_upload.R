@@ -50,13 +50,7 @@ read_QTLdata <- function(qtlpoly_data = NULL,
     qtls <- prepare_QTLpoly(qtlpoly_data, qtlpoly_remim.mod, 
                             qtl_est.effects, qtl_fitted.mod)
   } else if(example_qtl == "bt_map"){
-    qtls <- prepare_qtl_custom_files(system.file("ext", "selected_mks.tsv.gz", package = "viewpoly"),
-                                     system.file("ext", "qtl_info.tsv.gz", package = "viewpoly"),
-                                     system.file("ext", "blups.tsv.gz", package = "viewpoly"),
-                                     system.file("ext", "beta.hat.tsv.gz", package = "viewpoly"),
-                                     system.file("ext", "profile.tsv.gz", package = "viewpoly"),
-                                     system.file("ext", "effects.tsv.gz", package = "viewpoly"),
-                                     system.file("ext", "probs.tsv.gz", package = "viewpoly"))
+    qtls <- get(data("qtl_bt"))
   } else if(!(is.null(qtl_info) | is.null(blups) | 
               is.null(beta.hat) | is.null(profile) | 
               is.null(effects) | is.null(probs) | is.null(selected_mks))){

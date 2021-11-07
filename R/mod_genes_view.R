@@ -65,8 +65,9 @@ mod_genes_view_ui <- function(id){
 
 #' genes_view Server Functions
 #'
-#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR
+#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput
 #' @importFrom RColorBrewer brewer.pal 
+#' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
@@ -220,12 +221,12 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       cat("path")
       print(path.fa)
       
-      mk.pos <- readRDS(loadJBrowse()$mks.pos$datapath)
+      mk.pos <- vroom(loadJBrowse()$mks.pos$datapath)
       
     } else if(loadJBrowse()$example == "bt_map"){
       path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
       path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
-      mk.pos <- readRDS(system.file("ext/mk_pos.rds", package = "viewpoly"))
+      mk.pos <- vroom(system.file("ext/mk_pos.tsv.gz", package = "viewpoly"))
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
