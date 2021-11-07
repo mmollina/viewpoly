@@ -228,9 +228,7 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
     infos <- qtl_info %>% filter(pheno == pheno.names[p])
     infos <- infos[which(infos$Pos %in% pos[[pheno.names[p]]]),]
     markers <- which((round(selected_mks$pos,2) %in% infos$Pos) & (selected_mks$LG %in% infos$LG))
-    print(markers)
     Z <- probs[,markers,] # select by pos
-    str(beta.hat)
     u.hat <- blups %>% filter(pheno %in% pheno.names[p])
     u.hat <- split(u.hat$u.hat, u.hat$qtl)
     beta.hat <- beta.hat %>% filter(pheno %in% pheno.names[p])

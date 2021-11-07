@@ -18,19 +18,23 @@ read_Mapdata <- function(mappoly_in = NULL,
                          phases = NULL,
                          genetic_map = NULL,
                          example_map){
-  
-  if(!is.null(mappoly_in)){
-    viewmap <- prepare_MAPpoly(mappoly_prep = mappoly_in)
-  } else if(example_map == "bt_map"){
-    viewmap <- prepare_map_custom_files(system.file("ext/dosage.tsv.gz", package = "viewpoly"),
-                                        system.file("ext/phases.tsv.gz", package = "viewpoly"),
-                                        system.file("ext/map.tsv.gz", package = "viewpoly"))
-  } else if(!(is.null(dosages) | is.null(phases) | is.null(genetic_map))){
-    viewmap <- prepare_map_custom_files(dosages, phases, genetic_map) 
-    return(viewmap)
-  } else {
-    stop("Please choose one of the option in the previous screen to upload genetic map information.")
-  }
+  withProgress(message = 'Uploding map data', value = 0, {
+    if(!is.null(mappoly_in)){
+      incProgress(0.5, detail = paste("Uploading MAPpoly data..."))
+      viewmap <- prepare_MAPpoly(mappoly_prep = mappoly_in)
+    } else if(example_map == "bt_map"){
+      incProgress(0.5, detail = paste("Uploading BT example map data..."))
+      viewmap <- prepare_map_custom_files(system.file("ext/dosage.tsv.gz", package = "viewpoly"),
+                                          system.file("ext/phases.tsv.gz", package = "viewpoly"),
+                                          system.file("ext/map.tsv.gz", package = "viewpoly"))
+    } else if(!(is.null(dosages) | is.null(phases) | is.null(genetic_map))){
+      incProgress(0.5, detail = paste("Uploading custom format data..."))
+      viewmap <- prepare_map_custom_files(dosages, phases, genetic_map) 
+      return(viewmap)
+    } else {
+      stop("Please choose one of the option in the previous screen to upload genetic map information.")
+    }
+  })
 }
 
 read_QTLdata <- function(qtlpoly_data = NULL,
@@ -45,20 +49,25 @@ read_QTLdata <- function(qtlpoly_data = NULL,
                          effects = NULL,
                          probs = NULL,
                          example_qtl = NULL){
-  if(!is.null(qtlpoly_data) | !is.null(qtlpoly_remim.mod) | 
-     !is.null(qtlpoly_est.effects) | !is.null(qtlpoly_fitted.mod)){
-    qtls <- prepare_QTLpoly(qtlpoly_data, qtlpoly_remim.mod, 
-                            qtl_est.effects, qtl_fitted.mod)
-  } else if(example_qtl == "bt_map"){
-    qtls <- get(data("qtl_bt"))
-  } else if(!(is.null(qtl_info) | is.null(blups) | 
-              is.null(beta.hat) | is.null(profile) | 
-              is.null(effects) | is.null(probs) | is.null(selected_mks))){
-    qtls <- prepare_qtl_custom_files(selected_mks, qtl_info, blups, beta.hat,
-                                     profile, effects, probs)
-  } else {
-    stop("Please choose one of the option in the previous screen to upload QTL information.")
-  }
+  withProgress(message = 'Uploading QTL data', value = 0, {
+    if(!is.null(qtlpoly_data) | !is.null(qtlpoly_remim.mod) | 
+       !is.null(qtlpoly_est.effects) | !is.null(qtlpoly_fitted.mod)){
+      incProgress(0.5, detail = paste("Uploading QTLpoly data..."))
+      qtls <- prepare_QTLpoly(qtlpoly_data, qtlpoly_remim.mod, 
+                              qtl_est.effects, qtl_fitted.mod)
+    } else if(example_qtl == "bt_map"){
+      incProgress(0.5, detail = paste("Uploading BT example QTL data..."))
+      qtls <- get(data("qtl_bt"))
+    } else if(!(is.null(qtl_info) | is.null(blups) | 
+                is.null(beta.hat) | is.null(profile) | 
+                is.null(effects) | is.null(probs) | is.null(selected_mks))){
+      incProgress(0.5, detail = paste("Uploading custom format QTL data..."))
+      qtls <- prepare_qtl_custom_files(selected_mks, qtl_info, blups, beta.hat,
+                                       profile, effects, probs)
+    } else {
+      stop("Please choose one of the option in the previous screen to upload QTL information.")
+    }
+  })
   return(qtls)
 }
 
