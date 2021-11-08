@@ -55,7 +55,7 @@ mod_qtl_view_ui <- function(id){
           column(12,
                  box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("LOD curve"),
                      column(2,
-                            downloadBttn(ns('bn_download'), style = "gradient")
+                            downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
                      ),
                      column(10,
                             radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -67,7 +67,7 @@ mod_qtl_view_ui <- function(id){
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
                          column(2,
-                                downloadBttn(ns('bn_download_effects'), style = "gradient")
+                                downloadBttn(ns('bn_download_effects'), style = "gradient", color = "royal")
                          ),
                          column(10,
                                 radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -184,7 +184,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
       stop("Select a point or region on graphic.")
     }
     dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
-    colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Inferior interval", "Superior interval", "p-value")
+    colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Inferior interval (cM)", "Superior interval (cM)", "p-value", "h2")
     DT::datatable(dframe, extensions = 'Buttons',
                   options = list(
                     dom = 'Bfrtlp',
@@ -207,6 +207,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
                           loadQTL()$selected_mks, loadQTL()$blups, 
                           loadQTL()$beta.hat, pos)
+    rownames(dt) <- NULL
     DT::datatable(dt, extensions = 'Buttons',
                   options = list(
                     dom = 'Bfrtlp',

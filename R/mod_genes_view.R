@@ -61,6 +61,9 @@ mod_genes_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
             actionButton(ns("create_server"), "Open JBrowseR",icon("refresh")), br(),
             JBrowseROutput(ns("browserOutput"))
+        ),br(),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Download Genes Info"),
+            DT::dataTableOutput(ns("genes_ano"))
         )
       )
     )
@@ -73,6 +76,7 @@ mod_genes_view_ui <- function(id){
 #' @importFrom RColorBrewer brewer.pal 
 #' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
+#' @importFrom ape read.gff
 #'
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
@@ -193,11 +197,6 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
   button <- eventReactive(input$create_server, {
     
     if(!is.null(loadJBrowse()$fasta)){
-      cat("genome")
-      str(loadJBrowse()$fasta)
-      cat("gff")
-      str(loadJBrowse()$gff3)
-      
       server_dir <- tempdir()
       
       path.fa <- paste0(server_dir, "/", loadJBrowse()$fasta$name[1])
@@ -211,8 +210,6 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       file.rename(loadJBrowse()$fasta$datapath[3], path.gzi)
       file.rename(loadJBrowse()$gff$datapath[1], path.gff)
       file.rename(loadJBrowse()$gff$datapath[2], path.tbi)
-      cat("path")
-      print(path.fa)
       
       mk.pos <- vroom(loadJBrowse()$mks.pos$datapath)
       
@@ -274,6 +271,20 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     )
   })
   
+  output$genes_ano  <- DT::renderDataTable({
+    ## select default window
+    group <- as.numeric(input$group)
+    mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
+    mk.pos <- filter(button()[[4]], chr == group)
+    mks <- merge(mk.pos, mk.cM, by = c("mk"))
+    mks <- mks[order(mks$cM),]
+    mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
+    mks.range.1 <- mks$pos[mks.range[1]]
+    mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
+    
+    df <- read.gff(system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly"))
+    df %>% filter(start > mks.range.1 & end < mks.range.2 & type == "gene")
+  })
 }
 
 ## To be copied in the UI

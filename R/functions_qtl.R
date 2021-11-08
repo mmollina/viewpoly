@@ -40,7 +40,8 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       INF <- qtl_info.sub$Pos_lower
       SUP <- qtl_info.sub$Pos_upper
       PVAL <- qtl_info.sub$Pval
-      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL))
+      H2 <- qtl_info.sub$h2
+      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL, H2 = round(H2,2)))
       count <- count+1
       y.dat <- c(y.dat, rep((-0.4*count), nqtls))
     }

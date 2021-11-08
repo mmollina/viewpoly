@@ -36,9 +36,10 @@ mod_upload_ui <- function(id){
                        fileInput(ns("mappoly_in"), label = h6("File: mappoly_map.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.tsv or .tsv.gz)")),
-                       tags$div(class="alert alert-dismissible alert-warning",
-                                tags$h4(class="alert-heading", "Warning!"),
-                                tags$p(class="mb-0", "This is the most difficult way of upload your data. Good luck!")),
+                       box(
+                         width = NULL, background = "red",
+                         "This is the most difficult way of upload your data. Good luck!"
+                       ),
                        fileInput(ns("dosages"), label = h6("File: dosages.tsv"), multiple = F),
                        fileInput(ns("genetic_map"), label = h6("File: genetic_map.tsv"), multiple = F),
                        fileInput(ns("phases"), label = h6("File: phases.tsv"), multiple = F),
@@ -65,9 +66,10 @@ mod_upload_ui <- function(id){
                        fileInput(ns("qtlpoly_fitted.mod"), label = h6("File: QTLpoly_fitted.mod.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
-                       tags$div(class="alert alert-dismissible alert-warning",
-                                tags$h4(class="alert-heading", "Warning!"),
-                                tags$p(class="mb-0", "This is the most difficult way of upload your data. Good luck!")),
+                       box(
+                         width = NULL, background = "red",
+                         "This is the most difficult way of upload your data. Good luck!"
+                       ),
                        fileInput(ns("selected_mks"), label = h6("File: selected_mks.tsv"), multiple = F),
                        fileInput(ns("qtl_info"), label = h6("File: qtl_info.tsv"), multiple = F),
                        fileInput(ns("blups"), label = h6("File: blups.tsv"), multiple = F),
