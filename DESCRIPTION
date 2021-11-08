@@ -43,14 +43,16 @@ License: GPL-3
 Depends:
     R (>= 3.5.0)
 Imports: 
+    shiny (>= 1.6.0),
+    shinyjs,
+    shinythemes,
+    shinyWidgets,
+    shinydashboard,
     attempt,
     config (>= 0.3.1),
     glue,
     golem (>= 0.3.1),
     htmltools,
-    shiny (>= 1.6.0),
-    shinyjs,
-    shinythemes,
     RColorBrewer,
     pkgload,
     JBrowseR,
@@ -59,7 +61,6 @@ Imports:
     DT,
     ggplot2,
     ggpubr,
-    shinydashboard,
     plotly,
     markdown,
     vroom,
