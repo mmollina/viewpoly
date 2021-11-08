@@ -31,16 +31,21 @@ mod_map_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Select Phenotypes"),
-                            checkboxGroupInput(ns("phenotypes"),
-                                               label = h4("Phenotypes"),
-                                               choices = "This will be updated",
-                                               selected = "This will be updated"),
-                            actionLink(ns("selectall"),"Select all groups"), br(),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                            pickerInput(ns("phenotypes"),
+                                        label = h4("Phenotypes"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE),
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Select Linkage group"),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
                             selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
                             checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
                         ), br(),
@@ -86,20 +91,10 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
     names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
-    if (input$selectall%%2 == 0)
-    {
-      updateCheckboxGroupInput(session, "phenotypes",
-                               label = "Select phenotypes",
-                               choices = pheno_choices,
-                               selected=unlist(pheno_choices)[1])
-    }
-    else
-    {
-      updateCheckboxGroupInput(session, "phenotypes",
-                               label = "Select phenotypes",
-                               choices = pheno_choices,
-                               selected=unlist(pheno_choices))
-    }
+    updatePickerInput(session, "phenotypes",
+                      label = "Select phenotypes",
+                      choices = pheno_choices,
+                      selected=unlist(pheno_choices)[1])
   })
   
   # Plot map

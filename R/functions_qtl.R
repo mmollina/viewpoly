@@ -211,10 +211,11 @@ plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL, p1 = "P1",
 
 #' Adapted function from QTLpoly
 #' 
+#' @import dplyr
+#' @import tidyr
 #' 
 breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos) {
-  
-  pheno.names <- unique(qtl_info$pheno)
+  pheno.names <- unique(as.character(qtl_info$pheno))
   results <- vector("list", length(pheno.names))
   names(results) <- pheno.names
   
@@ -222,17 +223,16 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
   phenos <- which(pheno.names %in% names(pos))
   
   for(p in phenos) { # select pheno
-    print(pos[[pheno.names[p]]])
     nqtl <- length(pos[[pheno.names[p]]])
-    
     infos <- qtl_info %>% filter(pheno == pheno.names[p])
     infos <- infos[which(infos$Pos %in% pos[[pheno.names[p]]]),]
     markers <- which((round(selected_mks$pos,2) %in% infos$Pos) & (selected_mks$LG %in% infos$LG))
     Z <- probs[,markers,] # select by pos
-    u.hat <- blups %>% filter(pheno %in% pheno.names[p])
+    u.hat <- blups %>% filter(pheno == pheno.names[p])
     u.hat <- split(u.hat$u.hat, u.hat$qtl)
-    beta.hat <- beta.hat %>% filter(pheno %in% pheno.names[p])
-    beta.hat <- beta.hat$beta.hat
+
+    beta.hat.sub <- beta.hat %>% filter(pheno == pheno.names[p])
+    beta.hat.v <- beta.hat.sub$beta.hat
     
     Zu <- vector("list", nqtl)
     if(nqtl > 1) {
@@ -240,11 +240,11 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
         Zu[[m]] <- t(Z[,m,]) %*% u.hat[[m]]
       }
       nind <- dim(Z)[3]
-      y.hat <- matrix(rep(beta.hat, nind), byrow = FALSE) + Reduce("+", Zu)
+      y.hat <- matrix(rep(beta.hat.v, nind), byrow = FALSE) + Reduce("+", Zu)
     } else if(nqtl == 1) {
       Zu <- t(Z) %*% u.hat[[1]]
       nind <- dim(Z)[2]
-      y.hat <- matrix(rep(beta.hat, nind), byrow = FALSE) + Zu
+      y.hat <- matrix(rep(beta.hat.v, nind), byrow = FALSE) + Zu
     }
 
     colnames(y.hat) <- pheno.names[p]
@@ -253,7 +253,6 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
   
   id.names <- rownames(results[[which(sapply(results, function(x) !is.null(x)))[1]]])
   results <- as.data.frame(do.call(cbind, results))
-  print(results)
   results <- cbind(gen=id.names, results)
   
   return(results)
