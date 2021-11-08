@@ -5,7 +5,6 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @importFrom shinyjs inlineCSS
-#' @importFrom RColorBrewer brewer.pal
 #' 
 #' @noRd 
 #'
@@ -31,17 +30,22 @@ mod_genes_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
-                            checkboxGroupInput(ns("phenotypes"),
-                                               label = h4("Phenotypes"),
-                                               choices = "This will be updated",
-                                               selected = "This will be updated")
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                            pickerInput(ns("phenotypes"),
+                                        label = h4("Phenotypes"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE),
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Linkage group"),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
                             selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
-                            checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
                         ), br(),
                  )
           ),
@@ -65,7 +69,9 @@ mod_genes_view_ui <- function(id){
 
 #' genes_view Server Functions
 #'
-#' @import JBrowseR
+#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput
+#' @importFrom RColorBrewer brewer.pal 
+#' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
@@ -88,13 +94,14 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
                       selected= group_choices[[1]])
     
     # Dynamic QTL
+    
     pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
     names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
-    updateCheckboxGroupInput(session, "phenotypes",
-                             label = "Phenotypes",
-                             choices = pheno_choices,
-                             selected=unlist(pheno_choices)[1])
+    updatePickerInput(session, "phenotypes",
+                      label = "Select phenotypes",
+                      choices = pheno_choices,
+                      selected=unlist(pheno_choices)[1])
   })
   
   # Plot QTL bar
@@ -207,12 +214,12 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       cat("path")
       print(path.fa)
       
-      mk.pos <- readRDS(loadJBrowse()$mks.pos$datapath)
+      mk.pos <- vroom(loadJBrowse()$mks.pos$datapath)
       
     } else if(loadJBrowse()$example == "bt_map"){
       path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
       path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
-      mk.pos <- readRDS(system.file("ext/mk_pos.rds", package = "viewpoly"))
+      mk.pos <- vroom(system.file("ext/mk_pos.tsv.gz", package = "viewpoly"))
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()

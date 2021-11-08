@@ -10,7 +10,14 @@ prepare_QTLpoly(data, remim.mod, est.effects, fitted.mod)
 \item{data}{object of class "qtlpoly.data"}
 
 \item{remim.mod}{object of class "qtlpoly.model" "qtlpoly.remim".}
+
+\item{est.effects}{object of class "qtlpoly.effects"}
+
+\item{fitted.mod}{object of class "qtlpoly.fitted"}
 }
 \description{
 take all information needed from qtlpoly objects
+}
+\author{
+Cristiane Taniguti, \email{chtaniguti@tamu.edu}
 }

@@ -1,54 +1,95 @@
-
-#' Receive upload files and convert to viewmap object
+#' Receive upload files and convert to viewmap.map object
 #' 
-#' @param mappoly_in mappoly sequence object
-#' @param dosages RDS compressed file with both parents dosage information.
+#' @param mappoly_in mappoly prepare_map RData file
+#' @param dosages TSV or TSV.GZ file with both parents dosage information.
 #' It should contain four columns: 1) character vector with chromosomes ID; 
 #' 2) Character vector with markers ID; 3) Character vector with parent ID; 
 #' 4) numerical vector with dosage. 
-#' @param phases RDS compressed file with phases information. It should contain:
+#' @param phases TSV or TSV.GZ file with phases information. It should contain:
 #' 1) Character vector with chromosome ID; 2) Character vector with marker ID;
 #' 3 to (ploidy number)*2 columns with each parents haplotypes.
-#' @param genetic_map RDS compressed file with the genetic map information
+#' @param genetic_map TSV or TSV.GZ file with the genetic map information
 #' @param example_map if user don´t come in with any other input, use a example files.
-#'  
-prepare_Mapdata <- function(mappoly_in = NULL,
-                            dosages = NULL,
-                            phases = NULL,
-                            genetic_map = NULL,
-                            example_map){
-  
-  if(!is.null(mappoly_in)){
-    viewmap <- read_mappoly_lst(mappoly_prep = mappoly_in)
-  } else if(example_map == "bt_map"){
-    viewmap <- read_custom_files(system.file("ext/dosage.rds", package = "viewpoly"),
-                                 system.file("ext/phases.rds", package = "viewpoly"),
-                                 system.file("ext/map.rds", package = "viewpoly"))
-  } else if(!(is.null(dosages) | is.null(phases) | is.null(genetic_map))){
-    viewmap <- read_custom_files(dosages, phases, genetic_map) 
-    return(viewmap)
-  } else {
-    stop("Please choose one of the option in the previous screen.")
-  }
+#'
+#' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
+#' 
+read_Mapdata <- function(mappoly_in = NULL,
+                         dosages = NULL,
+                         phases = NULL,
+                         genetic_map = NULL,
+                         example_map){
+  withProgress(message = 'Uploding map data', value = 0, {
+    if(!is.null(mappoly_in)){
+      incProgress(0.5, detail = paste("Uploading MAPpoly data..."))
+      viewmap <- prepare_MAPpoly(mappoly_prep = mappoly_in)
+    } else if(example_map == "bt_map"){
+      incProgress(0.5, detail = paste("Uploading BT example map data..."))
+      viewmap <- prepare_map_custom_files(system.file("ext/dosage.tsv.gz", package = "viewpoly"),
+                                          system.file("ext/phases.tsv.gz", package = "viewpoly"),
+                                          system.file("ext/map.tsv.gz", package = "viewpoly"))
+    } else if(!(is.null(dosages) | is.null(phases) | is.null(genetic_map))){
+      incProgress(0.5, detail = paste("Uploading custom format data..."))
+      viewmap <- prepare_map_custom_files(dosages, phases, genetic_map) 
+      return(viewmap)
+    } else {
+      stop("Please choose one of the option in the previous screen to upload genetic map information.")
+    }
+  })
 }
+
+read_QTLdata <- function(qtlpoly_data = NULL,
+                         qtlpoly_remim.mod = NULL,
+                         qtlpoly_est.effects = NULL,
+                         qtlpoly_fitted.mod = NULL,
+                         selected_mks = NULL,
+                         qtl_info = NULL,
+                         blups = NULL,
+                         beta.hat = NULL,
+                         profile = NULL,
+                         effects = NULL,
+                         probs = NULL,
+                         example_qtl = NULL){
+  withProgress(message = 'Uploading QTL data', value = 0, {
+    if(!is.null(qtlpoly_data) | !is.null(qtlpoly_remim.mod) | 
+       !is.null(qtlpoly_est.effects) | !is.null(qtlpoly_fitted.mod)){
+      incProgress(0.5, detail = paste("Uploading QTLpoly data..."))
+      qtls <- prepare_QTLpoly(qtlpoly_data, qtlpoly_remim.mod, 
+                              qtl_est.effects, qtl_fitted.mod)
+    } else if(example_qtl == "bt_map"){
+      incProgress(0.5, detail = paste("Uploading BT example QTL data..."))
+      qtls <- get(data("qtl_bt"))
+    } else if(!(is.null(qtl_info) | is.null(blups) | 
+                is.null(beta.hat) | is.null(profile) | 
+                is.null(effects) | is.null(probs) | is.null(selected_mks))){
+      incProgress(0.5, detail = paste("Uploading custom format QTL data..."))
+      qtls <- prepare_qtl_custom_files(selected_mks, qtl_info, blups, beta.hat,
+                                       profile, effects, probs)
+    } else {
+      stop("Please choose one of the option in the previous screen to upload QTL information.")
+    }
+  })
+  return(qtls)
+}
+
 
 #' Read input custom format files
 #' 
-#' @param dosages RDS compressed file with both parents dosage information.
+#' @param dosages TSV or TSV.GZ file with both parents dosage information.
 #' It should contain four columns: 1) character vector with chromosomes ID; 
 #' 2) Character vector with markers ID; 3) Character vector with parent ID; 
 #' 4) numerical vector with dosage. 
-#' @param phases RDS compressed file with phases information. It should contain:
+#' @param phases TSV or TSV.GZ file with phases information. It should contain:
 #' 1) Character vector with chromosome ID; 2) Character vector with marker ID;
 #' 3 to (ploidy number)*2 columns with each parents haplotypes.
-#' @param genetic_map RDS compressed file with the genetic map information
+#' @param genetic_map TSV or TSV.GZ file with the genetic map information
 #' 
 #' @import dplyr
+#' @import vroom
 #' 
-read_custom_files <- function(dosages, phases, genetic_map){
-  ds <- readRDS(dosages)
-  ph <- readRDS(phases)
-  map <- readRDS(genetic_map)
+prepare_map_custom_files <- function(dosages, phases, genetic_map){
+  ds <- vroom(dosages)
+  ph <- vroom(phases)
+  map <- vroom(genetic_map)
   
   parent1 <- unique(ds$parent)[1]
   parent2 <- unique(ds$parent)[2]
@@ -85,11 +126,10 @@ read_custom_files <- function(dosages, phases, genetic_map){
   return(viewmap_obj)
 }
 
-
 #' Change mappoly:::prepare_map output format
 #' 
-read_mappoly_lst <- function(mappoly_prep){
-  prep <- readRDS(mappoly_prep$datapath)
+prepare_MAPpoly <- function(mappoly_prep){
+  prep <- load(mappoly_prep$datapath) # Check
   viewmap_obj <- list(dp = lapply(prep, "[[", 5),
                       dq = lapply(prep, "[[", 6),
                       ph.p = lapply(prep, "[[", 3),
@@ -99,9 +139,12 @@ read_mappoly_lst <- function(mappoly_prep){
 
 #' take all information needed from qtlpoly objects
 #' 
-#' @param remim.mod object of class "qtlpoly.model" "qtlpoly.remim".
-#' 
 #' @param data object of class "qtlpoly.data"
+#' @param remim.mod object of class "qtlpoly.model" "qtlpoly.remim".
+#' @param est.effects object of class "qtlpoly.effects"
+#' @param fitted.mod object of class "qtlpoly.fitted"
+#' 
+#' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
 #' 
 #' @import tidyr
 #' 
@@ -159,7 +202,7 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
   }
   
   # Rearrange the progeny probabilities into a list
-  probs <- data$Z[,,1:5]
+  probs <- data$Z
   
   result <- list(selected_mks = lgs, qtl_info = qtl_info, 
                  blups = as.data.frame(u.hat), beta.hat = beta.hat, 
@@ -167,21 +210,28 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
   return(result)
 }
 
-prepare_QTLdata <- function(qtlpoly_in = NULL,
-                            p_values = NULL,
-                            intervals = NULL,
-                            qtls = NULL,
-                            example_qtl){
-  if(!is.null(qtlpoly_in)){
-    qtls <- qtlpoly_in
-  } else if(example_qtl == "bt_map"){
-    temp <- load(system.file("ext", "qtl_in.rda", package = "viewpoly"))
-    qtls <- get(temp)
-  } else if(!(is.null(p_values) | is.null(intervals) | is.null(qtls))){
-    qtls <- read_custom_files(dosages, phases, genetic_map) # update here
-    return(qtls)
-  } else {
-    stop("Please choose one of the option in the previous screen.")
-  }
+#' 
+#' @import vroom
+#' @import abind
+#' 
+prepare_qtl_custom_files <- function(selected_mks, qtl_info, blups, beta.hat,
+                                     profile, effects, probs){
+  qtls <- list()
+  qtls$selected_mks <- as.data.frame(vroom(selected_mks))
+  qtls$qtl_info <- as.data.frame(vroom(qtl_info))
+  qtls$blups <- as.data.frame(vroom(blups))
+  qtls$beta.hat <- as.data.frame(vroom(beta.hat))
+  qtls$profile <- as.data.frame(vroom(profile))
+  qtls$profile[,2] <- as.numeric(qtls$profile[,2])
+  qtls$effects <- as.data.frame(vroom(effects))
+  
+  probs.t <- vroom(probs)
+  ind <- probs.t$ind
+  probs.t <- as.data.frame(probs.t[,-1])
+  probs.df <- split(probs.t, ind)
+  qtls$probs <- abind(probs.df, along = 3)
+  
+  return(qtls)
 }
+
 

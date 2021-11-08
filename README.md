@@ -1,6 +1,7 @@
 <!-- badges: start -->
 [![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
 [![R-CMD-check](https://github.com/mmollina/viewpoly/workflows/R-CMD-check/badge.svg)](https://github.com/mmollina/viewpoly/actions)
+[![codecov](https://codecov.io/gh/mmollina/viewpoly/branch/main/graph/badge.svg)](https://codecov.io/gh/mmollina/viewpoly)
 <!-- badges: end -->
   
 # VIEWpoly

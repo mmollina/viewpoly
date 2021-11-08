@@ -9,7 +9,7 @@ output: html_document
 
 You can run `ViewPoly` locally installing the package and accessing the graphical interface through a web browser:
 
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("mmollina/viewpoly")
 viewpoly::run_app()
 ```
@@ -18,12 +18,20 @@ The `Upload` tab has options for diverse types of inputs. You can upload directl
 
 * MAPpoly
 * QTLpoly
-* CSV standard formats
+* TSV standard formats
 
 To associate the genetic maps and QTLs with genomic information, it is also required:
 
 * FASTA reference genome
 * GFF3 annotation file
+
+### Tutorial video
+
+testing
+
+<iframe width="420" height="315"
+src="https://www.youtube.com/embed/PTDgP3BDPIU?start=170&end=495">
+</iframe> 
 
 ### Overview of features
 

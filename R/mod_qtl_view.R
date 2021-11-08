@@ -4,11 +4,8 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @importFrom shinyjs inlineCSS
-#' @importFrom RColorBrewer brewer.pal
-#' @import ggpubr
 #' @import shinydashboard
-#' @import DT
+#' @import shinyWidgets
 #' 
 #' @noRd 
 #'
@@ -27,31 +24,58 @@ mod_qtl_view_ui <- function(id){
           tags$h2(tags$b("View QTL")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, status="primary", title = h4("Linkage group"),
-                            checkboxGroupInput(ns("group"),
-                                               label = h6("Select linkage groups"),
-                                               choices = "This will be updated",
-                                               selected = "This will be updated"), 
-                            actionLink(ns("selectall1"),"Select all groups"), br(),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = FALSE, status="primary",
+                            pickerInput(ns("group"),
+                                        label = h6("Select linkage groups"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE)
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
-                            checkboxGroupInput(ns("phenotypes"),
-                                               label = h6("Select phenotypes"),
-                                               choices = "This will be updated",
-                                               selected = "This will be updated"), 
-                            actionLink(ns("selectall2"),"Select all phenotypes"), br(),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                            pickerInput(ns("phenotypes"),
+                                        label = h6("Select phenotypes"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE)
                         )
                  )
           ),
           column(12,
                  box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("LOD curve"),
-                     plotOutput(ns("plot_qtl"), 
-                                click=ns("plot_click"), brush = ns("plot_brush")),
-                     
+                     column(2,
+                            downloadBttn(ns('bn_download'), style = "gradient")
+                     ),
+                     column(10,
+                            radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                     ), br(), 
+                     column(12,
+                            hr(),
+                            plotOutput(ns("plot_qtl"), 
+                                       click=ns("plot_click"), brush = ns("plot_brush"))
+                     ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
-                         uiOutput(ns("plot.ui"))
+                         column(2,
+                                downloadBttn(ns('bn_download_effects'), style = "gradient")
+                         ),
+                         column(10,
+                                radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                         ), br(),
+                         column(12,
+                                hr(),
+                                uiOutput(ns("plot.ui"))
+                         )
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL info"),
                          DT::dataTableOutput(ns("info"))
@@ -69,11 +93,9 @@ mod_qtl_view_ui <- function(id){
 
 #' qtl_view Server Functions
 #'
-#' @import JBrowseR
-#' @import ggpubr
-#' @import DT
-#' @importFrom shinyjs inlineCSS
-#'
+#' @importFrom ggpubr ggarrange
+#' @import shinydashboard
+#' 
 #' @noRd 
 mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
   ns <- session$ns
@@ -83,39 +105,21 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     group_choices <- as.list(1:length(loadMap()$dp))
     names(group_choices) <- 1:length(loadMap()$dp)
     
-    if (input$selectall1%%2 == 0)
-    {
-      updateCheckboxGroupInput(session, "group",
-                               label="Select linkage groups",
-                               choices = group_choices,
-                               selected= group_choices[[1]])
-    }
-    else
-    {
-      updateCheckboxGroupInput(session, "group",
-                               label="Select linkage groups",
-                               choices = group_choices,
-                               selected= unlist(group_choices))
-    }
+    updatePickerInput(session, "group",
+                      label="Select linkage groups",
+                      choices = group_choices,
+                      selected= group_choices[[1]])
+    
     
     # Dynamic QTL
     pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
     names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
-    if (input$selectall2%%2 == 0)
-    {
-      updateCheckboxGroupInput(session, "phenotypes",
-                               label = "Select phenotypes",
-                               choices = pheno_choices,
-                               selected=unlist(pheno_choices)[1])
-    }
-    else
-    {
-      updateCheckboxGroupInput(session, "phenotypes",
-                               label = "Select phenotypes",
-                               choices = pheno_choices,
-                               selected=unlist(pheno_choices))
-    }
+    updatePickerInput(session, "phenotypes",
+                      label = "Select phenotypes",
+                      choices = pheno_choices,
+                      selected=unlist(pheno_choices)[1])
+    
   })
   
   qtl.data <- reactive({
@@ -126,7 +130,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                        pheno.col = idx,
                        lgs.id = as.numeric(input$group), 
                        by_range=F, plot = F)
-
+    
     pl
   })
   
@@ -168,7 +172,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   output$plot.ui <- renderUI({
-    plotOutput(ns("effects"), height = plotHeight())
+    plotOutput(ns("effects"), height =  plotHeight())
   })
   
   output$info <- DT::renderDataTable({
@@ -198,12 +202,11 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     } else {
       stop("Select a point or region on graphic.")
     }
-
+    
     pos <- split(dframe$`Position (cM)`, dframe$Trait)
     dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
                           loadQTL()$selected_mks, loadQTL()$blups, 
                           loadQTL()$beta.hat, pos)
-    print(dt)
     DT::datatable(dt, extensions = 'Buttons',
                   options = list(
                     dom = 'Bfrtlp',
@@ -212,7 +215,76 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                   class = "display")
   })
   
+  # Download profile
+  # create filename
+  fn_downloadname <- reactive({
+    
+    seed <- sample(1:1000,1)
+    if(input$fformat=="png") filename <- paste0("profile","_",seed,".png")
+    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tif")
+    if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
+    if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
+    return(filename)
+  })
   
+  # download profile 
+  fn_download <- function()
+  {
+    p <- only_plot_profile(pl.in = qtl.data())
+    ggsave(p, file = fn_downloadname())    
+  }
+  
+  # download handler
+  output$bn_download <- downloadHandler(
+    filename = fn_downloadname,
+    content = function(file) {
+      fn_download()
+      file.copy(fn_downloadname(), file, overwrite=T)
+    }
+  )
+  
+  # Download effects
+  # create filename
+  fn_downloadname_effects <- reactive({
+    
+    seed <- sample(1:1000,1)
+    if(input$fformat_effects=="png") filename <- paste0("profile","_",seed,".png")
+    if(input$fformat_effects=="tiff") filename <- paste0("profile","_",seed,".tif")
+    if(input$fformat_effects=="jpeg") filename <- paste0("profile","_",seed,".jpg")
+    if(input$fformat_effects=="pdf") filename <- paste0("profile","_",seed,".pdf")
+    return(filename)
+  })
+  
+  # download 
+  fn_download_effects <- function()
+  {
+    if(!is.null(input$plot_brush)){
+      df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+    } else if(!is.null(input$plot_click)){
+      df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
+    } else {
+      stop("Select a point or region on LOD profile graphic.") 
+    }
+    plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
+                                  pheno.col = as.character(df$Trait), 
+                                  lgs = df$LG, position = df$`Position (cM)`)
+    
+    rows <- ceiling(length(plots)/4)
+    if(rows == 0) rows <- 1
+    
+    p <- ggarrange(plotlist = plots, ncol = 4, nrow = rows)
+    ggsave(p, file = fn_downloadname_effects(), height = plotHeight(), 
+           width = 2.5*plotHeight(), units = "mm")    
+  }
+  
+  # download handler
+  output$bn_download_effects <- downloadHandler(
+    filename = fn_downloadname_effects,
+    content = function(file) {
+      fn_download_effects()
+      file.copy(fn_downloadname_effects(), file, overwrite=T)
+    }
+  )
 }
 
 # position = c(146.02,146.02,147.31,147.31,144.38,150.05,153.82,158.13)

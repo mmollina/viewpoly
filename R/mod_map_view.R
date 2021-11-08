@@ -5,8 +5,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @importFrom shinyjs inlineCSS
-#' @importFrom RColorBrewer brewer.pal
-#' @import plotly
+#' @importFrom plotly plotlyOutput
 #' 
 #' @noRd 
 #'
@@ -32,15 +31,21 @@ mod_map_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Phenotypes"),
-                            checkboxGroupInput(ns("phenotypes"),
-                                               label = h4("Phenotypes"),
-                                               choices = "This will be updated",
-                                               selected = "This will be updated")
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                            pickerInput(ns("phenotypes"),
+                                        label = h4("Phenotypes"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE),
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Linkage group"),
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
                             selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
                             checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
                         ), br(),
@@ -65,7 +70,8 @@ mod_map_view_ui <- function(id){
 
 #' map_view Server Functions
 #'
-#' @importFrom shinyjs inlineCSS
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom plotly ggplotly renderPlotly
 #'
 #' @noRd 
 mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
@@ -85,10 +91,10 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
     names(pheno_choices) <- unique(loadQTL()$profile$pheno)
     
-    updateCheckboxGroupInput(session, "phenotypes",
-                             label = "Phenotypes",
-                             choices = pheno_choices,
-                             selected=unlist(pheno_choices)[1])
+    updatePickerInput(session, "phenotypes",
+                      label = "Select phenotypes",
+                      choices = pheno_choices,
+                      selected=unlist(pheno_choices)[1])
   })
   
   # Plot map
