@@ -79,8 +79,8 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$dp))
-    names(group_choices) <- 1:length(loadMap()$dp)
+    group_choices <- as.list(1:length(loadMap()$d.p1))
+    names(group_choices) <- 1:length(loadMap()$d.p1)
     
     updateSelectInput(session, "group",
                       label="Linkage group",
@@ -99,18 +99,19 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   # Plot map
   output$plot_map <- renderPlot({
+    maps <- lapply(loadMap()$maps, function(x) names(x$l.dist) <- loadMap()$mk.names)
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
                    ch = input$group,
-                   dp = loadMap()$dp,
-                   dq = loadMap()$dq, 
-                   maps = loadMap()$maps, 
-                   ph.p = loadMap()$ph.p, 
-                   ph.q = loadMap()$ph.q,
+                   d.p1 = loadMap()$d.p1,
+                   d.p2 = loadMap()$d.p2, 
+                   maps = maps, 
+                   ph.p1 = loadMap()$ph.p1, 
+                   ph.p2 = loadMap()$ph.p2,
                    snp.names = input$op)
     
     max_updated = reactive({
-      map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$group, maps = loadMap()$maps, dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
+      map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$group, maps = maps, d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
     })
     
     observeEvent(max_updated, {
@@ -133,7 +134,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     max_updated <- map_summary(left.lim = input$range[1], 
                                right.lim = input$range[2], 
                                ch = input$group, maps = loadMap()$maps, 
-                               dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
+                               d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
     
     qtls_pos <- Reduce(union, seqs)
     chr_all <- 0:max_updated

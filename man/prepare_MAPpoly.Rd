@@ -2,10 +2,10 @@
 % Please edit documentation in R/functions_upload.R
 \name{prepare_MAPpoly}
 \alias{prepare_MAPpoly}
-\title{Change mappoly:::prepare_map output format}
+\title{convert list of mappoly.map object into viewpoly_map object}
 \usage{
-prepare_MAPpoly(mappoly_prep)
+prepare_MAPpoly(mappoly_list, config = "best")
 }
 \description{
-Change mappoly:::prepare_map output format
+convert list of mappoly.map object into viewpoly_map object
 }

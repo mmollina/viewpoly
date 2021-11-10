@@ -62,6 +62,9 @@ mod_genes_view_ui <- function(id){
             actionButton(ns("create_server"), "Open JBrowseR",icon("refresh")), br(),
             JBrowseROutput(ns("browserOutput"))
         ),br(),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Genomic position (bp) x Linkage Map position (cM)"),
+            plotlyOutput(ns("plot_pos"))
+        ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Download Genes Info"),
             DT::dataTableOutput(ns("genes_ano"))
         )
@@ -201,7 +204,7 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       
       path.fa <- paste0(server_dir, "/", loadJBrowse()$fasta$name[1])
       path.fai <- paste0(server_dir, "/", loadJBrowse()$fasta$name[2])
-      path.gzi <- paste0(server_dir, "/", loadJBrowse()$fasta$name[3])
+      path.gzi <- paste0(server_dir, "/", loadJBrowse()$fasta$name[3]) # split into two if
       path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
       path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
       
@@ -213,14 +216,16 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       
       mk.pos <- vroom(loadJBrowse()$mks.pos$datapath)
       
-    } else if(loadJBrowse()$example == "bt_map"){
+    } else if(loadJBrowse()$example == "hex_map"){
       path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
       path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
       mk.pos <- vroom(system.file("ext/mk_pos.tsv.gz", package = "viewpoly"))
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
-    } 
+    } else if(loadJBrowse()$example == "tetra_map"){
+      stop("Please choose one of the option in the previous screen to upload genome information.")
+    }
     
     if(exists("data_server"))
       data_server$stop_server()
@@ -283,7 +288,13 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
     
     df <- read.gff(system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly"))
-    df %>% filter(start > mks.range.1 & end < mks.range.2 & type == "gene")
+    df <- df %>% filter(start > mks.range.1 & end < mks.range.2)
+    DT::datatable(df, extensions = 'Buttons',
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf')
+                  ),
+                  class = "display")
   })
 }
 

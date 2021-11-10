@@ -24,8 +24,9 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View Example")),
                    selectInput(ns("example_map"), width = 500, label = "If you still don't have your own dataset, you can view one of our examples:", 
-                               choices = list("Sweetpotato genetic map - Beauregard x Tanzania (BT)" = "bt_map"),
-                               selected = "bt_map"),
+                               choices = list("Sweetpotato genetic map - Beauregard x Tanzania (BT)" = "hex_map",
+                                              "Potato genetic map - Atlantic x B1829-5" = "tetra_map"),
+                               selected = "tetra_map"),
                )
              )
       ), br(),
@@ -34,6 +35,10 @@ mod_upload_ui <- function(id){
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View Map")),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
                        fileInput(ns("mappoly_in"), label = h6("File: mappoly_map.RData"), multiple = F)
+                   ),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polymapR output")),
+                       fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
+                       fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.tsv or .tsv.gz)")),
                        box(
@@ -97,9 +102,10 @@ mod_upload_ui <- function(id){
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View genome")),
                    tags$h5(tags$b("Upload genome information")),
                    p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
-                   tags$div(class="alert alert-dismissible alert-warning",
-                            tags$h4(class="alert-heading", "Warning!"),
-                            tags$p(class="mb-0", "the uploaded .fasta and .gff genome version should be the same one used to build the genetic map")),
+                   box(
+                     width = NULL, background = "red",
+                     "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
+                   ),
                    fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = T),
                )
              )
@@ -108,10 +114,23 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View genes")),
                    tags$h5(tags$b("Upload .gff3 file with genes information")),
-                   tags$div(class="alert alert-dismissible alert-warning",
-                            tags$h4(class="alert-heading", "Warning!"),
-                            tags$p(class="mb-0", "the uploaded .fasta and .gff genome version should be the same one used to build the genetic map")),
+                   box(
+                     width = NULL, background = "red",
+                     "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
+                   ),
                    fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = T),
+               )
+             )
+      ),
+      column(width = 12,
+             fluidPage(
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View VCF")),
+                   tags$h5(tags$b("Upload VCF file with genes information")),
+                   box(
+                     width = NULL, background = "red",
+                     "Warning! The uploaded VCF file should be the same one used to build the genetic map"
+                   ),
+                   fileInput(ns("vcf"), label = h6("File: markers.vcf"), multiple = T),
                )
              )
       )
@@ -179,6 +198,8 @@ mod_upload_server <- function(input, output, session, parent_session){
   return(
     list(
       loadMap = reactive({read_Mapdata(input$mappoly_in,
+                                       input$polymapR.dataset,
+                                       input$polymapR.map,
                                        input$dosages,
                                        input$phases,
                                        input$genetic_map,
@@ -186,6 +207,7 @@ mod_upload_server <- function(input, output, session, parent_session){
       
       loadJBrowse = reactive({list(fasta = input$fasta,
                                    gff3 = input$gff3,
+                                   vcf = input$vcf,
                                    mks.pos = input$mks.pos,
                                    example = input$example_map)}),
       

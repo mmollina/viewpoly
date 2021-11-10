@@ -1,8 +1,8 @@
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
-                         maps, ph.p, ph.q, dp, dq, snp.names=TRUE)
+                         maps, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
 {
   ch <- as.numeric(ch)
-  ploidy <- dim(ph.p[[1]])[2]
+  ploidy <- dim(ph.p1[[1]])[2]
   # if(is.character(ch))
   #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
   var.col <- RColorBrewer::brewer.pal(n = 4, name = "Set1")
@@ -13,10 +13,10 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   x <- maps[[ch]]
   lab <- names(maps[[ch]])
   zy <- seq(0, 0.5, length.out = ploidy) + 1.5
-  pp1 <- ph.p[[ch]]
-  pp2 <- ph.q[[ch]]
-  dp1<-dq[[ch]]
-  dp2<-dp[[ch]]
+  pp1 <- ph.p1[[ch]]
+  pp2 <- ph.p2[[ch]]
+  d.p1<-d.p2[[ch]]
+  d.p2<-d.p1[[ch]]
   x1<-abs(left.lim - x)
   x2<-abs(right.lim - x)
   id.left<-which(x1==min(x1))[1]
@@ -54,8 +54,8 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   for(i in 1:length(connect.lines))
     lines(c(curx[i], connect.lines[i]), c(0.575, zy[1]-.05), lwd=0.3)
   points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
-         y = zy[ploidy]+0.05+dp2[id.left:id.right]/20,
-         col = d.col[as.character(dp2[id.left:id.right])],
+         y = zy[ploidy]+0.05+d.p2[id.left:id.right]/20,
+         col = d.col[as.character(d.p2[id.left:id.right])],
          pch = 19, cex = .7)
   corners = par("usr") 
   par(xpd = TRUE) 
@@ -73,8 +73,8 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   }
   mtext(text = "Parent 1", side = 2, at = mean(zy), line = -3, font = 4)
   points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
-         y = zy[ploidy]+0.05+dp1[id.left:id.right]/20,
-         col = d.col[as.character(dp1[id.left:id.right])],
+         y = zy[ploidy]+0.05+d.p1[id.left:id.right]/20,
+         col = d.col[as.character(d.p1[id.left:id.right])],
          pch = 19, cex = .7)
   corners = par("usr") 
   par(xpd = TRUE) 
@@ -91,28 +91,22 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   #        box.lty=0, bg="transparent")
 }
 
-## Function from MAPpoly
-imf_h <- function(r) {
-  r[r >= 0.5] <- 0.5 - 1e-14
-  -50 * log(1 - 2 * r)
-}
-
 map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
-                      maps, dp, dq){
+                      maps, d.p1, d.p2){
   ch <- as.numeric(ch)
   # if(is.character(ch))
   #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
   x <- maps[[ch]]
   lab <- names(maps[[ch]])
-  ploidy = max(c(dp[[ch]], dq[[ch]])) 
-  dp1<-dq[[ch]]
-  dp2<-dp[[ch]]
+  ploidy = max(c(d.p1[[ch]], d.p2[[ch]])) 
+  d.p1<-d.p2[[ch]]
+  d.p2<-d.p1[[ch]]
   x1<-abs(left.lim - x)
   x2<-abs(right.lim - x)
   id.left<-which(x1==min(x1))[1]
   id.right<-rev(which(x2==min(x2)))[1]
   curx<-x[id.left:id.right]
-  w<-table(paste(dp1[id.left:id.right], dp2[id.left:id.right], sep = "-"))
+  w<-table(paste(d.p1[id.left:id.right], d.p2[id.left:id.right], sep = "-"))
   M<-matrix(0, nrow = ploidy+1, ncol = ploidy+1, dimnames = list(0:ploidy, 0:ploidy))
   for(i in as.character(0:ploidy))
     for(j in as.character(0:ploidy))

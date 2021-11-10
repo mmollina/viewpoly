@@ -6,6 +6,8 @@
 \usage{
 read_Mapdata(
   mappoly_in = NULL,
+  polymapR.dataset = NULL,
+  polymapR.map = NULL,
   dosages = NULL,
   phases = NULL,
   genetic_map = NULL,
