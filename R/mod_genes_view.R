@@ -55,7 +55,7 @@ mod_genes_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("LOD curve"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl"))
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Genomic position (bp) x Linkage Map position (cM)"),
@@ -92,8 +92,8 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$dp))
-    names(group_choices) <- 1:length(loadMap()$dp)
+    group_choices <- as.list(1:length(loadMap()$d.p1))
+    names(group_choices) <- 1:length(loadMap()$d.p1)
     
     updateSelectInput(session, "group",
                       label="Linkage group",
@@ -125,10 +125,16 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       for(i in 1:length(command))
         seqs[[i]] <- eval(parse(text = command[i]))
       
+      maps <- lapply(loadMap()$maps, function(x) {
+        y <- x$l.dist
+        names(y) <- x$mk.names
+        y
+      })
+      
       max_updated <- map_summary(left.lim = input$range[1], 
                                  right.lim = input$range[2], 
-                                 ch = input$group, maps = loadMap()$maps, 
-                                 dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
+                                 ch = input$group, maps = maps, 
+                                 d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
       
       qtls_pos <- Reduce(union, seqs)
       chr_all <- 0:max_updated

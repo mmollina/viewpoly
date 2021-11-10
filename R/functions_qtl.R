@@ -19,14 +19,11 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   LGS <- selected_mks$LG
   POS <- selected_mks$pos
   for(p in 1:nphe) { #lines
-    TRT <- rep(unique(qtl_info$pheno)[pheno.col[p]], length(LGS))
+    TRT <- rep(unique(profile$pheno)[pheno.col[p]], length(LGS))
     SIG <- profile[which(profile$pheno == TRT),2]
     lines <- rbind(lines, data.frame(TRT=as.factor(TRT), LGS=LGS, POS=POS, SIG=SIG))
-    count <- count+1
-    y.dat <- c(y.dat, rep((-0.4*count), length(SIG)))
   }
-  lines <- cbind(lines, y.dat)
-  
+
   count <- 0
   y.dat <- c()
   for(p in 1:nphe) { #points
@@ -75,7 +72,11 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     lines$SIG[which(lines$POS > range.min & lines$POS < range.max)] <- NA
   }
   
-  colnames(lines) <- c("Trait", "LG", "Position (cM)", "SIG", "y.dat","INT", "range")
+  dot.height <- data.frame(trt = unique(points$TRT), heigth = unique(points$y.dat))
+  y.dat.lines <- dot.height$heigth[match(lines$TRT, dot.height$trt)]
+  lines$y.dat <- y.dat.lines
+  
+  colnames(lines) <- c("Trait", "LG", "Position (cM)", "SIG", "INT", "range","y.dat")
   colnames(points)[1:3] <- c("Trait", "LG", "Position (cM)")
   
   if(max(lgs.size[lgs.id]) > 200) cutx <- 150 else cutx <- 100
@@ -85,14 +86,14 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     if(by_range){
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
         facet_grid(.~LG, space = "free") +
-        {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
+        {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y = y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
-        labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
+        labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
     } else {
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
@@ -114,10 +115,13 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     pl$lines$x <- rep(1:size, length(table(pl$lines$Trait)))
     pl$lines$x.int <- NA
     pl$lines$x.int[which(!is.na(pl$lines$INT))] <- pl$lines$x[which(!is.na(pl$lines$INT))]
-    all <- paste0(pl$lines$Trait, "_", round(pl$lines$`Position (cM)`,2), "_", pl$lines$LG)
-    point <- paste0(pl$points$Trait, "_", round(pl$points$`Position (cM)`,2), "_", pl$points$LG)
     
-    pl$points$x <- pl$lines$x[match(point, all)]
+    if(dim(points)[1] > 0){
+      all <- paste0(pl$lines$Trait, "_", round(pl$lines$`Position (cM)`,2), "_", pl$lines$LG)
+      point <- paste0(pl$points$Trait, "_", round(pl$points$`Position (cM)`,2), "_", pl$points$LG)
+      pl$points$x <- pl$lines$x[match(point, all)]
+    }
+    
     pl$lines$SIG[which(pl$lines$SIG == "Inf")] <- NA ## Bugfix!!!
   }
   return(pl)

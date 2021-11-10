@@ -4,7 +4,7 @@
 \alias{prepare_MAPpoly}
 \title{convert list of mappoly.map object into viewpoly_map object}
 \usage{
-prepare_MAPpoly(mappoly_list, config = "best")
+prepare_MAPpoly(mappoly_list)
 }
 \description{
 convert list of mappoly.map object into viewpoly_map object

@@ -53,7 +53,7 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           column(12,
-                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("LOD curve"),
+                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("QTL profile"),
                      column(2,
                             downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
                      ),
@@ -102,8 +102,8 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$dp))
-    names(group_choices) <- 1:length(loadMap()$dp)
+    group_choices <- as.list(1:length(loadMap()$d.p1))
+    names(group_choices) <- 1:length(loadMap()$d.p1)
     
     updatePickerInput(session, "group",
                       label="Select linkage groups",
@@ -140,7 +140,6 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   output$plot_qtl <- renderPlot({
     only_plot_profile(pl.in = qtl.data())
-    stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$effects <- renderPlot({
@@ -150,7 +149,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
       } else if(!is.null(input$plot_click)){
         df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on LOD profile graphic.") 
+        stop("Select a point or region on QTL profile graphic.") 
       }
       plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
                                     pheno.col = as.character(df$Trait), 
@@ -171,7 +170,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
       } else if(!is.null(input$plot_click)){
         dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on LOD profile graphic.")
+        stop("Select a point or region on QTL profile graphic.")
       }
       counts <- nrow(dframe)
       counts <- ceiling(counts/4)
@@ -196,7 +195,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
         stop("Select a point or region on graphic.")
       }
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
-      colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Inferior interval (cM)", "Superior interval (cM)", "p-value", "h2")
+      colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
       DT::datatable(dframe, extensions = 'Buttons',
                     options = list(
                       dom = 'Bfrtlp',
@@ -281,7 +280,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     } else if(!is.null(input$plot_click)){
       df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
     } else {
-      stop("Select a point or region on LOD profile graphic.") 
+      stop("Select a point or region on QTL profile graphic.") 
     }
     plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
                                   pheno.col = as.character(df$Trait), 

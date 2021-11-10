@@ -67,8 +67,7 @@ read_QTLdata <- function(qtlpoly_data = NULL,
       incProgress(0.5, detail = paste("Uploading BT example QTL data..."))
       qtls <- get(data("qtl_bt"))
     } else if(example_qtl == "tetra_map"){
-      warning("Please choose one of the option in the previous screen to upload QTL information.")
-      qtls <- NULL
+      qtls <- get(data("viewqtl_tetra"))
     } else if(!(is.null(qtl_info) | is.null(blups) | 
                 is.null(beta.hat) | is.null(profile) | 
                 is.null(effects) | is.null(probs) | is.null(selected_mks))){
@@ -167,6 +166,11 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
   return(viewmap)
 }
 
+# data = tetra_QTLpoly_data
+# remim.mod = tetra_QTLpoly_remim
+# est.effects = tetra_QTLpoly_effects
+# fitted.mod = tetra_QTLpoly_fitted
+
 #' take all information needed from qtlpoly objects
 #' 
 #' @param data object of class "qtlpoly.data"
@@ -191,44 +195,46 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
   qtl_info <- u.hat <- beta.hat <- pvalue <- profile <- effects <- data.frame()
   for(i in 1:length(remim.mod$results)){
     pheno = names(fitted.mod$results)[i]
-    lower <- remim.mod$results[[i]]$lower[,1:2]
-    upper <- remim.mod$results[[i]]$upper[,1:2]
-    qtl <- remim.mod$results[[i]]$qtls[,c(1,2,6)]
-    int <- cbind(LG = lower$LG, Pos_lower = lower$Pos_lower, 
-                 Pos_upper = upper$Pos_upper, qtl[,2:3])
-    int <- cbind(pheno = names(remim.mod$results)[i], int)
-    
-    if(dim(fitted.mod$results[[i]]$qtls)[1] > 1) {
-      h2 <- fitted.mod$results[[i]]$qtls[-dim(fitted.mod$results[[i]]$qtls)[1],c(1:2,7)]
-      h2 <- data.frame(apply(h2, 2, unlist))
-    }else {
-      h2 <- fitted.mod$results[[i]]$qtls[,c(1:2,7)]
+    if(!is.null(dim(fitted.mod$results[[i]]$qtls)[1])){
+      lower <- remim.mod$results[[i]]$lower[,1:2]
+      upper <- remim.mod$results[[i]]$upper[,1:2]
+      qtl <- remim.mod$results[[i]]$qtls[,c(1,2,6)]
+      int <- cbind(LG = lower$LG, Pos_lower = lower$Pos_lower, 
+                   Pos_upper = upper$Pos_upper, qtl[,2:3])
+      int <- cbind(pheno = names(remim.mod$results)[i], int)
+      
+      
+      if(dim(fitted.mod$results[[i]]$qtls)[1] > 1) {
+        h2 <- fitted.mod$results[[i]]$qtls[-dim(fitted.mod$results[[i]]$qtls)[1],c(1:2,7)]
+        h2 <- data.frame(apply(h2, 2, unlist))
+      }else {
+        h2 <- fitted.mod$results[[i]]$qtls[,c(1:2,7)]
+      }
+      int <- merge(int, h2, by = c("LG", "Pos"))
+      
+      qtl_info <- rbind(qtl_info, int[order(int$LG, int$Pos),])
+      
+      u.hat.t <- do.call(cbind, fitted.mod$results[[i]]$fitted$U)
+      colnames(u.hat.t) <- names(fitted.mod$results[[i]]$fitted$U)
+      u.hat.t <- cbind(haplo = fitted.mod$results[[i]]$fitted$alleles, pheno , as.data.frame(u.hat.t))
+      u.hat.t <- pivot_longer(u.hat.t, cols = c(1:length(u.hat.t))[-c(1:2)], values_to = "u.hat", names_to = "qtl")
+      u.hat <- rbind(u.hat, u.hat.t)
+      u.hat$qtl <- gsub("g", "", u.hat$qtl)
+      
+      beta.hat.t <- data.frame(pheno, beta.hat = fitted.mod$results[[i]]$fitted$Beta[,1])
+      beta.hat <- rbind(beta.hat, beta.hat.t) 
+      
+      for(j in 1:length(est.effects$results[[i]]$effects)){
+        effects.t <- do.call(rbind, lapply(est.effects$results[[i]]$effects[[j]], function(x) data.frame(haplo = names(x), effect = x)))
+        effects.t <- cbind(pheno = pheno, qtl.id= j, effects.t)
+        effects <- rbind(effects, effects.t)
+      }
     }
-    
-    int <- merge(int, h2, by = c("LG", "Pos"))
-    
-    qtl_info <- rbind(qtl_info, int[order(int$LG, int$Pos),])
-    
-    u.hat.t <- do.call(cbind, fitted.mod$results[[i]]$fitted$u.hat)
-    colnames(u.hat.t) <- names(fitted.mod$results[[i]]$fitted$u.hat)
-    u.hat.t <- cbind(haplo = rownames(u.hat.t), pheno , as.data.frame(u.hat.t))
-    u.hat.t <- pivot_longer(u.hat.t, cols = c(1:length(u.hat.t))[-c(1:2)], values_to = "u.hat", names_to = "qtl")
-    u.hat <- rbind(u.hat, u.hat.t)
-    u.hat$qtl <- gsub("g", "", u.hat$qtl)
-    
-    beta.hat.t <- data.frame(pheno, beta.hat = fitted.mod$results[[i]]$fitted$beta.hat[,1])
-    beta.hat <- rbind(beta.hat, beta.hat.t) 
     
     if(is(remim.mod, "qtlpoly.feim")) SIG <- remim.mod$results[[i]][[3]] else SIG <- -log10(as.numeric(remim.mod$results[[i]][[3]]))
     
     profile.t <- data.frame(pheno, LOP = SIG)
     profile <- rbind(profile, profile.t)
-    
-    for(j in 1:length(est.effects$results[[i]]$effects)){
-      effects.t <- do.call(rbind, lapply(est.effects$results[[i]]$effects[[j]], function(x) data.frame(haplo = names(x), effect = x)))
-      effects.t <- cbind(pheno = pheno, qtl.id= j, effects.t)
-      effects <- rbind(effects, effects.t)
-    }
   }
   
   # Rearrange the progeny probabilities into a list

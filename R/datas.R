@@ -43,3 +43,26 @@
 #'
 #'
 "viewmap_tetra"
+
+#' Potato data of B2721 population - Atlantic x B1829-5
+#'
+#' The population comprises 156 offsprings genotyped with the SolCAP Infinium 8303 
+#' potato array. The dataset also contains the genomic position of the SNPs from 
+#' the Solanum tuberosum genome version 4.03.
+#'
+#' @name viewqtl_tetra
+#' @docType data
+#'
+#' @usage data(viewqtl_tetra)
+#'
+#' @format An object of class \code{"viewpoly.qtl"}.
+#'
+#' @keywords datasets
+#'
+#' @references 
+#' Felcher KJ, Coombs JJ, Massa AN, Hansey CN, Hamilton JP, et al. (2012) 
+#' Integration of Two Diploid Potato Linkage Maps with the Potato Genome Sequence. 
+#' PLOS ONE 7(4): e36347. \href{https://doi.org/10.1371/journal.pone.0036347}{PLOS ONE}
+#'
+#'
+"viewqtl_tetra"

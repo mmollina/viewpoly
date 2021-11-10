@@ -57,16 +57,19 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("LOD curve"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl")), 
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Marker dose"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Haplotypes and dosages"),
             plotOutput(ns("plot_map"), height = "500px")
         )
       )
     )
   )
 }
+
+# input <- list()
+# input$phenotypes <- c("PY08", "NS08")
 
 #' map_view Server Functions
 #'
@@ -87,7 +90,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                       choices = group_choices,
                       selected= group_choices[[1]])
     
-    # Dynamic QTLs
+    # Dynamic QTL
     if(!is.null(loadQTL())){
       pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
       names(pheno_choices) <- unique(loadQTL()$profile$pheno)
@@ -101,7 +104,11 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   
   # Plot map
   output$plot_map <- renderPlot({
-    maps <- lapply(loadMap()$maps, function(x) names(x$l.dist) <- loadMap()$mk.names)
+    maps <- lapply(loadMap()$maps, function(x) {
+      y <- x$l.dist
+      names(y) <- x$mk.names
+      y
+    })
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
                    ch = input$group,
@@ -117,7 +124,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     })
     
     observeEvent(max_updated, {
-      updateSliderInput(inputId = "range", max = max_updated())
+      updateSliderInput(inputId = "range", max = round(max_updated(),2))
     })
   })
   
@@ -134,9 +141,15 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
       for(i in 1:length(command))
         seqs[[i]] <- eval(parse(text = command[i]))
       
+      maps <- lapply(loadMap()$maps, function(x) {
+        y <- x$l.dist
+        names(y) <- x$mk.names
+        y
+      })
+      
       max_updated <- map_summary(left.lim = input$range[1], 
                                  right.lim = input$range[2], 
-                                 ch = input$group, maps = loadMap()$maps, 
+                                 ch = input$group, maps = maps, 
                                  d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
       
       qtls_pos <- Reduce(union, seqs)
@@ -148,7 +161,7 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
       int <- (int*100)/max_updated
       # add start and end
       ints_all <- unique(c(0,int, 100))
-      # add qtls 
+      # add qtl
       qtls <- (unique(sort(data$Pos))*100)/max_updated
       qtls <- sort(c(qtls -0.3, qtls +0.3))
       
@@ -194,11 +207,14 @@ mod_map_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   output$plot_qtl <- renderPlotly({
     if(!is.null(loadQTL())){
       idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-      pl <- plot_profile(loadQTL()$profile, loadQTL()$qtl_info, loadQTL()$selected_mks,
+      pl <- plot_profile(profile = loadQTL()$profile, 
+                         qtl_info = loadQTL()$qtl_info, 
+                         selected_mks = loadQTL()$selected_mks,
                          pheno.col = idx,
                          lgs.id = as.numeric(input$group),
                          range.min = input$range[1],
                          range.max = input$range[2], by_range=T)
+
       ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
