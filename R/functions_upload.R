@@ -24,7 +24,7 @@ read_Mapdata <- function(mappoly_in = NULL,
     if(!is.null(mappoly_in)){
       incProgress(0.5, detail = paste("Uploading MAPpoly data..."))
       viewmap <- prepare_MAPpoly(mappoly_list = mappoly_in)
-    } else if(!is.null(polymapR.dataset) & !(polymapR.map)){ ## Require update
+    } else if(!is.null(polymapR.dataset) & !is.null(polymapR.map)){ ## Require update
       incProgress(0.5, detail = paste("Uploading polymapR data..."))
       viewmap <- prepare_polymapR(polymapR.dataset, polymapR.map)
     } else if(example_map == "hex_map"){
@@ -67,7 +67,8 @@ read_QTLdata <- function(qtlpoly_data = NULL,
       incProgress(0.5, detail = paste("Uploading BT example QTL data..."))
       qtls <- get(data("qtl_bt"))
     } else if(example_qtl == "tetra_map"){
-      stop("Please choose one of the option in the previous screen to upload QTL information.")
+      warning("Please choose one of the option in the previous screen to upload QTL information.")
+      qtls <- NULL
     } else if(!(is.null(qtl_info) | is.null(blups) | 
                 is.null(beta.hat) | is.null(profile) | 
                 is.null(effects) | is.null(probs) | is.null(selected_mks))){
@@ -75,7 +76,8 @@ read_QTLdata <- function(qtlpoly_data = NULL,
       qtls <- prepare_qtl_custom_files(selected_mks, qtl_info, blups, beta.hat,
                                        profile, effects, probs)
     } else {
-      stop("Please choose one of the option in the previous screen to upload QTL information.")
+      warning("Please choose one of the option in the previous screen to upload QTL information.")
+      qtls <- NULL
     }
   })
   return(qtls)
