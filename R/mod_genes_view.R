@@ -58,7 +58,7 @@ mod_genes_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl"))
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Genomic position (bp) x Linkage Map position (cM)"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Linkage Map position (cM) x Genomic position (Mp)"),
             plotlyOutput(ns("plot_pos"))
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
@@ -75,11 +75,10 @@ mod_genes_view_ui <- function(id){
 
 #' genes_view Server Functions
 #'
-#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput
+#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput 
 #' @importFrom RColorBrewer brewer.pal 
 #' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
-#' @importFrom ape read.gff
 #'
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
@@ -176,12 +175,13 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
         for(i in 1:length(divs)){
           divs_lst[[i]] <- div(id= paste0("belowslider",i), style= divs[i], p())
         }
-        p(divs_lst, "QTL")
       }
-    } else
+      p(divs_lst, "QTL")
+    } else {
       stop("Upload the QTL information in upload session to access this feature.")
+    }
   })
-  
+
   output$interval <- renderUI({ 
     qtl.int()
   })
@@ -195,7 +195,7 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
                          lgs.id = as.numeric(input$group),
                          range.min = input$range[1],
                          range.max = input$range[2], by_range=T)
-      ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
+      ggplotly(source = "qtl_profile", pl, tooltip="text") %>% layout(legend = list(orientation = 'h', y = -0.3))
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })
@@ -222,27 +222,26 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       file.rename(loadJBrowse()$fasta$datapath[1], path.fa)
       file.rename(loadJBrowse()$fasta$datapath[2], path.fai)
       file.rename(loadJBrowse()$fasta$datapath[3], path.gzi)
-      mk.pos <- vroom(loadJBrowse()$mks.pos$datapath)
-    } else {
-      stop("Upload the genome information in upload session to access this feature.")
-    }
+    } 
     
     if(!is.null(loadJBrowse()$gff)){
-      
       path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
       path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
       file.rename(loadJBrowse()$gff$datapath[1], path.gff)
       file.rename(loadJBrowse()$gff$datapath[2], path.tbi)
-      
-    } else if(loadJBrowse()$example == "hex_map"){
+    }
+    
+    if(is.null(loadJBrowse()$fasta) & loadJBrowse()$example == "hex_map"){
       path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
       path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
-      mk.pos <- vroom(system.file("ext/mk_pos.tsv.gz", package = "viewpoly"))
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
-    } else if(loadJBrowse()$example == "tetra_map"){
-      stop("Please choose one of the option in the previous screen to upload genome information.")
+    } else if(is.null(loadJBrowse()$fasta) & loadJBrowse()$example == "tetra_map"){
+      path.fa <- system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly")
+      path.gff <- system.file("ext/Stuberosum.Chr01.gff3.gz", package = "viewpoly")
+    } else {
+      stop("Upload the genome information in upload session to access this feature.")
     }
     
     if(exists("data_server"))
@@ -250,7 +249,7 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     
     data_server <- serve_data(dirname(path.fa), port = 5000)
     
-    list(path.fa, path.gff, data_server, mk.pos)
+    list(path.fa, path.gff, data_server)
   })
   
   # Link the UI with the browser widget
@@ -272,40 +271,41 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     
     ## select default window
     group <- as.numeric(input$group)
-    mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
-    mk.pos <- filter(button()[[4]], chr == group)
-    mks <- merge(mk.pos, mk.cM, by = c("mk"))
-    mks <- mks[order(mks$cM),]
-    mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
-    mks.range.1 <- mks$pos[mks.range[1]]
-    mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
+    mk.pos <- loadMap()$maps[[group]]
+    mks <- mk.pos[order(mk.pos$l.dist),]
+    mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+    mks.range.1 <- mks$g.dist[mks.range[1]]
+    mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
+    
+    if(mks.range.1 > mks.range.2) stop("Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`")
     
     default_session <- default_session(
       assembly,
       c(annotations_track)
     )
     
+    theme <- JBrowseR::theme("#6c81c0", "#22284c")
     JBrowseR(
       "View",
       assembly = assembly,
       tracks = tracks,
-      location = paste0("Chr01:", mks.range.1,"..",mks.range.2), ## Update here!
-      defaultSession = default_session
+      location = paste0(unique(mks$g.chr),":", mks.range.1,"..",mks.range.2), 
+      defaultSession = default_session,
+      theme = theme
     )
   })
   
   output$genes_ano  <- DT::renderDataTable({
-    if(!is.null(loadJBrowse()$gff)) {
+    if(!is.null(button()[[2]])) {
       group <- as.numeric(input$group)
-      mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
-      mk.pos <- filter(button()[[4]], chr == group)
-      mks <- merge(mk.pos, mk.cM, by = c("mk"))
-      mks <- mks[order(mks$cM),]
-      mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
-      mks.range.1 <- mks$pos[mks.range[1]]
-      mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
+      mks<- loadMap()$maps[[group]]
+      mks <- mks[order(mks$l.dist),]
+      mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+      mks.range.1 <- mks$g.dist[mks.range[1]]
+      mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
       
-      df <- read.gff(system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly"))
+      df <- vroom(button()[[2]], delim = "\t", skip = 3, col_names = F)
+      colnames(df) <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase", "attributes")
       df <- df %>% filter(start > mks.range.1 & end < mks.range.2)
       DT::datatable(df, extensions = 'Buttons',
                     options = list(
@@ -316,6 +316,36 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     } else 
       stop("Upload annotation file (.gff3) in the upload session to access this feature.")
   })
+  
+  output$plot_pos <- renderPlotly({
+    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
+    
+    map.lg$high <- map.lg$g.dist
+    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
+    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
+    
+    map.lg$high <- as.factor(map.lg$high)
+    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
+                                                                                   "Genetic:", round(l.dist,2), "cM \n",
+                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
+      geom_point() + scale_color_manual(values=c('black','red')) + 
+      theme(legend.position = "none") + 
+      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
+      theme_bw()
+    
+    max_updated = reactive({
+      dist <- loadMap()$maps[[as.numeric(input$group)]]$l.dist
+      max.range <- max(dist)
+      max.range
+    })
+    
+    observeEvent(max_updated, {
+      updateSliderInput(inputId = "range", max = round(max_updated(),2))
+    })
+    
+    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
+  })
+  
 }
 
 ## To be copied in the UI

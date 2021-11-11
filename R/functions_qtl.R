@@ -5,6 +5,7 @@
 #' @import ggplot2
 #' @import dplyr
 #' @import tidyr
+#' @importFrom plotly TeX
 #' 
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 
                          lgs.id = NULL, by_range = TRUE, range.min = NULL, range.max = NULL, plot=TRUE) {
@@ -23,7 +24,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     SIG <- profile[which(profile$pheno == TRT),2]
     lines <- rbind(lines, data.frame(TRT=as.factor(TRT), LGS=LGS, POS=POS, SIG=SIG))
   }
-
+  
   count <- 0
   y.dat <- c()
   for(p in 1:nphe) { #points
@@ -47,7 +48,14 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   # The axis name change according with software
   y.lab <- colnames(profile)[2]
-  if(y.lab == "LOP")  y.lab <- expression(-log[10](italic(P)))
+  if(y.lab == "LOP")  {
+    if(by_range){
+      y.lab <- "LOP"
+    }  else {
+      y.lab <- expression(-log[10](italic(P)))
+      
+    }
+  }
   
   # Filter group
   if(!is.null(lgs.id)){
@@ -84,7 +92,9 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   if(plot){
     if(by_range){
-      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1, text = paste("Position:", `Position (cM)`, "cM \n",
+                                                                                               "Trait:", Trait, "\n",
+                                                                                               "y axis:", round(SIG,2)))) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y = y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
@@ -96,7 +106,9 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
     } else {
-      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1, text = paste("Position:", `Position (cM)`, "cM \n",
+                                                                                               "Trait:", Trait, "\n",
+                                                                                               "y axis:", round(SIG,2)))) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
@@ -235,7 +247,7 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
     Z <- probs[,markers,] # select by pos
     u.hat <- blups %>% filter(pheno == pheno.names[p])
     u.hat <- split(u.hat$u.hat, u.hat$qtl)
-
+    
     beta.hat.sub <- beta.hat %>% filter(pheno == pheno.names[p])
     beta.hat.v <- beta.hat.sub$beta.hat
     
@@ -251,7 +263,7 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
       nind <- dim(Z)[2]
       y.hat <- matrix(rep(beta.hat.v, nind), byrow = FALSE) + Zu
     }
-
+    
     colnames(y.hat) <- pheno.names[p]
     results[[p]] <- round(y.hat,2)
   }
