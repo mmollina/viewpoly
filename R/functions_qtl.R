@@ -5,6 +5,7 @@
 #' @import ggplot2
 #' @import dplyr
 #' @import tidyr
+#' @importFrom plotly TeX
 #' 
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 
                          lgs.id = NULL, by_range = TRUE, range.min = NULL, range.max = NULL, plot=TRUE) {
@@ -19,13 +20,10 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   LGS <- selected_mks$LG
   POS <- selected_mks$pos
   for(p in 1:nphe) { #lines
-    TRT <- rep(unique(qtl_info$pheno)[pheno.col[p]], length(LGS))
+    TRT <- rep(unique(profile$pheno)[pheno.col[p]], length(LGS))
     SIG <- profile[which(profile$pheno == TRT),2]
     lines <- rbind(lines, data.frame(TRT=as.factor(TRT), LGS=LGS, POS=POS, SIG=SIG))
-    count <- count+1
-    y.dat <- c(y.dat, rep((-0.4*count), length(SIG)))
   }
-  lines <- cbind(lines, y.dat)
   
   count <- 0
   y.dat <- c()
@@ -40,7 +38,8 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       INF <- qtl_info.sub$Pos_lower
       SUP <- qtl_info.sub$Pos_upper
       PVAL <- qtl_info.sub$Pval
-      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL))
+      H2 <- qtl_info.sub$h2
+      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL, H2 = round(H2,2)))
       count <- count+1
       y.dat <- c(y.dat, rep((-0.4*count), nqtls))
     }
@@ -49,7 +48,14 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   # The axis name change according with software
   y.lab <- colnames(profile)[2]
-  if(y.lab == "LOP")  y.lab <- expression(-log[10](italic(P)))
+  if(y.lab == "LOP")  {
+    if(by_range){
+      y.lab <- "LOP"
+    }  else {
+      y.lab <- expression(-log[10](italic(P)))
+      
+    }
+  }
   
   # Filter group
   if(!is.null(lgs.id)){
@@ -74,7 +80,11 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     lines$SIG[which(lines$POS > range.min & lines$POS < range.max)] <- NA
   }
   
-  colnames(lines) <- c("Trait", "LG", "Position (cM)", "SIG", "y.dat","INT", "range")
+  dot.height <- data.frame(trt = unique(points$TRT), heigth = unique(points$y.dat))
+  y.dat.lines <- dot.height$heigth[match(lines$TRT, dot.height$trt)]
+  lines$y.dat <- y.dat.lines
+  
+  colnames(lines) <- c("Trait", "LG", "Position (cM)", "SIG", "INT", "range","y.dat")
   colnames(points)[1:3] <- c("Trait", "LG", "Position (cM)")
   
   if(max(lgs.size[lgs.id]) > 200) cutx <- 150 else cutx <- 100
@@ -82,19 +92,23 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   if(plot){
     if(by_range){
-      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1, text = paste("Position:", `Position (cM)`, "cM \n",
+                                                                                               "Trait:", Trait, "\n",
+                                                                                               "y axis:", round(SIG,2)))) +
         facet_grid(.~LG, space = "free") +
-        {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
+        {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y = y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
-        labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
+        labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
     } else {
-      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1, text = paste("Position:", `Position (cM)`, "cM \n",
+                                                                                               "Trait:", Trait, "\n",
+                                                                                               "y axis:", round(SIG,2)))) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
@@ -113,10 +127,13 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     pl$lines$x <- rep(1:size, length(table(pl$lines$Trait)))
     pl$lines$x.int <- NA
     pl$lines$x.int[which(!is.na(pl$lines$INT))] <- pl$lines$x[which(!is.na(pl$lines$INT))]
-    all <- paste0(pl$lines$Trait, "_", round(pl$lines$`Position (cM)`,2), "_", pl$lines$LG)
-    point <- paste0(pl$points$Trait, "_", round(pl$points$`Position (cM)`,2), "_", pl$points$LG)
     
-    pl$points$x <- pl$lines$x[match(point, all)]
+    if(dim(points)[1] > 0){
+      all <- paste0(pl$lines$Trait, "_", round(pl$lines$`Position (cM)`,2), "_", pl$lines$LG)
+      point <- paste0(pl$points$Trait, "_", round(pl$points$`Position (cM)`,2), "_", pl$points$LG)
+      pl$points$x <- pl$lines$x[match(point, all)]
+    }
+    
     pl$lines$SIG[which(pl$lines$SIG == "Inf")] <- NA ## Bugfix!!!
   }
   return(pl)
@@ -230,7 +247,7 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
     Z <- probs[,markers,] # select by pos
     u.hat <- blups %>% filter(pheno == pheno.names[p])
     u.hat <- split(u.hat$u.hat, u.hat$qtl)
-
+    
     beta.hat.sub <- beta.hat %>% filter(pheno == pheno.names[p])
     beta.hat.v <- beta.hat.sub$beta.hat
     
@@ -246,7 +263,7 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
       nind <- dim(Z)[2]
       y.hat <- matrix(rep(beta.hat.v, nind), byrow = FALSE) + Zu
     }
-
+    
     colnames(y.hat) <- pheno.names[p]
     results[[p]] <- round(y.hat,2)
   }

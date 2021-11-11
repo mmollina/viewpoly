@@ -7,17 +7,20 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   # Upload size
-  options(shiny.maxRequestSize=200*1024^2)
+  options(shiny.maxRequestSize=500*1024^2)
   
   ## Start modules
-  datas <- callModule(mod_upload_server,"upload_ui_1", parent_session=session)
+  datas <- callModule(mod_upload_server,
+                      "upload_ui_1", 
+                      parent_session=session)
   
   # QTL view
   callModule(mod_qtl_view_server,
              "qtl_view_ui_1", 
              loadMap = datas$loadMap,
              loadJBrowse = datas$loadJBrowse,
-             loadQTL = datas$loadQTL)
+             loadQTL = datas$loadQTL, 
+             parent_session=session)
   
   # Genes view
   callModule(mod_genes_view_server,

@@ -23,7 +23,8 @@ mod_genes_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),
+                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),  br(), br(),
+                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("View Genes")), br(), hr(),
@@ -55,12 +56,18 @@ mod_genes_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("LOD curve"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl"))
+        ), br(),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Linkage Map position (cM) x Genomic position (Mp)"),
+            plotlyOutput(ns("plot_pos"))
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
             actionButton(ns("create_server"), "Open JBrowseR",icon("refresh")), br(),
             JBrowseROutput(ns("browserOutput"))
+        ),br(),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Download Genes Info"),
+            DT::dataTableOutput(ns("genes_ano"))
         )
       )
     )
@@ -69,7 +76,7 @@ mod_genes_view_ui <- function(id){
 
 #' genes_view Server Functions
 #'
-#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput
+#' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput 
 #' @importFrom RColorBrewer brewer.pal 
 #' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
@@ -85,8 +92,8 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$dp))
-    names(group_choices) <- 1:length(loadMap()$dp)
+    group_choices <- as.list(1:length(loadMap()$d.p1))
+    names(group_choices) <- 1:length(loadMap()$d.p1)
     
     updateSelectInput(session, "group",
                       label="Linkage group",
@@ -94,90 +101,109 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
                       selected= group_choices[[1]])
     
     # Dynamic QTL
-    
-    pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
-    names(pheno_choices) <- unique(loadQTL()$profile$pheno)
-    
-    updatePickerInput(session, "phenotypes",
-                      label = "Select phenotypes",
-                      choices = pheno_choices,
-                      selected=unlist(pheno_choices)[1])
+    if(!is.null(loadQTL())){
+      pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
+      names(pheno_choices) <- unique(loadQTL()$profile$pheno)
+      
+      updatePickerInput(session, "phenotypes",
+                        label = "Select phenotypes",
+                        choices = pheno_choices,
+                        selected=unlist(pheno_choices)[1])
+    }
+  })
+  
+  observeEvent(input$goMap, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "map")
   })
   
   # Plot QTL bar
   qtl.int <- reactive({
-    data <- loadQTL()$qtl_info %>% filter(pheno %in% input$phenotypes & LG == input$group)
-    
-    if(dim(data)[1] == 0) stop("No QTL available in this group")
-    
-    data <- data[order(data$Pos_lower, data$Pos_upper),]
-    command <- paste0(round(data$Pos_lower,0), ":", round(data$Pos_upper, 0))
-    seqs <- list()
-    for(i in 1:length(command))
-      seqs[[i]] <- eval(parse(text = command[i]))
-    
-    max_updated <- map_summary(left.lim = input$range[1], 
-                               right.lim = input$range[2], 
-                               ch = input$group, maps = loadMap()$maps, 
-                               dp = loadMap()$dp, dq = loadMap()$dq)[[5]]
-    
-    qtls_pos <- Reduce(union, seqs)
-    chr_all <- 0:max_updated
-    
-    idx.comp <-  chr_all %in% qtls_pos
-    int <- chr_all[sequence(rle(idx.comp)$length) == 1]
-    
-    int <- (int*100)/max_updated
-    # add start and end
-    ints_all <- unique(c(0,int, 100))
-    # add qtls 
-    qtls <- (unique(sort(data$Pos))*100)/max_updated
-    qtls <- sort(c(qtls -0.3, qtls +0.3))
-    
-    labs <- c(rep("int", length(ints_all)), rep(c("red","#34495E "), length(qtls/2)))
-    labs <- labs[order(c(ints_all, qtls))]
-    labs[which(labs == "red")-1] <- "#34495E "
-    labs[which(labs == "int")] <- "#D5D8DC"
-    labs <- labs[-length(labs)]
-    
-    ints_all <- diff(sort(c(ints_all, qtls)))
-    
-    # Each interval add small blank space to the scale - need to remove
-    reduce <- cumsum(ints_all)[length(cumsum(ints_all))] - 99.7
-    ints_all[which(labs != "red")] <- ints_all[which(labs != "red")] - reduce
-    
-    # Add gradient colors
-    if(length(labs[which(labs == "red")]) < 3){
-      qtl.colors <- brewer.pal(7, name = "OrRd")[-c(1:5)][1:length(labs[which(labs == "red")])]
-    } else {
-      qtl.colors <- brewer.pal(length(labs[which(labs == "red")]), name = "OrRd")
-    }
-    
-    labs[which(labs == "red")][order(as.numeric(data$Pval), decreasing = T)] <- qtl.colors
-    
-    divs <- paste0("display:inline-block; width: ", ints_all ,"% ; background-color: ", labs, ";")
-    if(!is.null(input$phenotypes)){
-      divs_lst <- list()
-      for(i in 1:length(divs)){
-        divs_lst[[i]] <- div(id= paste0("belowslider",i), style= divs[i], p())
+    if(!is.null(loadQTL())){
+      data <- loadQTL()$qtl_info %>% filter(pheno %in% input$phenotypes & LG == input$group)
+      
+      if(dim(data)[1] == 0) stop("No QTL available in this group")
+      
+      data <- data[order(data$Pos_lower, data$Pos_upper),]
+      command <- paste0(round(data$Pos_lower,0), ":", round(data$Pos_upper, 0))
+      seqs <- list()
+      for(i in 1:length(command))
+        seqs[[i]] <- eval(parse(text = command[i]))
+      
+      maps <- lapply(loadMap()$maps, function(x) {
+        y <- x$l.dist
+        names(y) <- x$mk.names
+        y
+      })
+      
+      max_updated <- map_summary(left.lim = input$range[1], 
+                                 right.lim = input$range[2], 
+                                 ch = input$group, maps = maps, 
+                                 d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
+      
+      qtls_pos <- Reduce(union, seqs)
+      chr_all <- 0:max_updated
+      
+      idx.comp <-  chr_all %in% qtls_pos
+      int <- chr_all[sequence(rle(idx.comp)$length) == 1]
+      
+      int <- (int*100)/max_updated
+      # add start and end
+      ints_all <- unique(c(0,int, 100))
+      # add qtls 
+      qtls <- (unique(sort(data$Pos))*100)/max_updated
+      qtls <- sort(c(qtls -0.3, qtls +0.3))
+      
+      labs <- c(rep("int", length(ints_all)), rep(c("red","#34495E "), length(qtls/2)))
+      labs <- labs[order(c(ints_all, qtls))]
+      labs[which(labs == "red")-1] <- "#34495E "
+      labs[which(labs == "int")] <- "#D5D8DC"
+      labs <- labs[-length(labs)]
+      
+      ints_all <- diff(sort(c(ints_all, qtls)))
+      
+      # Each interval add small blank space to the scale - need to remove
+      reduce <- cumsum(ints_all)[length(cumsum(ints_all))] - 99.7
+      ints_all[which(labs != "red")] <- ints_all[which(labs != "red")] - reduce
+      
+      # Add gradient colors
+      if(length(labs[which(labs == "red")]) < 3){
+        qtl.colors <- brewer.pal(7, name = "OrRd")[-c(1:5)][1:length(labs[which(labs == "red")])]
+      } else {
+        qtl.colors <- brewer.pal(length(labs[which(labs == "red")]), name = "OrRd")
+      }
+      
+      labs[which(labs == "red")][order(as.numeric(data$Pval), decreasing = T)] <- qtl.colors
+      
+      divs <- paste0("display:inline-block; width: ", ints_all ,"% ; background-color: ", labs, ";")
+      if(!is.null(input$phenotypes)){
+        divs_lst <- list()
+        for(i in 1:length(divs)){
+          divs_lst[[i]] <- div(id= paste0("belowslider",i), style= divs[i], p())
+        }
       }
       p(divs_lst, "QTL")
+    } else {
+      stop("Upload the QTL information in upload session to access this feature.")
     }
   })
-  
+
   output$interval <- renderUI({ 
     qtl.int()
   })
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
-    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-    pl <- plot_profile(profile = loadQTL()$profile, qtl_info = loadQTL()$qtl_info, selected_mks = loadQTL()$selected_mks,
-                       pheno.col = idx,
-                       lgs.id = as.numeric(input$group),
-                       range.min = input$range[1],
-                       range.max = input$range[2], by_range=T)
-    ggplotly(source = "qtl_profile", pl) %>% layout(legend = list(orientation = 'h', y = -0.3))
+    if(!is.null(loadQTL())){
+      idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+      pl <- plot_profile(profile = loadQTL()$profile, qtl_info = loadQTL()$qtl_info, selected_mks = loadQTL()$selected_mks,
+                         pheno.col = idx,
+                         lgs.id = as.numeric(input$group),
+                         range.min = input$range[1],
+                         range.max = input$range[2], by_range=T)
+      ggplotly(source = "qtl_profile", pl, tooltip="text") %>% layout(legend = list(orientation = 'h', y = -0.3))
+    } else 
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   # Reactive to change page with click
@@ -193,44 +219,43 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
   button <- eventReactive(input$create_server, {
     
     if(!is.null(loadJBrowse()$fasta)){
-      cat("genome")
-      str(loadJBrowse()$fasta)
-      cat("gff")
-      str(loadJBrowse()$gff3)
-      
       server_dir <- tempdir()
       
       path.fa <- paste0(server_dir, "/", loadJBrowse()$fasta$name[1])
       path.fai <- paste0(server_dir, "/", loadJBrowse()$fasta$name[2])
       path.gzi <- paste0(server_dir, "/", loadJBrowse()$fasta$name[3])
-      path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
-      path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
       
       file.rename(loadJBrowse()$fasta$datapath[1], path.fa)
       file.rename(loadJBrowse()$fasta$datapath[2], path.fai)
       file.rename(loadJBrowse()$fasta$datapath[3], path.gzi)
+    } 
+    
+    if(!is.null(loadJBrowse()$gff)){
+      path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
+      path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
       file.rename(loadJBrowse()$gff$datapath[1], path.gff)
       file.rename(loadJBrowse()$gff$datapath[2], path.tbi)
-      cat("path")
-      print(path.fa)
-      
-      mk.pos <- vroom(loadJBrowse()$mks.pos$datapath)
-      
-    } else if(loadJBrowse()$example == "bt_map"){
+    }
+    
+    if(is.null(loadJBrowse()$fasta) & loadJBrowse()$example == "hex_map"){
       path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
       path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
-      mk.pos <- vroom(system.file("ext/mk_pos.tsv.gz", package = "viewpoly"))
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
-    } 
+    } else if(is.null(loadJBrowse()$fasta) & loadJBrowse()$example == "tetra_map"){
+      path.fa <- system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly")
+      path.gff <- system.file("ext/Stuberosum.Chr01.gff3.gz", package = "viewpoly")
+    } else {
+      stop("Upload the genome information in upload session to access this feature.")
+    }
     
     if(exists("data_server"))
       data_server$stop_server()
     
     data_server <- serve_data(dirname(path.fa), port = 5000)
     
-    list(path.fa, path.gff, data_server, mk.pos)
+    list(path.fa, path.gff, data_server)
   })
   
   # Link the UI with the browser widget
@@ -252,26 +277,79 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     
     ## select default window
     group <- as.numeric(input$group)
-    mk.cM <- data.frame(mk= names(loadMap()$maps[[group]]), cM = loadMap()$maps[[group]])
-    mk.pos <- filter(button()[[4]], chr == group)
-    mks <- merge(mk.pos, mk.cM, by = c("mk"))
-    mks <- mks[order(mks$cM),]
-    mks.range <- which(mks$cM >= input$range[1] &  mks$cM <= input$range[2])
-    mks.range.1 <- mks$pos[mks.range[1]]
-    mks.range.2 <- mks$pos[mks.range[length(mks.range)]]
+    mk.pos <- loadMap()$maps[[group]]
+    mks <- mk.pos[order(mk.pos$l.dist),]
+    mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+    mks.range.1 <- mks$g.dist[mks.range[1]]
+    mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
+    
+    if(mks.range.1 > mks.range.2) stop("Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`")
     
     default_session <- default_session(
       assembly,
       c(annotations_track)
     )
     
+    theme <- JBrowseR::theme("#6c81c0", "#22284c")
     JBrowseR(
       "View",
       assembly = assembly,
       tracks = tracks,
-      location = paste0("Chr01:", mks.range.1,"..",mks.range.2), ## Update here!
-      defaultSession = default_session
+      location = paste0(unique(mks$g.chr),":", mks.range.1,"..",mks.range.2), 
+      defaultSession = default_session,
+      theme = theme
     )
+  })
+  
+  output$genes_ano  <- DT::renderDataTable({
+    if(!is.null(button()[[2]])) {
+      group <- as.numeric(input$group)
+      mks<- loadMap()$maps[[group]]
+      mks <- mks[order(mks$l.dist),]
+      mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+      mks.range.1 <- mks$g.dist[mks.range[1]]
+      mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
+      
+      df <- vroom(button()[[2]], delim = "\t", skip = 3, col_names = F)
+      colnames(df) <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase", "attributes")
+      df <- df %>% filter(start > mks.range.1 & end < mks.range.2)
+      DT::datatable(df, extensions = 'Buttons',
+                    options = list(
+                      dom = 'Bfrtlp',
+                      buttons = c('copy', 'csv', 'excel', 'pdf')
+                    ),
+                    class = "display")
+    } else 
+      stop("Upload annotation file (.gff3) in the upload session to access this feature.")
+  })
+  
+  output$plot_pos <- renderPlotly({
+    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
+    
+    map.lg$high <- map.lg$g.dist
+    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
+    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
+    
+    map.lg$high <- as.factor(map.lg$high)
+    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
+                                                                                   "Genetic:", round(l.dist,2), "cM \n",
+                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
+      geom_point() + scale_color_manual(values=c('black','red')) + 
+      theme(legend.position = "none") + 
+      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
+      theme_bw()
+    
+    max_updated = reactive({
+      dist <- loadMap()$maps[[as.numeric(input$group)]]$l.dist
+      max.range <- max(dist)
+      max.range
+    })
+    
+    observeEvent(max_updated, {
+      updateSliderInput(inputId = "range", max = round(max_updated(),2))
+    })
+    
+    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
   })
   
 }

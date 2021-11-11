@@ -18,7 +18,8 @@ mod_qtl_view_ui <- function(id){
         fluidRow(
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),
+                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
+                     actionButton(ns("goGenes"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("View QTL")), br(), hr(),
@@ -53,9 +54,9 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           column(12,
-                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("LOD curve"),
+                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("QTL profile"),
                      column(2,
-                            downloadBttn(ns('bn_download'), style = "gradient")
+                            downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
                      ),
                      column(10,
                             radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -67,7 +68,7 @@ mod_qtl_view_ui <- function(id){
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
                          column(2,
-                                downloadBttn(ns('bn_download_effects'), style = "gradient")
+                                downloadBttn(ns('bn_download_effects'), style = "gradient", color = "royal")
                          ),
                          column(10,
                                 radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -97,13 +98,13 @@ mod_qtl_view_ui <- function(id){
 #' @import shinydashboard
 #' 
 #' @noRd 
-mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
+mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
   ns <- session$ns
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$dp))
-    names(group_choices) <- 1:length(loadMap()$dp)
+    group_choices <- as.list(1:length(loadMap()$d.p1))
+    names(group_choices) <- 1:length(loadMap()$d.p1)
     
     updatePickerInput(session, "group",
                       label="Select linkage groups",
@@ -112,26 +113,35 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     
     
     # Dynamic QTL
-    pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
-    names(pheno_choices) <- unique(loadQTL()$profile$pheno)
-    
-    updatePickerInput(session, "phenotypes",
-                      label = "Select phenotypes",
-                      choices = pheno_choices,
-                      selected=unlist(pheno_choices)[1])
-    
+    if(!is.null(loadQTL())){
+      pheno_choices <- as.list(unique(loadQTL()$profile$pheno))
+      names(pheno_choices) <- unique(loadQTL()$profile$pheno)
+      
+      updatePickerInput(session, "phenotypes",
+                        label = "Select phenotypes",
+                        choices = pheno_choices,
+                        selected=unlist(pheno_choices)[1])
+    } 
+  })
+  
+  observeEvent(input$goGenes, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "genes")
   })
   
   qtl.data <- reactive({
-    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-    pl <- plot_profile(profile = loadQTL()$profile, 
-                       qtl_info = loadQTL()$qtl_info, 
-                       selected_mks = loadQTL()$selected_mks,
-                       pheno.col = idx,
-                       lgs.id = as.numeric(input$group), 
-                       by_range=F, plot = F)
-    
-    pl
+    if(!is.null(loadQTL())){
+      idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+      pl <- plot_profile(profile = loadQTL()$profile, 
+                         qtl_info = loadQTL()$qtl_info, 
+                         selected_mks = loadQTL()$selected_mks,
+                         pheno.col = idx,
+                         lgs.id = as.numeric(input$group), 
+                         by_range=F, plot = F)
+      
+      pl
+    } else
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$plot_qtl <- renderPlot({
@@ -139,36 +149,42 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   output$effects <- renderPlot({
-    if(!is.null(input$plot_brush)){
-      df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-    } else if(!is.null(input$plot_click)){
-      df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
-    } else {
-      stop("Select a point or region on LOD profile graphic.") 
-    }
-    plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
-                                  pheno.col = as.character(df$Trait), 
-                                  lgs = df$LG, position = df$`Position (cM)`)
-    
-    rows <- ceiling(length(plots)/4)
-    if(rows == 0) rows <- 1
-    
-    ggarrange(plotlist = plots, ncol = 4, nrow = rows)
+    if(!is.null(loadQTL())){
+      if(!is.null(input$plot_brush)){
+        df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+      } else if(!is.null(input$plot_click)){
+        df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
+      } else {
+        stop("Select a point or region on QTL profile graphic.") 
+      }
+      plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
+                                    pheno.col = as.character(df$Trait), 
+                                    lgs = df$LG, position = df$`Position (cM)`)
+      
+      rows <- ceiling(length(plots)/4)
+      if(rows == 0) rows <- 1
+      
+      ggarrange(plotlist = plots, ncol = 4, nrow = rows)
+    } else 
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   plotHeight <- reactive({
-    if(!is.null(input$plot_brush)){
-      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-    } else if(!is.null(input$plot_click)){
-      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
-    } else {
-      stop("Select a point or region on LOD profile graphic.")
-    }
-    counts <- nrow(dframe)
-    counts <- ceiling(counts/4)
-    if(counts == 0) counts <- 1
-    size <- counts*350
-    size
+    if(!is.null(loadQTL())){
+      if(!is.null(input$plot_brush)){
+        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+      } else if(!is.null(input$plot_click)){
+        dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
+      } else {
+        stop("Select a point or region on QTL profile graphic.")
+      }
+      counts <- nrow(dframe)
+      counts <- ceiling(counts/4)
+      if(counts == 0) counts <- 1
+      size <- counts*350
+      size
+    } else 
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$plot.ui <- renderUI({
@@ -176,43 +192,50 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
   })
   
   output$info <- DT::renderDataTable({
-    if(!is.null(input$plot_brush)){
-      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-    } else if(!is.null(input$plot_click)){
-      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
-    } else {
-      stop("Select a point or region on graphic.")
-    }
-    dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
-    colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Inferior interval", "Superior interval", "p-value")
-    DT::datatable(dframe, extensions = 'Buttons',
-                  options = list(
-                    dom = 'Bfrtlp',
-                    buttons = c('copy', 'csv', 'excel', 'pdf')
-                  ),
-                  class = "display")
+    if(!is.null(loadQTL())){
+      if(!is.null(input$plot_brush)){
+        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+      } else if(!is.null(input$plot_click)){
+        dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
+      } else {
+        stop("Select a point or region on graphic.")
+      }
+      dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
+      colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
+      DT::datatable(dframe, extensions = 'Buttons',
+                    options = list(
+                      dom = 'Bfrtlp',
+                      buttons = c('copy', 'csv', 'excel', 'pdf')
+                    ),
+                    class = "display")
+    } else 
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   # Breeding values
   output$breeding_values <- DT::renderDataTable({
-    if(!is.null(input$plot_brush)){
-      dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-    } else if(!is.null(input$plot_click)){
-      dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
-    } else {
-      stop("Select a point or region on graphic.")
-    }
-    
-    pos <- split(dframe$`Position (cM)`, dframe$Trait)
-    dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
-                          loadQTL()$selected_mks, loadQTL()$blups, 
-                          loadQTL()$beta.hat, pos)
-    DT::datatable(dt, extensions = 'Buttons',
-                  options = list(
-                    dom = 'Bfrtlp',
-                    buttons = c('copy', 'csv', 'excel', 'pdf')
-                  ),
-                  class = "display")
+    if(!is.null(loadQTL())){
+      if(!is.null(input$plot_brush)){
+        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+      } else if(!is.null(input$plot_click)){
+        dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
+      } else {
+        stop("Select a point or region on graphic.")
+      }
+      
+      pos <- split(dframe$`Position (cM)`, dframe$Trait)
+      dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
+                            loadQTL()$selected_mks, loadQTL()$blups, 
+                            loadQTL()$beta.hat, pos)
+      rownames(dt) <- NULL
+      DT::datatable(dt, extensions = 'Buttons',
+                    options = list(
+                      dom = 'Bfrtlp',
+                      buttons = c('copy', 'csv', 'excel', 'pdf')
+                    ),
+                    class = "display")
+    } else 
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   # Download profile
@@ -263,7 +286,7 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
     } else if(!is.null(input$plot_click)){
       df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
     } else {
-      stop("Select a point or region on LOD profile graphic.") 
+      stop("Select a point or region on QTL profile graphic.") 
     }
     plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
                                   pheno.col = as.character(df$Trait), 
