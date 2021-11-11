@@ -14,7 +14,7 @@ mod_upload_ui <- function(id){
       column(width = 12,
              div(style = "position:absolute;right:1em;", 
                  actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
-                 actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
+                 actionButton(ns("goQTL"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
              ),
              tags$h2(tags$b("Upload data")), br(),
              "Use this session to upload your data or select one of our examples. 
@@ -190,9 +190,9 @@ mod_upload_server <- function(input, output, session, parent_session){
     }
   )
   
-  observeEvent(input$goMap, {
+  observeEvent(input$goQTL, {
     updateTabsetPanel(session = parent_session, inputId = "viewpoly",
-                      selected = "map")
+                      selected = "qtl")
   })
   
   return(

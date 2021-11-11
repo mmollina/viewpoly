@@ -18,7 +18,8 @@ mod_qtl_view_ui <- function(id){
         fluidRow(
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),
+                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
+                     actionButton(ns("goGenes"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("View QTL")), br(), hr(),
@@ -97,7 +98,7 @@ mod_qtl_view_ui <- function(id){
 #' @import shinydashboard
 #' 
 #' @noRd 
-mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL){
+mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
   ns <- session$ns
   
   observe({
@@ -121,6 +122,11 @@ mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, lo
                         choices = pheno_choices,
                         selected=unlist(pheno_choices)[1])
     } 
+  })
+  
+  observeEvent(input$goGenes, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "genes")
   })
   
   qtl.data <- reactive({
