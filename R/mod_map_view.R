@@ -61,15 +61,18 @@ mod_map_view_ui <- function(id){
             plotlyOutput(ns("plot_qtl")), 
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Haplotypes and dosages"),
-            plotOutput(ns("plot_map"), height = "500px")
+            plotOutput(ns("plot_map"), height = "500px"),
+            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Parents haplotypes"),
+                DT::dataTableOutput(ns("parents_haplo"))
+            ),
+            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Progeny haplotypes"),
+                DT::dataTableOutput(ns("progeny_haplo"))
+            )
         )
       )
     )
   )
 }
-
-# input <- list()
-# input$phenotypes <- c("PY08", "NS08")
 
 #' map_view Server Functions
 #'
@@ -150,7 +153,10 @@ mod_map_view_server <- function(input, output, session,
                    snp.names = input$op)
     
     max_updated = reactive({
-      map_summary(left.lim = input$range[1], right.lim = input$range[2], ch = input$group, maps = maps, d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
+      map_summary(left.lim = input$range[1], right.lim = input$range[2], 
+                  ch = input$group, maps = maps, 
+                  d.p1 = loadMap()$d.p1, 
+                  d.p2 = loadMap()$d.p2)[[5]]
     })
     
     observeEvent(max_updated, {
@@ -232,7 +238,6 @@ mod_map_view_server <- function(input, output, session,
     qtl.int()
   })
   
-  
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
     if(!is.null(loadQTL())){
@@ -244,7 +249,7 @@ mod_map_view_server <- function(input, output, session,
                          lgs.id = as.numeric(input$group),
                          range.min = input$range[1],
                          range.max = input$range[2], by_range=T)
-
+      
       ggplotly(source = "qtl_profile", pl, tooltip="text") %>% layout(legend = list(orientation = 'h', y = -0.3))
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
@@ -258,6 +263,29 @@ mod_map_view_server <- function(input, output, session,
   observeEvent(s(), {
     updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
   })
+  
+  output$parents_haplo  <- DT::renderDataTable(server = FALSE, {
+    if(!is.null(loadMap()$ph.p1)) {
+      group <- as.numeric(input$group)
+      mks<- loadMap()$maps[[group]]
+      mks <- mks[order(mks$l.dist),]
+      mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+      p1 <- loadMap()$ph.p1[[group]][mks.range,]
+      #colnames(p1) <- paste0("p1.",1:dim(p1)[2])
+      p2 <- loadMap()$ph.p2[[group]][mks.range,]
+      #colnames(p2) <- paste0("p2.",1:dim(p2)[2])
+      p.haplo <- cbind(p1,p2)
+      
+      DT::datatable(p.haplo, extensions = 'Buttons', 
+                    options = list(
+                      dom = 'Bfrtlp',
+                      buttons = c('copy', 'csv', 'excel', 'pdf')
+                    ),
+                    class = "display")
+    } else 
+      stop("Upload map information in the upload session to access this feature.")
+  })
+  
 }
 
 ## To be copied in the UI

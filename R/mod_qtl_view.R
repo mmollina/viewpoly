@@ -221,7 +221,7 @@ mod_qtl_view_server <- function(input, output, session,
     plotOutput(ns("effects"), height =  plotHeight())
   })
   
-  output$info <- DT::renderDataTable({
+  output$info <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
@@ -243,7 +243,7 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   # Breeding values
-  output$breeding_values <- DT::renderDataTable({
+  output$breeding_values <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")

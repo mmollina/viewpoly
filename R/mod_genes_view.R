@@ -329,7 +329,7 @@ mod_genes_view_server <- function(input, output, session,
     )
   })
   
-  output$genes_ano  <- DT::renderDataTable({
+  output$genes_ano  <- DT::renderDataTable(server = FALSE, {
     if(!is.null(button()$path.gff)) {
       group <- as.numeric(input$group)
       mks<- loadMap()$maps[[group]]
@@ -379,7 +379,6 @@ mod_genes_view_server <- function(input, output, session,
     
     ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
   })
-  
 }
 
 ## To be copied in the UI

@@ -1,12 +1,12 @@
 prepare_examples <- function(example){
   if(example == "hex_map"){
     incProgress(0.5, detail = paste("Uploading BT example map data..."))
-    # data("viewmap_hexa")
+    data("viewmap_hexa")
     # data("viewqtl_hexa")
-    # return(list(map = viewmap_hexa, 
-    #             qtl = viewqtl_hexa, 
-    #             fasta= system.file("ext/Trifida.Chr01.fa.gz"),
-    #             gff3 = system.file("ext/Trifida.Chr01.gff3.gz")))
+    return(list(map = viewmap_hexa,
+                qtl = NULL,
+                fasta= system.file("ext/Trifida.Chr01.fa.gz"),
+                gff3 = system.file("ext/Trifida.Chr01.gff3.gz")))
     
   } else if(example == "tetra_map"){
     incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
