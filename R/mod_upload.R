@@ -26,7 +26,7 @@ mod_upload_ui <- function(id){
                    selectInput(ns("example_map"), width = 500, label = "If you still don't have your own dataset, you can view one of our examples:", 
                                choices = list("Sweetpotato genetic map - Beauregard x Tanzania (BT)" = "hex_map",
                                               "Potato genetic map - Atlantic x B1829-5" = "tetra_map"),
-                               selected = "tetra_map"),
+                               selected = "tetra_map"), br(),
                )
              )
       ), br(),
@@ -57,7 +57,7 @@ mod_upload_ui <- function(id){
                                                 "phases.tsv" = "phases"),
                                     inline = TRUE), br(), br(),
                        downloadButton(ns("downloadData_map"), "Download"), 
-                   )
+                   ),
                )
              )
       ), br(),
@@ -92,14 +92,14 @@ mod_upload_ui <- function(id){
                                                 "effects.tsv" = "effects",
                                                 "probs.tsv" = "probs"),
                                     inline = TRUE), br(), br(),
-                       downloadButton(ns("downloadData_qtl"), "Download"), 
-                   )
+                   ),
+                   actionButton(ns("submitQTL"), "SubmitQTL")
                )
              )
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View genome")),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View JBrowse")),
                    tags$h5(tags$b("Upload genome information")),
                    p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
                    box(
@@ -107,24 +107,8 @@ mod_upload_ui <- function(id){
                      "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
                    ),
                    fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = T),
-               )
-             )
-      ),
-      column(width = 12,
-             fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View genes")),
                    tags$h5(tags$b("Upload .gff3 file with genes information")),
-                   box(
-                     width = NULL, background = "red",
-                     "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
-                   ),
                    fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = T),
-               )
-             )
-      ),
-      column(width = 12,
-             fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View VCF")),
                    tags$h5(tags$b("Upload VCF file with genes information")),
                    box(
                      width = NULL, background = "red",
@@ -195,36 +179,101 @@ mod_upload_server <- function(input, output, session, parent_session){
                       selected = "qtl")
   })
   
-  return(
-    list(
-      loadMap = reactive({read_Mapdata(input$mappoly_in,
-                                       input$polymapR.dataset,
-                                       input$polymapR.map,
-                                       input$dosages,
-                                       input$phases,
-                                       input$genetic_map,
-                                       input$example_map)}),
-      
-      loadJBrowse = reactive({list(fasta = input$fasta,
-                                   gff3 = input$gff3,
-                                   vcf = input$vcf,
-                                   mks.pos = input$mks.pos,
-                                   example = input$example_map)}),
-      
-      loadQTL = reactive({read_QTLdata(input$qtlpoly_data,
-                                       input$qtlpoly_remim.mod,
-                                       input$qtlpoly_est.effects,
-                                       input$qtlpoly_fitted.mod,
-                                       input$selected_mks,
-                                       input$qtl_info,
-                                       input$blups,
-                                       input$beta.hat,
-                                       input$profile,
-                                       input$effects,
-                                       input$probs,
-                                       input$example_map)})
-      
-    )
+  return(list(
+    
+    loadExample = reactive({
+      if(is.null(input$dosages) & is.null(input$phases) & is.null(input$genetic_map) &
+         is.null(input$mappoly_in) &
+         is.null(input$selected_mks) & 
+         is.null(input$qtl_info) & 
+         is.null(input$blups) & 
+         is.null(input$beta.hat) & 
+         is.null(input$profile) & 
+         is.null(input$effects) & 
+         is.null(input$probs) &
+         is.null(input$qtlpoly_data) & 
+         is.null(input$qtlpoly_remim.mod) &
+         is.null(input$qtlpoly_est.effects) &
+         is.null(input$qtlpoly_fitted.mod) &
+         is.null(input$fasta) &
+         is.null(input$gff3) &
+         is.null(input$vcf))
+        prepare_examples(input$example_map)
+      else NULL
+    }),
+    
+    loadMap_custom = reactive({
+      if(!(is.null(input$dosages) & is.null(input$phases) & is.null(input$genetic_map))){
+        req(input$dosages, input$phases, input$genetic_map)
+        prepare_map_custom_files(input$dosages,
+                                 input$phases,
+                                 input$genetic_map)
+      } else NULL
+    }),
+    
+    loadMap_mappoly =  reactive({
+      if(!is.null(input$mappoly_in))
+        prepare_MAPpoly(input$mappoly_in)
+      else NULL
+    }),
+    
+    loadQTL_custom = reactive({
+      if(!(is.null(input$selected_mks) & 
+         is.null(input$qtl_info) & 
+         is.null(input$blups) & 
+         is.null(input$beta.hat) & 
+         is.null(input$profile) & 
+         is.null(input$effects) & 
+         is.null(input$probs))) {
+        req(input$selected_mks, input$qtl_info, input$blups,
+            input$beta.hat, input$profile, input$effects,
+            input$probs)
+        prepare_qtl_custom_files(input$selected_mks,
+                                 input$qtl_info,
+                                 input$blups,
+                                 input$beta.hat,
+                                 input$profile,
+                                 input$effects,
+                                 input$probs)
+      } else NULL
+    }),
+    
+    loadQTL_qtlpoly = reactive({
+      if(!(is.null(input$qtlpoly_data) & 
+           is.null(input$qtlpoly_remim.mod) &
+           is.null(input$qtlpoly_est.effects) &
+           is.null(input$qtlpoly_fitted.mod))) {
+        
+        req(input$qtlpoly_data, 
+            input$qtlpoly_remim.mod,
+            input$qtlpoly_est.effects,
+            input$qtlpoly_fitted.mod)
+        
+        prepare_QTLpoly(input$qtlpoly_data,
+                        input$qtlpoly_remim.mod,
+                        input$qtlpoly_est.effects,
+                        input$qtlpoly_fitted.mod)
+      } else NULL
+    }),
+    
+    loadJBrowse_fasta = reactive({
+      if(!is.null(input$fasta))
+        input$fasta$datapath
+      else NULL
+    }),
+    
+    loadJBrowse_gff3 = reactive({
+      if(!is.null(input$gff3))
+        input$gff3$datapath
+      else NULL
+    }),
+    
+    loadJBrowse_vcf = reactive({
+      if(!is.null(input$vcf))
+        input$vcf$datapath
+      else NULL
+    })
+  )
   )
 }
 

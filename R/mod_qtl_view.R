@@ -98,8 +98,38 @@ mod_qtl_view_ui <- function(id){
 #' @import shinydashboard
 #' 
 #' @noRd 
-mod_qtl_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
+mod_qtl_view_server <- function(input, output, session, 
+                                loadExample, 
+                                loadMap_custom, loadMap_mappoly, 
+                                loadQTL_custom, loadQTL_qtlpoly, 
+                                parent_session){
   ns <- session$ns
+  
+  loadMap = reactive({
+    if(is.null(loadExample()) & is.null(loadMap_custom()) & is.null(loadMap_mappoly())){
+      warning("Select one of the options in `upload` session")
+      return(NULL)
+    } else if(!is.null(loadMap_custom())){
+      return(loadMap_custom())
+    } else if(!is.null(loadMap_mappoly())){
+      return(loadMap_mappoly())
+    } else if(!is.null(loadExample())){
+      return(loadExample()$map)
+    }
+  })
+  
+  loadQTL = reactive({
+    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly())){
+      warning("Select one of the options in `upload` session")
+      return(NULL)
+    } else if(!is.null(loadQTL_custom())){
+      return(loadQTL_custom())
+    } else if(!is.null(loadQTL_qtlpoly())){
+      return(loadQTL_qtlpoly())
+    } else if(!is.null(loadExample())){
+      return(loadExample()$qtl)
+    }
+  })
   
   observe({
     # Dynamic linkage group number

@@ -82,8 +82,39 @@ mod_genes_view_ui <- function(id){
 #' @importFrom shinyjs inlineCSS
 #'
 #' @noRd 
-mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, loadQTL, parent_session){
+mod_genes_view_server <- function(input, output, session, 
+                                  loadExample,
+                                  loadMap_custom, loadMap_mappoly,
+                                  loadQTL_custom, loadQTL_qtlpoly,
+                                  loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, 
+                                  parent_session){
   ns <- session$ns
+  
+  loadMap = reactive({
+    if(is.null(loadExample()) & is.null(loadMap_custom()) & is.null(loadMap_mappoly())){
+      warning("Select one of the options in `upload` session")
+      return(NULL)
+    } else if(!is.null(loadMap_custom())){
+      return(loadMap_custom())
+    } else if(!is.null(loadMap_mappoly())){
+      return(loadMap_mappoly())
+    } else if(!is.null(loadExample())){
+      return(loadExample()$map)
+    }
+  })
+  
+  loadQTL = reactive({
+    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly())){
+      warning("Select one of the options in `upload` session")
+      return(NULL)
+    } else if(!is.null(loadQTL_custom())){
+      return(loadQTL_custom())
+    } else if(!is.null(loadQTL_qtlpoly())){
+      return(loadQTL_qtlpoly())
+    } else if(!is.null(loadExample())){
+      return(loadExample()$qtl)
+    }
+  })
   
   #  Trying to fix server issue
   observeEvent(input$server_off, {
@@ -218,34 +249,31 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
   # Open JBrowser server 
   button <- eventReactive(input$create_server, {
     
-    if(!is.null(loadJBrowse()$fasta)){
+    if(!is.null(loadJBrowse_fasta())){
       server_dir <- tempdir()
       
-      path.fa <- paste0(server_dir, "/", loadJBrowse()$fasta$name[1])
-      path.fai <- paste0(server_dir, "/", loadJBrowse()$fasta$name[2])
-      path.gzi <- paste0(server_dir, "/", loadJBrowse()$fasta$name[3])
+      path.fa <- paste0(server_dir, "/", loadJBrowse_fasta()$name[1])
+      path.fai <- paste0(server_dir, "/", loadJBrowse_fasta()$name[2])
+      path.gzi <- paste0(server_dir, "/", loadJBrowse_fasta()$name[3])
       
-      file.rename(loadJBrowse()$fasta$datapath[1], path.fa)
-      file.rename(loadJBrowse()$fasta$datapath[2], path.fai)
-      file.rename(loadJBrowse()$fasta$datapath[3], path.gzi)
+      file.rename(loadJBrowse_fasta()$datapath[1], path.fa)
+      file.rename(loadJBrowse_fasta()$datapath[2], path.fai)
+      file.rename(loadJBrowse_fasta()$datapath[3], path.gzi)
     } 
     
-    if(!is.null(loadJBrowse()$gff)){
-      path.gff <- paste0(server_dir, "/", loadJBrowse()$gff$name[1])
-      path.tbi <- paste0(server_dir, "/", loadJBrowse()$gff$name[2])
-      file.rename(loadJBrowse()$gff$datapath[1], path.gff)
-      file.rename(loadJBrowse()$gff$datapath[2], path.tbi)
+    if(!is.null(loadJBrowse_gff3())){
+      path.gff <- paste0(server_dir, "/", loadJBrowse_gff3()$name[1])
+      path.tbi <- paste0(server_dir, "/", loadJBrowse_gff3()$name[2])
+      file.rename(loadJBrowse_gff3()$datapath[1], path.gff)
+      file.rename(loadJBrowse_gff3()$datapath[2], path.tbi)
     }
     
-    if(is.null(loadJBrowse()$fasta) & loadJBrowse()$example == "hex_map"){
-      path.fa <- system.file("ext/Trifida.Chr01.fa.gz", package = "viewpoly")
-      path.gff <- system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")
+    if(is.null(loadJBrowse_fasta()) & !is.null(loadExample())){
+      path.fa <- loadExample()$fasta
+      path.gff <- loadExample()$gff3
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
-    } else if(is.null(loadJBrowse()$fasta) & loadJBrowse()$example == "tetra_map"){
-      path.fa <- system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly")
-      path.gff <- system.file("ext/Stuberosum.Chr01.gff3.gz", package = "viewpoly")
     } else {
       stop("Upload the genome information in upload session to access this feature.")
     }
@@ -255,20 +283,20 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
     
     data_server <- serve_data(dirname(path.fa), port = 5000)
     
-    list(path.fa, path.gff, data_server)
+    list(path.fa = path.fa, path.gff = path.gff, data_server = data_server)
   })
   
   # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
     
     assembly <- assembly(
-      paste0("http://127.0.0.1:5000/", basename(button()[[1]])), 
+      paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
       bgzip = TRUE
     )
     
     ## create configuration for a JB2 GFF FeatureTrack
     annotations_track <- track_feature(
-      paste0("http://127.0.0.1:5000/", basename(button()[[2]])), 
+      paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
       assembly
     )
     
@@ -302,7 +330,7 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
   })
   
   output$genes_ano  <- DT::renderDataTable({
-    if(!is.null(button()[[2]])) {
+    if(!is.null(button()$path.gff)) {
       group <- as.numeric(input$group)
       mks<- loadMap()$maps[[group]]
       mks <- mks[order(mks$l.dist),]
@@ -310,7 +338,7 @@ mod_genes_view_server <- function(input, output, session, loadMap, loadJBrowse, 
       mks.range.1 <- mks$g.dist[mks.range[1]]
       mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
       
-      df <- vroom(button()[[2]], delim = "\t", skip = 3, col_names = F)
+      df <- vroom(button()$path.gff, delim = "\t", skip = 3, col_names = F)
       colnames(df) <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase", "attributes")
       df <- df %>% filter(start > mks.range.1 & end < mks.range.2)
       DT::datatable(df, extensions = 'Buttons',
