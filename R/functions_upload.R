@@ -1,3 +1,25 @@
+prepare_examples <- function(example){
+  if(example == "hex_map"){
+    incProgress(0.5, detail = paste("Uploading BT example map data..."))
+    # data("viewmap_hexa")
+    # data("viewqtl_hexa")
+    # return(list(map = viewmap_hexa, 
+    #             qtl = viewqtl_hexa, 
+    #             fasta= system.file("ext/Trifida.Chr01.fa.gz"),
+    #             gff3 = system.file("ext/Trifida.Chr01.gff3.gz")))
+    
+  } else if(example == "tetra_map"){
+    incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
+    data("viewmap_tetra")
+    data("viewqtl_tetra")
+    return(list(map=viewmap_tetra, 
+                qtl=viewqtl_tetra, 
+                fasta= system.file("ext/Stuberosum.Chr01.fa.gz"),
+                gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz")))
+  }
+}
+
+# deprecated
 #' Receive upload files and convert to viewmap.map object
 #' 
 #' @param mappoly_in mappoly prepare_map RData file
@@ -45,6 +67,7 @@ read_Mapdata <- function(mappoly_in = NULL,
   })
 }
 
+# deprecated
 read_QTLdata <- function(qtlpoly_data = NULL,
                          qtlpoly_remim.mod = NULL,
                          qtlpoly_est.effects = NULL,
@@ -140,7 +163,8 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 #' convert list of mappoly.map object into viewpoly_map object
 #' 
 prepare_MAPpoly <- function(mappoly_list){
-  
+  temp <- load(mappoly_list$datapath)
+  mappoly_list <- get(temp)
   prep <- lapply(mappoly_list, prepare_map)
   
   viewmap_obj <- list(d.p1 = lapply(prep, "[[", 5),
@@ -183,6 +207,18 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
 #' @import tidyr
 #' 
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
+  
+  temp <- load(data$datapath)
+  data <- get(temp)
+  
+  temp <- load(remim.mod$datapath)
+  remim.mod <- get(temp)
+  
+  temp <- load(est.effects$datapath)
+  est.effects <- get(temp)
+  
+  temp <- load(fitted.mod$datapath)
+  fitted.mod <- get(temp)
   
   # Only selected markers
   lgs.t <- lapply(data$lgs, function(x) data.frame(mk = names(x), pos = x))
