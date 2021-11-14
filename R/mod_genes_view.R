@@ -232,7 +232,7 @@ mod_genes_view_server <- function(input, output, session,
                          lgs.id = as.numeric(input$group),
                          range.min = input$range[1],
                          range.max = input$range[2], by_range=T)
-      ggplotly(source = "qtl_profile", pl, tooltip="text") %>% layout(legend = list(orientation = 'h', y = -0.3))
+      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% layout(legend = list(orientation = 'h', y = -0.3))
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })

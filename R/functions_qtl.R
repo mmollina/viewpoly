@@ -92,9 +92,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   if(plot){
     if(by_range){
-      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1, text = paste("Position:", `Position (cM)`, "cM \n",
-                                                                                               "Trait:", Trait, "\n",
-                                                                                               "y axis:", round(SIG,2)))) +
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y = y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
@@ -106,9 +104,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
     } else {
-      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1, text = paste("Position:", `Position (cM)`, "cM \n",
-                                                                                               "Trait:", Trait, "\n",
-                                                                                               "y axis:", round(SIG,2)))) +
+      pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1)) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +

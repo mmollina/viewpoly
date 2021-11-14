@@ -340,10 +340,6 @@ mod_qtl_view_server <- function(input, output, session,
   )
 }
 
-# position = c(146.02,146.02,147.31,147.31,144.38,150.05,153.82,158.13)
-# lgs = 12.00
-# pheno.col <- which(unique(qtls[[1]]$pheno) %in% c("Starch", "Sucrose", "Bcar", "Bcar0", "Protein", "DM", "Maltose", "Ca"))
-
 ## To be copied in the UI
 # mod_qtl_view_ui("qtl_view_ui_1")
 
