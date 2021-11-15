@@ -37,9 +37,12 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       POS <- qtl_info.sub$Pos
       INF <- qtl_info.sub$Pos_lower
       SUP <- qtl_info.sub$Pos_upper
-      PVAL <- qtl_info.sub$Pval
+      PVAL <- qtl_info.sub[,6]
       H2 <- qtl_info.sub$h2
-      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL, H2 = round(H2,2)))
+      if(!is.null(H2))
+        points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL, H2 = round(H2,2)))
+      else 
+        points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL))
       count <- count+1
       y.dat <- c(y.dat, rep((-0.4*count), nqtls))
     }
@@ -53,8 +56,10 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       y.lab <- "LOP"
     }  else {
       y.lab <- expression(-log[10](italic(P)))
-      
     }
+  } else if(y.lab == "deltaDIC") {
+    lines$SIG <- -lines$SIG
+    y.lab <- "-\U0394 DIC"
   }
   
   # Filter group
@@ -90,6 +95,9 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   if(max(lgs.size[lgs.id]) > 200) cutx <- 150 else cutx <- 100
   if(length(lgs.size[lgs.id]) > 10) {linesize <- 1} else {cutx <- 50; linesize <- 1.25}
   
+  lines$y.dat <- lines$y.dat + min(lines$SIG, na.rm = T)
+  points$y.dat <- points$y.dat + min(lines$SIG, na.rm = T)
+  
   if(plot){
     if(by_range){
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
@@ -99,7 +107,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-        scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+        scale_y_continuous(breaks=seq(min(lgs.size, na.rm = T),max(lgs.size, na.rm = T))) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()

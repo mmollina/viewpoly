@@ -70,6 +70,12 @@ mod_upload_ui <- function(id){
                        fileInput(ns("qtlpoly_est.effects"), label = h6("File: QTLpoly_est.effects.RData"), multiple = F),
                        fileInput(ns("qtlpoly_fitted.mod"), label = h6("File: QTLpoly_fitted.mod.RData"), multiple = F)
                    ),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload diaQTL output")),
+                       fileInput(ns("diaQTL_scan1"), label = h6("File: diaQTL_scan1_list.RData"), multiple = F),
+                       fileInput(ns("diaQTL_scan1.summaries"), label = h6("File: diaQTL_scan1.summaries_list.RData"), multiple = F),
+                       fileInput(ns("diaQTL_fitQTL"), label = h6("File: diaQTL_fitQTL_list.RData"), multiple = F),
+                       fileInput(ns("diaQTL_BayesCI"), label = h6("File: diaQTL_BayesCI_list.RData"), multiple = F)
+                   ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
                        box(
                          width = NULL, background = "red",
@@ -195,10 +201,15 @@ mod_upload_server <- function(input, output, session, parent_session){
          is.null(input$qtlpoly_remim.mod) &
          is.null(input$qtlpoly_est.effects) &
          is.null(input$qtlpoly_fitted.mod) &
+         is.null(input$diaQTL_data) & 
+         is.null(input$diaQTL_scan1) &
+         is.null(input$diaQTL_scan1.summaries) &
+         is.null(input$diaQTL_fitQTL) &
+         is.null(input$diaQTL_BayesCI) &
          is.null(input$fasta) &
          is.null(input$gff3) &
          is.null(input$vcf))
-        prepare_examples(input$example_map)
+      prepare_examples(input$example_map)
       else NULL
     }),
     
@@ -219,12 +230,12 @@ mod_upload_server <- function(input, output, session, parent_session){
     
     loadQTL_custom = reactive({
       if(!(is.null(input$selected_mks) & 
-         is.null(input$qtl_info) & 
-         is.null(input$blups) & 
-         is.null(input$beta.hat) & 
-         is.null(input$profile) & 
-         is.null(input$effects) & 
-         is.null(input$probs))) {
+           is.null(input$qtl_info) & 
+           is.null(input$blups) & 
+           is.null(input$beta.hat) & 
+           is.null(input$profile) & 
+           is.null(input$effects) & 
+           is.null(input$probs))) {
         req(input$selected_mks, input$qtl_info, input$blups,
             input$beta.hat, input$profile, input$effects,
             input$probs)
@@ -253,6 +264,24 @@ mod_upload_server <- function(input, output, session, parent_session){
                         input$qtlpoly_remim.mod,
                         input$qtlpoly_est.effects,
                         input$qtlpoly_fitted.mod)
+      } else NULL
+    }),
+    
+    loadQTL_diaQTL = reactive({
+      if(!(is.null(input$diaQTL_scan1) &
+           is.null(input$diaQTL_scan1.summaries) &
+           is.null(input$diaQTL_fitQTL) &
+           is.null(input$diaQTL_BayesCI))) {
+        
+        req(input$diaQTL_scan1,
+            input$diaQTL_scan1.summaries,
+            input$diaQTL_fitQTL,
+            input$diaQTL_BayesCI)
+        
+        prepare_diaQTL(input$diaQTL_scan1,
+                       input$diaQTL_scan1.summaries,
+                       input$diaQTL_fitQTL,
+                       input$diaQTL_BayesCI)
       } else NULL
     }),
     

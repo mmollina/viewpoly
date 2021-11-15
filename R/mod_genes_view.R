@@ -85,7 +85,7 @@ mod_genes_view_ui <- function(id){
 mod_genes_view_server <- function(input, output, session, 
                                   loadExample,
                                   loadMap_custom, loadMap_mappoly,
-                                  loadQTL_custom, loadQTL_qtlpoly,
+                                  loadQTL_custom, loadQTL_qtlpoly, loadQTL_diaQTL,
                                   loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, 
                                   parent_session){
   ns <- session$ns
@@ -104,13 +104,15 @@ mod_genes_view_server <- function(input, output, session,
   })
   
   loadQTL = reactive({
-    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly())){
+    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly()) & is.null(loadQTL_diaQTL())){
       warning("Select one of the options in `upload` session")
       return(NULL)
     } else if(!is.null(loadQTL_custom())){
       return(loadQTL_custom())
     } else if(!is.null(loadQTL_qtlpoly())){
       return(loadQTL_qtlpoly())
+    } else if(!is.null(loadQTL_diaQTL())){
+      return(loadQTL_diaQTL())
     } else if(!is.null(loadExample())){
       return(loadExample()$qtl)
     }
