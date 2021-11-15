@@ -1,16 +1,14 @@
-#' Sweet potato BT QTL data
+#' Sweet potato BT map data
 #'
-#' QTL results from an analysis made with random-effect model approach based on score statistics in 
-#' a autohexaploid sweetpotato biparental population (‘Beauregard’ × ‘Tanzania’) 
-#' with 315 full-sibs. This dataset only contains the genotype probabilities for five individuals 
-#' of the population. 
+#' Linakge map from an analysis made with autohexaploid sweetpotato biparental population (‘Beauregard’ × ‘Tanzania’) 
+#' with 315 full-sibs. 
 #'
-#' @name qtl_bt
+#' @name viewmap_hexa
 #' @docType data
 #'
 #' @usage data(qtl_bt)
 #'
-#' @format An object of class \code{"viewpoly.qtl"}.
+#' @format An object of class \code{"viewpoly.map"}.
 #'
 #' @keywords datasets
 #'
@@ -18,8 +16,29 @@
 #' (\href{https://academic.oup.com/genetics/article/215/3/579/5930535}{Genetics})
 #'
 #'
-"qtl_bt"
+"viewmap_hexa"
 
+# Sweet potato BT QTL data
+# 
+# QTL results from an analysis made with random-effect model approach based on score statistics in
+# a autohexaploid sweetpotato biparental population (‘Beauregard’ × ‘Tanzania’)
+# with 315 full-sibs. This dataset only contains the genotype probabilities for five individuals
+# of the population.
+# 
+# @name viewqtl_hexa
+# @docType data
+# 
+# @usage data(qtl_bt)
+# 
+# @format An object of class \code{"viewpoly.qtl"}.
+# 
+# @keywords datasets
+# 
+# @references Pereira et al. (2020) Genetics, Volume 215, Issue 3
+# (\href{https://academic.oup.com/genetics/article/215/3/579/5930535}{Genetics})
+# 
+# 
+# # "viewqtl_hexa
 
 #' Potato data of B2721 population - Atlantic x B1829-5
 #'

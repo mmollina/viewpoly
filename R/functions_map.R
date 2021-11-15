@@ -15,8 +15,8 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   zy <- seq(0, 0.5, length.out = ploidy) + 1.5
   pp1 <- ph.p1[[ch]]
   pp2 <- ph.p2[[ch]]
-  d.p1<-d.p2[[ch]]
-  d.p2<-d.p1[[ch]]
+  dp1 <- d.p1[[ch]]
+  dp2 <- d.p2[[ch]]
   x1<-abs(left.lim - x)
   x2<-abs(right.lim - x)
   id.left<-which(x1==min(x1))[1]
@@ -37,7 +37,7 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
          ylim = c(0,2))
   axis(side = 1)
   mtext(text = "Distance (cM)", side = 1, adj = 1)
-  #Parent TANZANIA
+  #Parent 1
   for(i in 1:ploidy)
   {
     lines(c(x[id.left], x[id.right]), c(zy[i], zy[i]), lwd=10, col = "gray")
@@ -54,13 +54,13 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   for(i in 1:length(connect.lines))
     lines(c(curx[i], connect.lines[i]), c(0.575, zy[1]-.05), lwd=0.3)
   points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
-         y = zy[ploidy]+0.05+d.p2[id.left:id.right]/20,
-         col = d.col[as.character(d.p2[id.left:id.right])],
+         y = zy[ploidy]+0.05+dp2[id.left:id.right]/20,
+         col = d.col[as.character(dp2[id.left:id.right])],
          pch = 19, cex = .7)
   corners = par("usr") 
   par(xpd = TRUE) 
   text(x = corners[1]+.5, y = mean(zy[ploidy]+0.05+(1:ploidy/20)), "Doses")
-  #Parent BEAUREGARD
+  #Parent 2
   zy<-zy+1.1
   for(i in 1:ploidy)
   {
@@ -73,8 +73,8 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   }
   mtext(text = "Parent 1", side = 2, at = mean(zy), line = -3, font = 4)
   points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
-         y = zy[ploidy]+0.05+d.p1[id.left:id.right]/20,
-         col = d.col[as.character(d.p1[id.left:id.right])],
+         y = zy[ploidy]+0.05+dp1[id.left:id.right]/20,
+         col = d.col[as.character(dp1[id.left:id.right])],
          pch = 19, cex = .7)
   corners = par("usr") 
   par(xpd = TRUE) 
