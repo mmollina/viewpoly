@@ -287,7 +287,7 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 #' 
 #' 
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
-
+  
   temp <- load(scan1_list$datapath)
   scan1_list <- get(temp)
   
@@ -311,7 +311,7 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
   qtls.id <- list()
   qtl_info2 <- data.frame()
   
-  profile <- effects.ad <- effects.di <- data.frame()
+  profile <- effects <- data.frame()
   for(i in 1:length(fitQTL_list)){
     qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
     trait <- gsub("Trait: ","",fitQTL_list[[i]]$plots[[1]]$additive$labels$title)
@@ -324,19 +324,23 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
     temp <- fitQTL_list[[i]]$effects$additive
     temp <- cbind(haplo = rownames(temp),as.data.frame(temp))
     effects.ad.t <- pivot_longer(temp, 
-                                 cols = 2:dim(temp)[2], names_to = "qtl_id", values_to = "effect")
-    effects.ad.t <- cbind(pheno = trait, effects.ad.t)
-    effects.ad.t$qtl_id <- as.numeric(as.factor(effects.ad.t$qtl_id))
-    effects.ad <- rbind(effects.ad, effects.ad.t[order(effects.ad.t$pheno, effects.ad.t$qtl_id, effects.ad.t$haplo),])
+                                 cols = 2:dim(temp)[2], names_to = "qtl.id", values_to = "effect")
+    effects.ad.t <- cbind(pheno = trait, effects.ad.t, type = "Additive")
+    effects.ad.t$qtl.id <- as.numeric(as.factor(effects.ad.t$qtl.id))
+    effects.ad.t <- effects.ad.t[order(effects.ad.t$pheno, effects.ad.t$qtl.id, effects.ad.t$haplo),]
+    
     # digenic effect
     temp <- fitQTL_list[[i]]$effects$digenic
-    h1 = sapply(strsplit(rownames(temp), "[+]"), "[",1)
-    h2 = sapply(strsplit(rownames(temp), "[+]"), "[",2)
-    temp <- cbind(h1, h2, as.data.frame(temp))
-    effects.di.t <- pivot_longer(temp, cols = 3:ncol(temp), names_to = "qtl_id", values_to = "effect")
-    effects.di.t <- cbind(pheno = trait, effects.di.t)
-    effects.di.t$qtl_id <- as.numeric(as.factor(effects.di.t$qtl_id))
-    effects.di <- rbind(effects.di, effects.di.t[order(effects.di.t$pheno, effects.di.t$qtl_id, effects.di.t$h1, effects.di.t$h2),])
+    # h1 = sapply(strsplit(rownames(temp), "[+]"), "[",1)
+    # h2 = sapply(strsplit(rownames(temp), "[+]"), "[",2)
+    temp <- cbind(haplo = rownames(temp), as.data.frame(temp))
+    effects.di.t <- pivot_longer(temp, cols = 2:ncol(temp), names_to = "qtl.id", values_to = "effect")
+    effects.di.t <- cbind(pheno = trait, effects.di.t, type = "Digenic")
+    effects.di.t$qtl.id <- as.numeric(as.factor(effects.di.t$qtl.id))
+    effects.di.t <- effects.di.t[order(effects.di.t$pheno, effects.di.t$qtl.id, effects.di.t$haplo),]
+    effects.t <- rbind(effects.ad.t, effects.di.t)
+    effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
+    effects <- rbind(effects, effects.t)
   }
   
   CI <- lapply(BayesCI_list, function(x) {
@@ -354,8 +358,7 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
   structure(list(selected_mks = selected_mks,
                  qtl_info = qtl_info,
                  profile = profile,
-                 effects = effects.ad,
-                 effects.di = effects.di,
+                 effects = effects,
                  software = "diaQTL"), 
             class = "viewqtl")
 }

@@ -167,14 +167,20 @@ only_plot_profile <- function(pl.in){
 
 #' Adapted function from QTLpoly
 #' 
-plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL, p1 = "P1", p2 = "P2", df.info=NULL, lgs = NULL, position = NULL) {
+plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL, 
+                                 p1 = "P1", p2 = "P2", df.info=NULL, 
+                                 lgs = NULL, position = NULL, software) {
   if(is.null(pheno.col)) {
     pheno.col <- 1:length(unique(qtl_info$pheno))
   } else {
     pheno.col <- which(unique(qtl_info$pheno) %in% pheno.col)
   }
   
-  ploidy <- max(nchar(effects$haplo))
+  if(software == "QTLpoly"){
+    ploidy <- max(nchar(effects$haplo))
+  } else if(software == "diaQTL") {
+    if(max(nchar(effects$haplo)) == 9) ploidy = 4 else ploidy = 2
+  }
   
   qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>%
     filter(Pos %in% position) %>% filter(LG %in% lgs)

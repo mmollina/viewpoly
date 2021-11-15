@@ -189,9 +189,11 @@ mod_qtl_view_server <- function(input, output, session,
       } else {
         stop("Select a point or region on QTL profile graphic.") 
       }
-      plots <- plot_qtlpoly.effects(qtl_info = loadQTL()$qtl_info, effects = loadQTL()$effects,
+      plots <- plot_qtlpoly.effects(qtl_info = loadQTL()$qtl_info, 
+                                    effects = loadQTL()$effects,
                                     pheno.col = as.character(df$Trait), 
-                                    lgs = df$LG, position = df$`Position (cM)`)
+                                    lgs = df$LG, position = df$`Position (cM)`,
+                                    software = loadQTL()$software)
       
       rows <- ceiling(length(plots)/4)
       if(rows == 0) rows <- 1
