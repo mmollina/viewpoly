@@ -137,7 +137,7 @@ mod_map_view_server <- function(input, output, session,
   
   # Plot map
   output$plot_map <- renderPlot({
-    maps <- lapply(loadMap()$maps, function(x) {
+    maps <- lapply(viewmap_tetra$maps, function(x) {
       y <- x$l.dist
       names(y) <- x$mk.names
       y
@@ -145,11 +145,11 @@ mod_map_view_server <- function(input, output, session,
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
                    ch = input$group,
-                   d.p1 = loadMap()$d.p1,
-                   d.p2 = loadMap()$d.p2, 
+                   d.p1 = viewmap_tetra$d.p1,
+                   d.p2 = viewmap_tetra$d.p2, 
                    maps = maps, 
-                   ph.p1 = loadMap()$ph.p1, 
-                   ph.p2 = loadMap()$ph.p2,
+                   ph.p1 = viewmap_tetra$ph.p1, 
+                   ph.p2 = viewmap_tetra$ph.p2,
                    snp.names = input$op)
     
     max_updated = reactive({
