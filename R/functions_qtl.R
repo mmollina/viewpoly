@@ -190,7 +190,8 @@ plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL,
   if(software == "QTLpoly"){
     ploidy <- max(nchar(effects$haplo))
   } else if(software == "diaQTL") {
-    if(max(nchar(effects$haplo)) == 9) ploidy = 4 else ploidy = 2
+    get.size <- effects %>% filter(pheno == unique(qtl_info$pheno)[1] & qtl.id == 1)
+    if(nrow(get.size) == 64) ploidy = 4 else ploidy = 2
   }
   
   qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>%
@@ -220,7 +221,11 @@ plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL,
         data <- effects.sub %>% filter(qtl.id == q)
         if(ploidy == 4) {
           data <- data[1:36,]
-          data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+          if(software == "diaQTL"){
+            data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+          } else 
+            data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+          
           data <- data[-c(12:15,18:21,23:30),]
         }
         if(ploidy == 6) {
@@ -230,6 +235,7 @@ plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL,
         data$Parent <- factor(data$Parent, levels=unique(data$Parent))
         plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
           geom_bar(stat="identity") +
+          {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
           scale_fill_gradient2(low = "red", high = "blue", guide = "none") +
           labs(title=unique(qtl_info$pheno)[p], subtitle=paste("QTL", q, "\n")) +
           facet_wrap(. ~ Parent, scales="free_x", ncol = 2, strip.position="bottom") +
