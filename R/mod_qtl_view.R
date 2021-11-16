@@ -101,7 +101,7 @@ mod_qtl_view_ui <- function(id){
 mod_qtl_view_server <- function(input, output, session, 
                                 loadExample, 
                                 loadMap_custom, loadMap_mappoly, 
-                                loadQTL_custom, loadQTL_qtlpoly, 
+                                loadQTL_custom, loadQTL_qtlpoly, loadQTL_diaQTL,
                                 parent_session){
   ns <- session$ns
   
@@ -119,13 +119,15 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   loadQTL = reactive({
-    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly())){
+    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly()) & is.null(loadQTL_diaQTL())){
       warning("Select one of the options in `upload` session")
       return(NULL)
     } else if(!is.null(loadQTL_custom())){
       return(loadQTL_custom())
     } else if(!is.null(loadQTL_qtlpoly())){
       return(loadQTL_qtlpoly())
+    } else if(!is.null(loadQTL_diaQTL())){
+      return(loadQTL_diaQTL())
     } else if(!is.null(loadExample())){
       return(loadExample()$qtl)
     }
@@ -187,9 +189,11 @@ mod_qtl_view_server <- function(input, output, session,
       } else {
         stop("Select a point or region on QTL profile graphic.") 
       }
-      plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
+      plots <- plot_qtlpoly.effects(qtl_info = loadQTL()$qtl_info, 
+                                    effects = loadQTL()$effects,
                                     pheno.col = as.character(df$Trait), 
-                                    lgs = df$LG, position = df$`Position (cM)`)
+                                    lgs = df$LG, position = df$`Position (cM)`,
+                                    software = loadQTL()$software)
       
       rows <- ceiling(length(plots)/4)
       if(rows == 0) rows <- 1
@@ -231,7 +235,11 @@ mod_qtl_view_server <- function(input, output, session,
         stop("Select a point or region on graphic.")
       }
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
-      colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
+      if(loadQTL()$software == "QTLpoly"){
+        colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
+      } else if(loadQTL()$software == "diaQTL")
+        colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "LL")
+      
       DT::datatable(dframe, extensions = 'Buttons',
                     options = list(
                       dom = 'Bfrtlp',
@@ -245,6 +253,7 @@ mod_qtl_view_server <- function(input, output, session,
   # Breeding values
   output$breeding_values <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
+      if(loadQTL()$software == "QTLpoly"){
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else if(!is.null(input$plot_click)){
@@ -264,6 +273,7 @@ mod_qtl_view_server <- function(input, output, session,
                       buttons = c('copy', 'csv', 'excel', 'pdf')
                     ),
                     class = "display")
+      } else stop(paste("Feature not implemented for software:",loadQTL()$software))
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })

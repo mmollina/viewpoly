@@ -8,7 +8,8 @@
 #' @importFrom plotly TeX
 #' 
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 
-                         lgs.id = NULL, by_range = TRUE, range.min = NULL, range.max = NULL, plot=TRUE) {
+                         lgs.id = NULL, by_range = TRUE, range.min = NULL, 
+                         range.max = NULL, plot=TRUE, software = NULL) {
   
   lgs.size <- selected_mks %>% group_by(LG) %>% group_map(~ tail(.x, 1)) %>% do.call(rbind, .) 
   lgs.size <- lgs.size$pos
@@ -37,11 +38,14 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       POS <- qtl_info.sub$Pos
       INF <- qtl_info.sub$Pos_lower
       SUP <- qtl_info.sub$Pos_upper
-      PVAL <- qtl_info.sub$Pval
+      PVAL <- qtl_info.sub[,6]
       H2 <- qtl_info.sub$h2
-      points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL, H2 = round(H2,2)))
+      if(!is.null(H2))
+        points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL, H2 = round(H2,2)))
+      else 
+        points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL))
       count <- count+1
-      y.dat <- c(y.dat, rep((-0.4*count), nqtls))
+      y.dat <- c(y.dat, rep((-0.5*count), nqtls))
     }
   }
   points <- cbind(points, y.dat)
@@ -53,8 +57,10 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       y.lab <- "LOP"
     }  else {
       y.lab <- expression(-log[10](italic(P)))
-      
     }
+  } else if(y.lab == "deltaDIC") {
+    lines$SIG <- -lines$SIG
+    y.lab <- "-\U0394 DIC"
   }
   
   # Filter group
@@ -90,6 +96,19 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   if(max(lgs.size[lgs.id]) > 200) cutx <- 150 else cutx <- 100
   if(length(lgs.size[lgs.id]) > 10) {linesize <- 1} else {cutx <- 50; linesize <- 1.25}
   
+  lines$y.dat <- lines$y.dat + min(lines$SIG, na.rm = T)
+  points$y.dat <- points$y.dat + min(lines$SIG, na.rm = T)
+
+  scale.max <- round(max(lines$SIG[which(is.finite(lines$SIG))], na.rm = T),0)
+  scale.max <- scale.max*1.2
+  scale.min <- round(min(lines$SIG[which(is.finite(lines$SIG))], na.rm = T),0)
+  
+  if(scale.max > 50) {
+    lines$y.dat <- lines$y.dat*3
+    points$y.dat <- points$y.dat*3
+    scale.each <- 10
+  } else scale.each = 2 
+
   if(plot){
     if(by_range){
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
@@ -99,7 +118,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-        scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+        scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
@@ -110,7 +129,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-        scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+        scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
         theme_classic()
@@ -159,14 +178,20 @@ only_plot_profile <- function(pl.in){
 
 #' Adapted function from QTLpoly
 #' 
-plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL, p1 = "P1", p2 = "P2", df.info=NULL, lgs = NULL, position = NULL) {
+plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL, 
+                                 p1 = "P1", p2 = "P2", df.info=NULL, 
+                                 lgs = NULL, position = NULL, software) {
   if(is.null(pheno.col)) {
     pheno.col <- 1:length(unique(qtl_info$pheno))
   } else {
     pheno.col <- which(unique(qtl_info$pheno) %in% pheno.col)
   }
   
-  ploidy <- max(nchar(effects$haplo))
+  if(software == "QTLpoly"){
+    ploidy <- max(nchar(effects$haplo))
+  } else if(software == "diaQTL") {
+    if(max(nchar(effects$haplo)) == 9) ploidy = 4 else ploidy = 2
+  }
   
   qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>%
     filter(Pos %in% position) %>% filter(LG %in% lgs)

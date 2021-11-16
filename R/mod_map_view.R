@@ -83,7 +83,7 @@ mod_map_view_ui <- function(id){
 mod_map_view_server <- function(input, output, session, 
                                 loadExample,
                                 loadMap_custom, loadMap_mappoly,
-                                loadQTL_custom, loadQTL_qtlpoly,
+                                loadQTL_custom, loadQTL_qtlpoly, loadQTL_diaQTL,
                                 parent_session){
   ns <- session$ns
   
@@ -101,13 +101,15 @@ mod_map_view_server <- function(input, output, session,
   })
   
   loadQTL = reactive({
-    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_qtlpoly())){
+    if(is.null(loadExample()) & is.null(loadQTL_custom()) & is.null(loadQTL_diaQTL())) {
       warning("Select one of the options in `upload` session")
       return(NULL)
     } else if(!is.null(loadQTL_custom())){
       return(loadQTL_custom())
     } else if(!is.null(loadQTL_qtlpoly())){
       return(loadQTL_qtlpoly())
+    } else if(!is.null(loadQTL_diaQTL())){
+      return(loadQTL_diaQTL())
     } else if(!is.null(loadExample())){
       return(loadExample()$qtl)
     }
@@ -137,7 +139,7 @@ mod_map_view_server <- function(input, output, session,
   
   # Plot map
   output$plot_map <- renderPlot({
-    maps <- lapply(viewmap_tetra$maps, function(x) {
+    maps <- lapply(loadMap()$maps, function(x) {
       y <- x$l.dist
       names(y) <- x$mk.names
       y
@@ -145,11 +147,11 @@ mod_map_view_server <- function(input, output, session,
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
                    ch = input$group,
-                   d.p1 = viewmap_tetra$d.p1,
-                   d.p2 = viewmap_tetra$d.p2, 
+                   d.p1 = loadMap()$d.p1,
+                   d.p2 = loadMap()$d.p2, 
                    maps = maps, 
-                   ph.p1 = viewmap_tetra$ph.p1, 
-                   ph.p2 = viewmap_tetra$ph.p2,
+                   ph.p1 = loadMap()$ph.p1, 
+                   ph.p2 = loadMap()$ph.p2,
                    snp.names = input$op)
     
     max_updated = reactive({
