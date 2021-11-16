@@ -8,7 +8,8 @@
 #' @importFrom plotly TeX
 #' 
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 
-                         lgs.id = NULL, by_range = TRUE, range.min = NULL, range.max = NULL, plot=TRUE) {
+                         lgs.id = NULL, by_range = TRUE, range.min = NULL, 
+                         range.max = NULL, plot=TRUE, software = NULL) {
   
   lgs.size <- selected_mks %>% group_by(LG) %>% group_map(~ tail(.x, 1)) %>% do.call(rbind, .) 
   lgs.size <- lgs.size$pos
@@ -44,7 +45,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       else 
         points <- rbind(points, data.frame(TRT=TRT, LGS=LGS, POS=POS, INF=INF, SUP=SUP, PVAL = PVAL))
       count <- count+1
-      y.dat <- c(y.dat, rep((-0.4*count), nqtls))
+      y.dat <- c(y.dat, rep((-0.5*count), nqtls))
     }
   }
   points <- cbind(points, y.dat)
@@ -97,7 +98,17 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   lines$y.dat <- lines$y.dat + min(lines$SIG, na.rm = T)
   points$y.dat <- points$y.dat + min(lines$SIG, na.rm = T)
+
+  scale.max <- round(max(lines$SIG[which(is.finite(lines$SIG))], na.rm = T),0)
+  scale.max <- scale.max*1.2
+  scale.min <- round(min(lines$SIG[which(is.finite(lines$SIG))], na.rm = T),0)
   
+  if(scale.max > 50) {
+    lines$y.dat <- lines$y.dat*3
+    points$y.dat <- points$y.dat*3
+    scale.each <- 10
+  } else scale.each = 2 
+
   if(plot){
     if(by_range){
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
@@ -107,7 +118,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-        scale_y_continuous(breaks=seq(min(lgs.size, na.rm = T),max(lgs.size, na.rm = T))) +
+        scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
@@ -118,7 +129,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-        scale_y_continuous(breaks=seq(0,max(lgs.size, na.rm = T))) +
+        scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
         theme_classic()

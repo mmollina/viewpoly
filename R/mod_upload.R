@@ -98,8 +98,7 @@ mod_upload_ui <- function(id){
                                                 "effects.tsv" = "effects",
                                                 "probs.tsv" = "probs"),
                                     inline = TRUE), br(), br(),
-                   ),
-                   actionButton(ns("submitQTL"), "SubmitQTL")
+                   )
                )
              )
       ), br(),

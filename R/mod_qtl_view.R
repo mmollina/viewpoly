@@ -235,7 +235,11 @@ mod_qtl_view_server <- function(input, output, session,
         stop("Select a point or region on graphic.")
       }
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
-      colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
+      if(loadQTL()$software == "QTLpoly"){
+        colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
+      } else if(loadQTL()$software == "diaQTL")
+        colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "LL")
+      
       DT::datatable(dframe, extensions = 'Buttons',
                     options = list(
                       dom = 'Bfrtlp',
@@ -249,6 +253,7 @@ mod_qtl_view_server <- function(input, output, session,
   # Breeding values
   output$breeding_values <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
+      if(loadQTL()$software == "QTLpoly"){
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else if(!is.null(input$plot_click)){
@@ -268,6 +273,7 @@ mod_qtl_view_server <- function(input, output, session,
                       buttons = c('copy', 'csv', 'excel', 'pdf')
                     ),
                     class = "display")
+      } else stop(paste("Feature not implemented for software:",loadQTL()$software))
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })
