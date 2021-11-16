@@ -19,93 +19,6 @@ prepare_examples <- function(example){
   }
 }
 
-# deprecated
-#' Receive upload files and convert to viewmap.map object
-#' 
-#' @param mappoly_in mappoly prepare_map RData file
-#' @param dosages TSV or TSV.GZ file with both parents dosage information.
-#' It should contain four columns: 1) character vector with chromosomes ID; 
-#' 2) Character vector with markers ID; 3) Character vector with parent ID; 
-#' 4) numerical vector with dosage. 
-#' @param phases TSV or TSV.GZ file with phases information. It should contain:
-#' 1) Character vector with chromosome ID; 2) Character vector with marker ID;
-#' 3 to (ploidy number)*2 columns with each parents haplotypes.
-#' @param genetic_map TSV or TSV.GZ file with the genetic map information
-#' @param example_map if user don´t come in with any other input, use a example files.
-#'
-#' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
-#' 
-read_Mapdata <- function(mappoly_in = NULL,
-                         polymapR.dataset = NULL,
-                         polymapR.map = NULL,
-                         dosages = NULL,
-                         phases = NULL,
-                         genetic_map = NULL,
-                         example_map){
-  withProgress(message = 'Uploding map data', value = 0, {
-    if(!is.null(mappoly_in)){
-      incProgress(0.5, detail = paste("Uploading MAPpoly data..."))
-      viewmap <- prepare_MAPpoly(mappoly_list = mappoly_in)
-    } else if(!is.null(polymapR.dataset) & !is.null(polymapR.map)){ ## Require update
-      incProgress(0.5, detail = paste("Uploading polymapR data..."))
-      viewmap <- prepare_polymapR(polymapR.dataset, polymapR.map)
-    } else if(example_map == "hex_map"){
-      incProgress(0.5, detail = paste("Uploading BT example map data..."))
-      viewmap <- prepare_map_custom_files(system.file("ext/dosage.tsv.gz", package = "viewpoly"), ## change here for the tetraploid. Parei aqui!!
-                                          system.file("ext/phases.tsv.gz", package = "viewpoly"),
-                                          system.file("ext/map.tsv.gz", package = "viewpoly")) # change this
-    } else if(example_map == "tetra_map"){
-      incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
-      viewmap <- get(data("viewmap_tetra"))
-    } else if(!(is.null(dosages) | is.null(phases) | is.null(genetic_map))){
-      incProgress(0.5, detail = paste("Uploading custom format data..."))
-      viewmap <- prepare_map_custom_files(dosages, phases, genetic_map) 
-      return(viewmap)
-    } else {
-      stop("Please choose one of the option in the previous screen to upload genetic map information.")
-    }
-  })
-}
-
-# deprecated
-read_QTLdata <- function(qtlpoly_data = NULL,
-                         qtlpoly_remim.mod = NULL,
-                         qtlpoly_est.effects = NULL,
-                         qtlpoly_fitted.mod = NULL,
-                         selected_mks = NULL,
-                         qtl_info = NULL,
-                         blups = NULL,
-                         beta.hat = NULL,
-                         profile = NULL,
-                         effects = NULL,
-                         probs = NULL,
-                         example_qtl = NULL){
-  withProgress(message = 'Uploading QTL data', value = 0, {
-    if(!is.null(qtlpoly_data) | !is.null(qtlpoly_remim.mod) | 
-       !is.null(qtlpoly_est.effects) | !is.null(qtlpoly_fitted.mod)){
-      incProgress(0.5, detail = paste("Uploading QTLpoly data..."))
-      qtls <- prepare_QTLpoly(qtlpoly_data, qtlpoly_remim.mod, 
-                              qtl_est.effects, qtl_fitted.mod)
-    } else if(example_qtl == "hex_map"){
-      incProgress(0.5, detail = paste("Uploading BT example QTL data..."))
-      qtls <- get(data("qtl_bt"))
-    } else if(example_qtl == "tetra_map"){
-      qtls <- get(data("viewqtl_tetra"))
-    } else if(!(is.null(qtl_info) | is.null(blups) | 
-                is.null(beta.hat) | is.null(profile) | 
-                is.null(effects) | is.null(probs) | is.null(selected_mks))){
-      incProgress(0.5, detail = paste("Uploading custom format QTL data..."))
-      qtls <- prepare_qtl_custom_files(selected_mks, qtl_info, blups, beta.hat,
-                                       profile, effects, probs)
-    } else {
-      warning("Please choose one of the option in the previous screen to upload QTL information.")
-      qtls <- NULL
-    }
-  })
-  return(qtls)
-}
-
-
 #' Read input custom format files
 #' 
 #' @param dosages TSV or TSV.GZ file with both parents dosage information.
@@ -189,11 +102,6 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
   viewmap <- prepare_MAPpoly(map_seq)
   return(viewmap)
 }
-
-# data = tetra_QTLpoly_data
-# remim.mod = tetra_QTLpoly_remim
-# est.effects = tetra_QTLpoly_effects
-# fitted.mod = tetra_QTLpoly_fitted
 
 #' take all information needed from qtlpoly objects
 #' 
@@ -320,27 +228,34 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
     # profile
     profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
     profile <- rbind(profile, profile_temp)
-    # aditive effect
-    temp <- fitQTL_list[[i]]$effects$additive
-    temp <- cbind(haplo = rownames(temp),as.data.frame(temp))
-    effects.ad.t <- pivot_longer(temp, 
-                                 cols = 2:dim(temp)[2], names_to = "qtl.id", values_to = "effect")
-    effects.ad.t <- cbind(pheno = trait, effects.ad.t, type = "Additive")
-    effects.ad.t$qtl.id <- as.numeric(as.factor(effects.ad.t$qtl.id))
-    effects.ad.t <- effects.ad.t[order(effects.ad.t$pheno, effects.ad.t$qtl.id, effects.ad.t$haplo),]
     
-    # digenic effect
-    temp <- fitQTL_list[[i]]$effects$digenic
-    # h1 = sapply(strsplit(rownames(temp), "[+]"), "[",1)
-    # h2 = sapply(strsplit(rownames(temp), "[+]"), "[",2)
-    temp <- cbind(haplo = rownames(temp), as.data.frame(temp))
-    effects.di.t <- pivot_longer(temp, cols = 2:ncol(temp), names_to = "qtl.id", values_to = "effect")
-    effects.di.t <- cbind(pheno = trait, effects.di.t, type = "Digenic")
-    effects.di.t$qtl.id <- as.numeric(as.factor(effects.di.t$qtl.id))
-    effects.di.t <- effects.di.t[order(effects.di.t$pheno, effects.di.t$qtl.id, effects.di.t$haplo),]
-    effects.t <- rbind(effects.ad.t, effects.di.t)
-    effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
-    effects <- rbind(effects, effects.t)
+    for(j in 1:length(fitQTL_list[[i]]$plots)){
+      # aditive effect
+      temp <- fitQTL_list[[i]]$plots[[j]]$additive$data
+      effects.ad.t <- data.frame(pheno = trait, 
+                                 haplo = rownames(temp), 
+                                 qtl.id = j, 
+                                 effect= temp$mean, 
+                                 type = "Additive",
+                                 CI.lower = temp$CI.lower,
+                                 CI.upper = temp$CI.upper)
+      
+      # digenic effect
+      temp <- fitQTL_list[[i]]$plots[[j]]$digenic$data
+      if(!is.null(temp)){
+        effects.di.t <- data.frame(pheno = trait, 
+                                   haplo = paste0(temp$x,"x",temp$y),
+                                   qtl.id = j,
+                                   effect = as.numeric(temp$z), 
+                                   type = "Digenic",
+                                   CI.lower = NA,
+                                   CI.upper = NA)
+        
+        effects.t <- rbind(effects.ad.t, effects.di.t)
+      } else effects.t <- effects.ad.t
+      effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
+      effects <- rbind(effects, effects.t)
+    }
   }
   
   CI <- lapply(BayesCI_list, function(x) {
