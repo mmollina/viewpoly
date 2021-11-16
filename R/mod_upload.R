@@ -76,6 +76,11 @@ mod_upload_ui <- function(id){
                        fileInput(ns("diaQTL_fitQTL"), label = h6("File: diaQTL_fitQTL_list.RData"), multiple = F),
                        fileInput(ns("diaQTL_BayesCI"), label = h6("File: diaQTL_BayesCI_list.RData"), multiple = F)
                    ),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polyqtlR output")),
+                       fileInput(ns("polyqtlR_QTLscan_list"), label = h6("File: polyqtlR_QTLscan_list.RData"), multiple = F),
+                       fileInput(ns("polyqtlR_IBD"), label = h6("File: polyqtlR_IBD.RData"), multiple = F),
+                       fileInput(ns("polyqtlR_phenotypes"), label = h6("File: polyqtl_phenotypes.RData"), multiple = F),
+                   ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
                        box(
                          width = NULL, background = "red",
@@ -205,6 +210,9 @@ mod_upload_server <- function(input, output, session, parent_session){
          is.null(input$diaQTL_scan1.summaries) &
          is.null(input$diaQTL_fitQTL) &
          is.null(input$diaQTL_BayesCI) &
+         is.null(input$polyqtlR_QTLscan_list) & 
+         is.null(input$polyqtlR_IBD) &
+         is.null(input$polyqtlR_phenotypes) &
          is.null(input$fasta) &
          is.null(input$gff3) &
          is.null(input$vcf))
@@ -281,6 +289,21 @@ mod_upload_server <- function(input, output, session, parent_session){
                        input$diaQTL_scan1.summaries,
                        input$diaQTL_fitQTL,
                        input$diaQTL_BayesCI)
+      } else NULL
+    }),
+    
+    loadQTL_polyqtlR = reactive({
+      if(!(is.null(input$polyqtlR_QTLscan_list) & 
+           is.null(input$polyqtlR_IBD) &
+           is.null(input$polyqtlR_phenotypes))) {
+        
+        req(input$polyqtlR_QTLscan_list,
+            input$polyqtlR_IBD,
+            input$polyqtlR_phenotypes)
+        
+        prepare_polyqtlR(input$polyqtlR_QTLscan_list,
+                         input$polyqtlR_IBD,
+                         input$polyqtlR_phenotypes)
       } else NULL
     }),
     

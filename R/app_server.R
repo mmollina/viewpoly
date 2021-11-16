@@ -23,6 +23,7 @@ app_server <- function( input, output, session ) {
              loadQTL_custom = datas$loadQTL_custom,
              loadQTL_qtlpoly = datas$loadQTL_qtlpoly,
              loadQTL_diaQTL = datas$loadQTL_diaQTL,
+             loadQTL_polyqtlR = datas$loadQTL_polyqtlR,
              parent_session=session)
   
   # Genes view
@@ -34,6 +35,7 @@ app_server <- function( input, output, session ) {
              loadQTL_custom = datas$loadQTL_custom,
              loadQTL_qtlpoly = datas$loadQTL_qtlpoly,
              loadQTL_diaQTL = datas$loadQTL_diaQTL,
+             loadQTL_polyqtlR = datas$loadQTL_polyqtlR,
              loadJBrowse_fasta = datas$loadJBrowse_fasta, 
              loadJBrowse_gff3 = datas$loadJBrowse_gff3, 
              loadJBrowse_vcf = datas$loadJBrowse_vcf, 
@@ -48,5 +50,6 @@ app_server <- function( input, output, session ) {
              loadQTL_custom = datas$loadQTL_custom,
              loadQTL_qtlpoly = datas$loadQTL_qtlpoly,
              loadQTL_diaQTL = datas$loadQTL_diaQTL,
+             loadQTL_polyqtlR = datas$loadQTL_polyqtlR,
              parent_session=session)
 }
