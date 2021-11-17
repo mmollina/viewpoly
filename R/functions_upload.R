@@ -1,17 +1,23 @@
+#' Upload example files
+#' 
 prepare_examples <- function(example){
   if(example == "hex_map"){
-    incProgress(0.5, detail = paste("Uploading BT example map data..."))
-    data("viewmap_hexa")
-    # data("viewqtl_hexa")
+    withProgress(message = 'Working...', value = 0, {
+      incProgress(0.5, detail = paste("Uploading BT example map data..."))
+      data("viewmap_hexa")
+      # data("viewqtl_hexa")
+    })
     return(list(map = viewmap_hexa,
                 qtl = NULL,
                 fasta= system.file("ext/Trifida.Chr01.fa.gz"),
                 gff3 = system.file("ext/Trifida.Chr01.gff3.gz")))
     
   } else if(example == "tetra_map"){
-    incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
-    data("viewmap_tetra")
-    data("viewqtl_tetra")
+    withProgress(message = 'Working...', value = 0, {
+      incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
+      data("viewmap_tetra")
+      data("viewqtl_tetra")
+    })
     return(list(map=viewmap_tetra, 
                 qtl=viewqtl_tetra, 
                 fasta= system.file("ext/Stuberosum.Chr01.fa.gz"),
@@ -115,78 +121,82 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
 #' @import tidyr
 #' 
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
-  
-  temp <- load(data$datapath)
-  data <- get(temp)
-  
-  temp <- load(remim.mod$datapath)
-  remim.mod <- get(temp)
-  
-  temp <- load(est.effects$datapath)
-  est.effects <- get(temp)
-  
-  temp <- load(fitted.mod$datapath)
-  fitted.mod <- get(temp)
-  
-  # Only selected markers
-  lgs.t <- lapply(data$lgs, function(x) data.frame(mk = names(x), pos = x))
-  lgs <- data.frame()
-  for(i in 1:length(lgs.t)) {
-    lgs <- rbind(lgs, cbind(LG = i,lgs.t[[i]]))
-  }
-  
-  rownames(lgs) <- NULL
-  qtl_info <- u.hat <- beta.hat <- pvalue <- profile <- effects <- data.frame()
-  for(i in 1:length(remim.mod$results)){
-    pheno = names(fitted.mod$results)[i]
-    if(!is.null(dim(fitted.mod$results[[i]]$qtls)[1])){
-      lower <- remim.mod$results[[i]]$lower[,1:2]
-      upper <- remim.mod$results[[i]]$upper[,1:2]
-      qtl <- remim.mod$results[[i]]$qtls[,c(1,2,6)]
-      int <- cbind(LG = lower$LG, Pos_lower = lower$Pos_lower, 
-                   Pos_upper = upper$Pos_upper, qtl[,2:3])
-      int <- cbind(pheno = names(remim.mod$results)[i], int)
-      
-      
-      if(dim(fitted.mod$results[[i]]$qtls)[1] > 1) {
-        h2 <- fitted.mod$results[[i]]$qtls[-dim(fitted.mod$results[[i]]$qtls)[1],c(1:2,7)]
-        h2 <- data.frame(apply(h2, 2, unlist))
-      }else {
-        h2 <- fitted.mod$results[[i]]$qtls[,c(1:2,7)]
-      }
-      int <- merge(int, h2, by = c("LG", "Pos"))
-      
-      qtl_info <- rbind(qtl_info, int[order(int$LG, int$Pos),])
-      
-      u.hat.t <- do.call(cbind, fitted.mod$results[[i]]$fitted$U)
-      colnames(u.hat.t) <- names(fitted.mod$results[[i]]$fitted$U)
-      u.hat.t <- cbind(haplo = fitted.mod$results[[i]]$fitted$alleles, pheno , as.data.frame(u.hat.t))
-      u.hat.t <- pivot_longer(u.hat.t, cols = c(1:length(u.hat.t))[-c(1:2)], values_to = "u.hat", names_to = "qtl")
-      u.hat <- rbind(u.hat, u.hat.t)
-      u.hat$qtl <- gsub("g", "", u.hat$qtl)
-      
-      beta.hat.t <- data.frame(pheno, beta.hat = fitted.mod$results[[i]]$fitted$Beta[,1])
-      beta.hat <- rbind(beta.hat, beta.hat.t) 
-      
-      for(j in 1:length(est.effects$results[[i]]$effects)){
-        effects.t <- do.call(rbind, lapply(est.effects$results[[i]]$effects[[j]], function(x) data.frame(haplo = names(x), effect = x)))
-        effects.t <- cbind(pheno = pheno, qtl.id= j, effects.t)
-        effects <- rbind(effects, effects.t)
-      }
+  withProgress(message = 'Working...', value = 0, {
+    incProgress(0.1, detail = paste("Uploading QTLpoly data..."))
+    temp <- load(data$datapath)
+    data <- get(temp)
+    
+    temp <- load(remim.mod$datapath)
+    remim.mod <- get(temp)
+    
+    temp <- load(est.effects$datapath)
+    est.effects <- get(temp)
+    
+    temp <- load(fitted.mod$datapath)
+    fitted.mod <- get(temp)
+    
+    # Only selected markers
+    incProgress(0.3, detail = paste("Uploading QTLpoly data..."))
+    lgs.t <- lapply(data$lgs, function(x) data.frame(mk = names(x), pos = x))
+    lgs <- data.frame()
+    for(i in 1:length(lgs.t)) {
+      lgs <- rbind(lgs, cbind(LG = i,lgs.t[[i]]))
     }
     
-    if(is(remim.mod, "qtlpoly.feim")) SIG <- remim.mod$results[[i]][[3]] else SIG <- -log10(as.numeric(remim.mod$results[[i]][[3]]))
+    rownames(lgs) <- NULL
+    qtl_info <- u.hat <- beta.hat <- pvalue <- profile <- effects <- data.frame()
+    for(i in 1:length(remim.mod$results)){
+      pheno = names(fitted.mod$results)[i]
+      if(!is.null(dim(fitted.mod$results[[i]]$qtls)[1])){
+        lower <- remim.mod$results[[i]]$lower[,1:2]
+        upper <- remim.mod$results[[i]]$upper[,1:2]
+        qtl <- remim.mod$results[[i]]$qtls[,c(1,2,6)]
+        int <- cbind(LG = lower$LG, Pos_lower = lower$Pos_lower, 
+                     Pos_upper = upper$Pos_upper, qtl[,2:3])
+        int <- cbind(pheno = names(remim.mod$results)[i], int)
+        
+        
+        if(dim(fitted.mod$results[[i]]$qtls)[1] > 1) {
+          h2 <- fitted.mod$results[[i]]$qtls[-dim(fitted.mod$results[[i]]$qtls)[1],c(1:2,7)]
+          h2 <- data.frame(apply(h2, 2, unlist))
+        }else {
+          h2 <- fitted.mod$results[[i]]$qtls[,c(1:2,7)]
+        }
+        int <- merge(int, h2, by = c("LG", "Pos"))
+        
+        qtl_info <- rbind(qtl_info, int[order(int$LG, int$Pos),])
+        
+        u.hat.t <- do.call(cbind, fitted.mod$results[[i]]$fitted$U)
+        colnames(u.hat.t) <- names(fitted.mod$results[[i]]$fitted$U)
+        u.hat.t <- cbind(haplo = fitted.mod$results[[i]]$fitted$alleles, pheno , as.data.frame(u.hat.t))
+        u.hat.t <- pivot_longer(u.hat.t, cols = c(1:length(u.hat.t))[-c(1:2)], values_to = "u.hat", names_to = "qtl")
+        u.hat <- rbind(u.hat, u.hat.t)
+        u.hat$qtl <- gsub("g", "", u.hat$qtl)
+        
+        beta.hat.t <- data.frame(pheno, beta.hat = fitted.mod$results[[i]]$fitted$Beta[,1])
+        beta.hat <- rbind(beta.hat, beta.hat.t) 
+        
+        for(j in 1:length(est.effects$results[[i]]$effects)){
+          effects.t <- do.call(rbind, lapply(est.effects$results[[i]]$effects[[j]], function(x) data.frame(haplo = names(x), effect = x)))
+          effects.t <- cbind(pheno = pheno, qtl.id= j, effects.t)
+          effects <- rbind(effects, effects.t)
+        }
+      }
+      
+      if(is(remim.mod, "qtlpoly.feim")) SIG <- remim.mod$results[[i]][[3]] else SIG <- -log10(as.numeric(remim.mod$results[[i]][[3]]))
+      
+      profile.t <- data.frame(pheno, LOP = SIG)
+      profile <- rbind(profile, profile.t)
+    }
+    incProgress(0.75, detail = paste("Uploading QTLpoly data..."))
     
-    profile.t <- data.frame(pheno, LOP = SIG)
-    profile <- rbind(profile, profile.t)
-  }
-  
-  # Rearrange the progeny probabilities into a list
-  probs <- data$Z
-  
-  result <- list(selected_mks = lgs, qtl_info = qtl_info, 
-                 blups = as.data.frame(u.hat), beta.hat = beta.hat, 
-                 profile = profile, effects = effects, probs = probs, software = "QTLpoly")
+    # Rearrange the progeny probabilities into a list
+    probs <- data$Z
+    
+    result <- list(selected_mks = lgs, qtl_info = qtl_info, 
+                   blups = as.data.frame(u.hat), beta.hat = beta.hat, 
+                   profile = profile, effects = effects, probs = probs, software = "QTLpoly")
+  })
   return(result)
 }
 
@@ -195,87 +205,289 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 #' 
 #' 
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
-  
-  temp <- load(scan1_list$datapath)
-  scan1_list <- get(temp)
-  
-  temp <- load(scan1_summaries_list$datapath)
-  scan1_summaries_list <- get(temp)
-  
-  temp <- load(fitQTL_list$datapath)
-  fitQTL_list <- get(temp)
-  
-  temp <- load(BayesCI_list$datapath)
-  BayesCI_list <- get(temp)
-  
-  selected_mks <- scan1_list[[1]][,c(2,1,3)]
-  colnames(selected_mks) <- c("LG", "mk", "pos")
-  qtl_info <- data.frame()
-  for(i in 1:length(scan1_summaries_list)){
-    temp <- cbind(pheno = names(scan1_summaries_list)[i],scan1_summaries_list[[i]]$peaks)
-    qtl_info <- rbind(qtl_info, temp)
-  }
-  
-  qtls.id <- list()
-  qtl_info2 <- data.frame()
-  
-  profile <- effects <- data.frame()
-  for(i in 1:length(fitQTL_list)){
-    qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
-    trait <- gsub("Trait: ","",fitQTL_list[[i]]$plots[[1]]$additive$labels$title)
-    qtl_temp <- qtl_info %>% filter(pheno == trait & marker %in% qtls.id)
-    qtl_info2 <- rbind(qtl_info2, qtl_temp)
-    # profile
-    profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
-    profile <- rbind(profile, profile_temp)
+  withProgress(message = 'Working...', value = 0, {
+    incProgress(0.1, detail = paste("Uploading diaQTL data..."))
     
-    for(j in 1:length(fitQTL_list[[i]]$plots)){
-      # aditive effect
-      temp <- fitQTL_list[[i]]$plots[[j]]$additive$data
-      effects.ad.t <- data.frame(pheno = trait, 
-                                 haplo = rownames(temp), 
-                                 qtl.id = j, 
-                                 effect= temp$mean, 
-                                 type = "Additive",
-                                 CI.lower = temp$CI.lower,
-                                 CI.upper = temp$CI.upper)
-      
-      # digenic effect
-      temp <- fitQTL_list[[i]]$plots[[j]]$digenic$data
-      if(!is.null(temp)){
-        effects.di.t <- data.frame(pheno = trait, 
-                                   haplo = paste0(temp$x,"x",temp$y),
-                                   qtl.id = j,
-                                   effect = as.numeric(temp$z), 
-                                   type = "Digenic",
-                                   CI.lower = NA,
-                                   CI.upper = NA)
-        
-        effects.t <- rbind(effects.ad.t, effects.di.t)
-      } else effects.t <- effects.ad.t
-      effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
-      effects <- rbind(effects, effects.t)
+    temp <- load(scan1_list$datapath)
+    scan1_list <- get(temp)
+    
+    temp <- load(scan1_summaries_list$datapath)
+    scan1_summaries_list <- get(temp)
+    
+    temp <- load(fitQTL_list$datapath)
+    fitQTL_list <- get(temp)
+    
+    temp <- load(BayesCI_list$datapath)
+    BayesCI_list <- get(temp)
+    
+    selected_mks <- scan1_list[[1]][,c(2,1,3)]
+    colnames(selected_mks) <- c("LG", "mk", "pos")
+    qtl_info <- data.frame()
+    incProgress(0.3, detail = paste("Uploading diaQTL data..."))
+    
+    for(i in 1:length(scan1_summaries_list)){
+      temp <- cbind(pheno = names(scan1_summaries_list)[i],scan1_summaries_list[[i]]$peaks)
+      qtl_info <- rbind(qtl_info, temp)
     }
-  }
-  
-  CI <- lapply(BayesCI_list, function(x) {
-    y = c(Pos_lower = x$cM[1], Pos_upper = x$cM[length(x$cM)])
-    return(y)
+    
+    qtls.id <- list()
+    qtl_info2 <- data.frame()
+    incProgress(0.5, detail = paste("Uploading diaQTL data..."))
+    
+    profile <- effects <- data.frame()
+    for(i in 1:length(fitQTL_list)){
+      qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
+      trait <- gsub("Trait: ","",fitQTL_list[[i]]$plots[[1]]$additive$labels$title)
+      qtl_temp <- qtl_info %>% filter(pheno == trait & marker %in% qtls.id)
+      qtl_info2 <- rbind(qtl_info2, qtl_temp)
+      # profile
+      profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
+      profile <- rbind(profile, profile_temp)
+      
+      for(j in 1:length(fitQTL_list[[i]]$plots)){
+        # aditive effect
+        temp <- fitQTL_list[[i]]$plots[[j]]$additive$data
+        effects.ad.t <- data.frame(pheno = trait, 
+                                   haplo = rownames(temp), 
+                                   qtl.id = j, 
+                                   effect= temp$mean, 
+                                   type = "Additive",
+                                   CI.lower = temp$CI.lower,
+                                   CI.upper = temp$CI.upper)
+        
+        # digenic effect
+        temp <- fitQTL_list[[i]]$plots[[j]]$digenic$data
+        if(!is.null(temp)){
+          effects.di.t <- data.frame(pheno = trait, 
+                                     haplo = paste0(temp$x,"x",temp$y),
+                                     qtl.id = j,
+                                     effect = as.numeric(temp$z), 
+                                     type = "Digenic",
+                                     CI.lower = NA,
+                                     CI.upper = NA)
+          
+          effects.t <- rbind(effects.ad.t, effects.di.t)
+        } else effects.t <- effects.ad.t
+        effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
+        effects <- rbind(effects, effects.t)
+      }
+    }
+    incProgress(0.75, detail = paste("Uploading diaQTL data..."))
+    
+    CI <- lapply(BayesCI_list, function(x) {
+      y = c(Pos_lower = x$cM[1], Pos_upper = x$cM[length(x$cM)])
+      return(y)
+    })
+    
+    CI <- do.call(rbind, CI)
+    
+    qtl_info <- qtl_info2[,c(3,4,1,6)]
+    qtl_info <- cbind(qtl_info, CI)
+    qtl_info <- qtl_info[,c(1:3,5,6,4)]
+    colnames(qtl_info)[1:2] <- c("LG", "Pos")
+    
+    incProgress(0.85, detail = paste("Uploading diaQTL data..."))
+    
   })
-  
-  CI <- do.call(rbind, CI)
-  
-  qtl_info <- qtl_info2[,c(3,4,1,6)]
-  qtl_info <- cbind(qtl_info, CI)
-  qtl_info <- qtl_info[,c(1:3,5,6,4)]
-  colnames(qtl_info)[1:2] <- c("LG", "Pos")
-  
   structure(list(selected_mks = selected_mks,
                  qtl_info = qtl_info,
                  profile = profile,
                  effects = effects,
                  software = "diaQTL"), 
             class = "viewqtl")
+}
+
+#' Upload polyqtlR outputs
+#' 
+prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_phenotypes){
+  withProgress(message = 'Working...', value = 0, {
+    incProgress(0.1, detail = paste("Uploading polyqtlR data..."))
+    temp <- load(polyqtlR_QTLscan_list$datapath)
+    polyqtlR_QTLscan_list <- get(temp)
+    
+    temp <- load(polyqtlR_IBD$datapath)
+    polyqtlR_IBD <- get(temp)
+    
+    temp <- load(polyqtlR_phenotypes$datapath)
+    polyqtlR_phenotypes <- get(temp)
+    
+    # selected markers
+    selected_mks <- polyqtlR_QTLscan_list[[1]]$Map
+    colnames(selected_mks) <- c("LG", "mk", "pos")
+    incProgress(0.5, detail = paste("Uploading polyqtlR data..."))
+    
+    profile <- qtl_info <- effects <- data.frame()
+    for(i in 1:length(polyqtlR_QTLscan_list)){
+      pheno <- names(polyqtlR_QTLscan_list)[i]
+      # profile
+      profile_temp <- data.frame(pheno = pheno,
+                                 LOD = polyqtlR_QTLscan_list[[i]]$QTL.res$LOD)
+      profile <- rbind(profile, profile_temp)
+      
+      # qtl info
+      for(j in 1:length(unique(selected_mks$LG))){
+        qtl_info_temp <- find_polyqtlR_Peak(polyqtlR_QTLscan_list[[i]], linkage_group = unique(selected_mks$LG)[j])
+        if(!is.null(qtl_info_temp)){
+          qtl_info_temp <- data.frame(LG = qtl_info_temp$chromosome, 
+                                      Pos = qtl_info_temp$position,
+                                      pheno = pheno, 
+                                      Pos_lower = NA, # Change here with 1.5 LOD rule ?
+                                      Pos_upper = NA,
+                                      thresh = qtl_info_temp$thresh)
+          qtl_info <- rbind(qtl_info, qtl_info_temp)
+        }
+        # effects
+        effects.t <- polyqtlReffects(IBD_list = polyqtlR_IBD, # input
+                                     Phenotype.df = polyqtlR_phenotypes, # input
+                                     trait.ID = pheno,
+                                     linkage_group = j,
+                                     LOD_data = polyqtlR_QTLscan_list[[i]])
+        effects <- rbind(effects, effects.t)
+      }
+    }
+    incProgress(0.85, detail = paste("Uploading polyqtlR data..."))
+  })
+  
+  structure(list(selected_mks = selected_mks,
+                 qtl_info = qtl_info,
+                 profile = profile,
+                 effects = effects,
+                 software = "polyqtlR"), 
+            class = "viewqtl")
+}
+
+#' Addapted from polyqtlR
+#' 
+find_polyqtlR_Peak <- function(LOD_data, linkage_group) {
+  if (is.null(LOD_data$Perm.res)) {
+    warning("No significance threshold available to check")
+    thresh <- 0
+  }
+  else {
+    thresh <- LOD_data$Perm.res$threshold
+  }
+  lgdata <- LOD_data$QTL.res[LOD_data$QTL.res$chromosome == 
+                               linkage_group, ]
+  maxdata <- lgdata[which.max(lgdata$LOD), ]
+  if (maxdata$LOD >= thresh) 
+    df <- cbind(maxdata, thresh = thresh)
+  else df <- NULL
+  return(df)
+}
+
+#' Addapted from polyqtlR
+#' 
+#' 
+polyqtlReffects <- function(IBD_list, 
+                            Phenotype.df, 
+                            genotype.ID, 
+                            trait.ID.c, 
+                            linkage_group, 
+                            LOD_data, 
+                            cM_range = NULL) {
+  geno <- IBD_list[[1]]$offspring
+  idx1 <- sum(Phenotype.df[,1] %in% geno)
+  idx2 <- sum(Phenotype.df[,2] %in% geno)
+  genotype.ID <- which.max(c(idx1, idx2))
+  trait.ID <- which(colnames(Phenotype.df) %in% trait.ID.c)
+  
+  ploidy <- IBD_list[[1]]$ploidy
+  ploidy2 <- IBD_list[[1]]$ploidy2
+  if (length(linkage_group) != 1 | !is.numeric(linkage_group)) 
+    stop("linkage_group should be a single numeric identifier.")
+  listdepth <- list.depth(IBD_list)
+  if (listdepth != 3) 
+    stop("Unexpected input - IBD_list is expected to be a nested list representing 1 or more chromosomes! Please check input.")
+  IBDarray <- IBD_list[[linkage_group]]$IBDarray
+  IBDtype <- IBD_list[[linkage_group]]$IBDtype
+  bivalent_decoding <- IBD_list[[linkage_group]]$biv_dec
+  gap <- IBD_list[[linkage_group]]$gap
+  if (IBDtype == "genotypeIBD") {
+    if (IBD_list[[1]]$method == "hmm_TO") {
+      GenotypeCodes <- t(sapply(IBD_list[[1]]$genocodes, function(x) as.numeric(strsplit(as.character(x), "")[[1]])))
+      Nstates <- nrow(GenotypeCodes)
+      indicatorMatrix <- matrix(0, nrow = Nstates, ncol = ploidy + ploidy2)
+      for (r in 1:nrow(indicatorMatrix)) {
+        for (h in 1:ncol(GenotypeCodes)) {
+          indicatorMatrix[r, GenotypeCodes[r, h]] <- indicatorMatrix[r, GenotypeCodes[r, h]] + 1
+        }
+      }
+    } else {
+      GenotypeCodes <- t(sapply(sapply(IBD_list[[1]]$genocodes, function(x) strsplit(x, "")), function(y) sapply(y, function(z) which(letters == z))))
+      Nstates <- nrow(GenotypeCodes)
+      indicatorMatrix <- matrix(0, nrow = Nstates, ncol = ploidy + ploidy2)
+      for (r in 1:nrow(indicatorMatrix)) {
+        for (h in 1:ncol(GenotypeCodes)) {
+          indicatorMatrix[r, GenotypeCodes[r, h]] <- indicatorMatrix[r, GenotypeCodes[r, h]] + 1
+        }
+      }
+    }
+  } else if (IBDtype == "haplotypeIBD") {
+    Nstates <- ploidy + ploidy2
+    indicatorMatrix <- NULL
+  } else {
+    stop("Unable to determine IBD type, please check IBD_list elements have a valid $IBDtype tag.")
+  }
+  if (dim(IBDarray)[2]%%Nstates != 0) 
+    stop("Incompatible input detected..")
+  if (!is.null(gap)) {
+    cMpositions <- as.numeric(unlist(lapply(strsplit(dimnames(IBDarray)[[1]], "cM"), function(x) x[2])))
+  }  else {
+    cMpositions <- IBD_list[[linkage_group]]$map$position
+  }
+  subcM <- 1:length(cMpositions)
+  cM_range <- cMpositions
+  index_range <- dimnames(IBDarray)[[1]]
+  if (any(is.na(Phenotype.df[, genotype.ID]))) {
+    warning("Missing genotype.ID values detected. Removing and proceeding without...")
+    Phenotype.df <- Phenotype.df[!is.na(Phenotype.df[, genotype.ID]), ]
+  }
+  phenoGeno0 <- intersect(dimnames(IBDarray)[[3]], unique(Phenotype.df[, genotype.ID]))
+  pheno <- Phenotype.df[Phenotype.df[, genotype.ID] %in% phenoGeno0 & !is.na(Phenotype.df[, trait.ID]), 
+                        c(genotype.ID, trait.ID)]  
+  pheno <- pheno[order(pheno[, 1]), ]
+  phenoGeno <- as.character(unique(pheno[, 1]))
+  popSize <- length(phenoGeno)
+  Phenotypes <- pheno[, 2]
+  if (popSize != nrow(pheno)) 
+    stop("Check input - unequal dimensions of phenotypes and genotype data.\nSuggest to use polyqtlR:::BLUE() to generate consensus phenotypes first.")
+  prob_matched <- match(phenoGeno, dimnames(IBDarray)[[3]])
+  
+  calc.AlEffects <- function(cM.pos = index_range[1], tag) {
+    if (tag == "genotypeIBD") {
+      haploProbs <- t(IBDarray[cM.pos, , prob_matched]) %*% indicatorMatrix
+    } else {
+      haploProbs <- t(IBDarray[cM.pos, , prob_matched])
+    }
+    mean_sd_weights <- function(wghts, min.wghts, zerosum = FALSE) {
+      plus.mean <- sum(wghts * Phenotypes)/sum(wghts)
+      minus.mean <- sum(min.wghts * Phenotypes)/sum(min.wghts)
+      if (zerosum) {
+        return(plus.mean - minus.mean)
+      } else {
+        return(plus.mean - mean(Phenotypes))
+      }
+    }
+    output <- setNames(sapply(1:(ploidy + ploidy2), function(sub.config) {
+      weights <- haploProbs[, sub.config]
+      min.weights <- 1 - haploProbs[, sub.config]
+      mean_sd_weights(weights, min.weights)
+    }), paste0("H", 1:(ploidy + ploidy2)))
+  }
+  AlEffects <- do.call(rbind, lapply(index_range, calc.AlEffects, IBDtype))
+  AlEffects <- data.frame(pos = cM_range, pheno = trait.ID.c, LG = linkage_group, AlEffects)
+  
+  return(AlEffects)
+}
+
+#' From polyqtlR
+#' 
+list.depth <- function (obj, objdepth = 0) {
+  if (!is.list(obj)) {
+    return(objdepth)
+  } else {
+    return(max(unlist(lapply(obj, list.depth, objdepth = objdepth + 1))))
+  }
 }
 
 #' 

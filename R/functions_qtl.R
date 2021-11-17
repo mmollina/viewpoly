@@ -29,7 +29,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   count <- 0
   y.dat <- c()
   for(p in 1:nphe) { #points
-    trait.names <- unique(qtl_info$pheno)[pheno.col[p]]
+    trait.names <- unique(profile$pheno)[pheno.col[p]]
     if(!is.null(qtl_info)) {
       qtl_info.sub <- qtl_info %>% filter(pheno == trait.names)
       nqtls <-  qtl_info.sub %>% summarize(n()) 
@@ -98,7 +98,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   
   lines$y.dat <- lines$y.dat + min(lines$SIG, na.rm = T)
   points$y.dat <- points$y.dat + min(lines$SIG, na.rm = T)
-
+  
   scale.max <- round(max(lines$SIG[which(is.finite(lines$SIG))], na.rm = T),0)
   scale.max <- scale.max*1.2
   scale.min <- round(min(lines$SIG[which(is.finite(lines$SIG))], na.rm = T),0)
@@ -108,7 +108,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
     points$y.dat <- points$y.dat*3
     scale.each <- 10
   } else scale.each = 2 
-
+  
   if(plot){
     if(by_range){
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
@@ -117,7 +117,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-        {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+        {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
@@ -128,7 +128,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-        {if(!all(is.na(lines$INT))) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+        {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
@@ -164,7 +164,7 @@ only_plot_profile <- function(pl.in){
   pl <- ggplot(data = pl.in$lines, aes(x = x, color = Trait)) +
     {if(!all(is.na(pl.in$lines$INT))) geom_path(data=pl.in$lines, aes(x = x.int, y =y.dat), colour = "black")} +
     geom_line(data=pl.in$lines, aes(y = SIG, color = Trait), size=pl.in$linesize, alpha=0.8, show.legend = F) +
-    {if(!all(is.na(pl.in$lines$INT))) geom_point(data=pl.in$points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+    {if(dim(pl.in$points)[1] > 0) geom_point(data=pl.in$points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
     {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8)} +  #threshold
     guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
     labs(y = pl.in$y.lab, x = "Linkage group") +
@@ -178,78 +178,114 @@ only_plot_profile <- function(pl.in){
 
 #' Adapted function from QTLpoly
 #' 
-plot_qtlpoly.effects <- function(qtl_info, effects, pheno.col = NULL, 
-                                 p1 = "P1", p2 = "P2", df.info=NULL, 
-                                 lgs = NULL, position = NULL, software) {
+plot_effects <- function(qtl_info, effects, pheno.col = NULL, 
+                         p1 = "P1", p2 = "P2", df.info=NULL, 
+                         lgs = NULL, groups = NULL, position = NULL, software) {
   if(is.null(pheno.col)) {
     pheno.col <- 1:length(unique(qtl_info$pheno))
   } else {
     pheno.col <- which(unique(qtl_info$pheno) %in% pheno.col)
   }
   
-  if(software == "QTLpoly"){
-    ploidy <- max(nchar(effects$haplo))
-  } else if(software == "diaQTL") {
-    get.size <- effects %>% filter(pheno == unique(qtl_info$pheno)[1] & qtl.id == 1)
-    if(nrow(get.size) == 64) ploidy = 4 else ploidy = 2
-  }
-  
-  qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>%
-    filter(Pos %in% position) %>% filter(LG %in% lgs)
-  
-  total <- split(qtl_info, qtl_info$pheno)
-  total <- lapply(total, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
-  total <- total[match(unique(qtl_info$pheno), names(total))]
-  
-  sub <- split(qtl_info.sub, qtl_info.sub$pheno)
-  sub <- lapply(sub, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
-  
-  group.idx <- list()
-  for(i in 1:length(pheno.col)){
-    idx <- match(names(sub)[i], names(total))
-    group.idx[[idx]] <- match(sub[[i]], total[[idx]])
-  }
-  
-  plots2 <- list()
-  for(p in pheno.col) {
-    effects.sub <- effects %>% filter(pheno == unique(qtl_info$pheno)[p]) %>% 
-      filter(qtl.id %in% group.idx[[p]]) 
-    nqtl <- length(unique(effects.sub$qtl.id))
-    if(nqtl > 0) {
-      plots1 <- list()
-      for(q in group.idx[[p]]) {
-        data <- effects.sub %>% filter(qtl.id == q)
-        if(ploidy == 4) {
-          data <- data[1:36,]
-          if(software == "diaQTL"){
-            data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
-          } else 
-            data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
-          
-          data <- data[-c(12:15,18:21,23:30),]
-        }
-        if(ploidy == 6) {
-          data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),]
-          data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
-        }
-        data$Parent <- factor(data$Parent, levels=unique(data$Parent))
-        plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
-          geom_bar(stat="identity") +
-          {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
-          scale_fill_gradient2(low = "red", high = "blue", guide = "none") +
-          labs(title=unique(qtl_info$pheno)[p], subtitle=paste("QTL", q, "\n")) +
-          facet_wrap(. ~ Parent, scales="free_x", ncol = 2, strip.position="bottom") +
-          theme_minimal() +
-          theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
-        plots1[[q]] <- plot
-      }
-      plots2[[p]] <- plots1
+  if(software == "QTLpoly" | software == "diaQTL"){
+    
+    if(software == "QTLpoly"){
+      ploidy <- max(nchar(effects$haplo))
+    } else if(software == "diaQTL") {
+      get.size <- effects %>% filter(pheno == unique(qtl_info$pheno)[1] & qtl.id == 1)
+      if(nrow(get.size) == 64) ploidy = 4 else ploidy = 2
+    } else if(software == "polyqtlR"){
+      ploidy <- (dim(effects)[2] - 3)/2
     }
+    
+    qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>%
+      filter(Pos %in% position) %>% filter(LG %in% lgs)
+    
+    total <- split(qtl_info, qtl_info$pheno)
+    total <- lapply(total, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
+    total <- total[match(unique(qtl_info$pheno), names(total))]
+    
+    sub <- split(qtl_info.sub, qtl_info.sub$pheno)
+    sub <- lapply(sub, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
+    
+    group.idx <- list()
+    for(i in 1:length(pheno.col)){
+      idx <- match(names(sub)[i], names(total))
+      group.idx[[idx]] <- match(sub[[i]], total[[idx]])
+    }
+    
+    plots2 <- list()
+    for(p in pheno.col) {
+      effects.sub <- effects %>% filter(pheno == unique(qtl_info$pheno)[p]) %>% 
+        filter(qtl.id %in% group.idx[[p]]) 
+      nqtl <- length(unique(effects.sub$qtl.id))
+      if(nqtl > 0) {
+        plots1 <- list()
+        for(q in group.idx[[p]]) {
+          data <- effects.sub %>% filter(qtl.id == q)
+          if(ploidy == 4) {
+            data <- data[1:36,]
+            if(software == "diaQTL"){
+              data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+            } else 
+              data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+            
+            data <- data[-c(12:15,18:21,23:30),]
+          }
+          if(ploidy == 6) {
+            data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),]
+            data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
+          }
+          data$Parent <- factor(data$Parent, levels=unique(data$Parent))
+          plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
+            geom_bar(stat="identity") +
+            {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
+            scale_fill_gradient2(low = "red", high = "blue", guide = "none") +
+            labs(title=unique(qtl_info$pheno)[p], subtitle=paste("QTL", q, "\n")) +
+            facet_wrap(. ~ Parent, scales="free_x", ncol = 2, strip.position="bottom") +
+            theme_minimal() +
+            theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
+          plots1[[q]] <- plot
+        }
+        plots2[[p]] <- plots1
+      }
+    }
+    p <- unlist(plots2, recursive = F)
+    nulls <- which(sapply(p, is.null))
+    if(length(nulls) > 0)  p <- p[-nulls]
+    
+    rows <- ceiling(length(p)/4)
+    if(rows == 0) rows <- 1
+    
+    p.t <- ggarrange(plotlist = p, ncol = 4, nrow = rows)
+    
+    return(p.t)
+    
+  } else if(software == "polyqtlR"){
+    effects.df <- effects %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>% 
+      filter(LG %in% groups) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect") 
+    
+    effects.df <- effects.df %>% group_by(haplo, pheno) %>% mutate(x.axis = 1:n()) %>% ungroup() %>% as.data.frame()
+    
+    vlines <- split(effects.df$x.axis, effects.df$LG)
+    vlines <- sapply(vlines, function(x) x[1])
+    
+    p <- list()
+    for(i in 1:length(pheno.col)){
+      p[[i]] <- effects.df %>% filter(pheno == unique(qtl_info$pheno)[pheno.col][i]) %>%  
+        ggplot() +
+        geom_path(aes(x=x.axis, y=haplo, col = effect), size = 5)  +
+        scale_color_gradient2(low = "purple4", mid = "white",high = "seagreen") +
+        {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8)} +
+        labs(y = "Haplotype", x = "Linkage group", title = unique(qtl_info$pheno)[pheno.col][i]) +
+        annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust= 1, hjust= -0.1,geom="label") +
+        coord_cartesian(ylim = c(1,8.5)) +
+        theme_classic() + theme(axis.text.x=element_blank(),
+                                axis.ticks.x=element_blank(), legend.title = element_blank())
+    }
+    p.t <- ggarrange(plotlist = p, common.legend = T, ncol = 1, legend = "right")
+    return(p.t)
   }
-  p.t <- unlist(plots2, recursive = F)
-  nulls <- which(sapply(p.t, is.null))
-  if(length(nulls) > 0)  p.t <- p.t[-nulls]
-  return(p.t)
 }
 
 
