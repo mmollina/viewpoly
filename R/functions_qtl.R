@@ -117,7 +117,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         geom_line(data=lines, aes(y = SIG, shape = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-        {if(dim(pl.in$points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+        {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
@@ -128,7 +128,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black")} +
         geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", show.legend = F) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
-        {if(dim(pl.in$points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
+        {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +
         guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
@@ -180,7 +180,7 @@ only_plot_profile <- function(pl.in){
 #' 
 plot_effects <- function(qtl_info, effects, pheno.col = NULL, 
                          p1 = "P1", p2 = "P2", df.info=NULL, 
-                         lgs = NULL, position = NULL, software) {
+                         lgs = NULL, groups = NULL, position = NULL, software) {
   if(is.null(pheno.col)) {
     pheno.col <- 1:length(unique(qtl_info$pheno))
   } else {
@@ -250,17 +250,41 @@ plot_effects <- function(qtl_info, effects, pheno.col = NULL,
         plots2[[p]] <- plots1
       }
     }
-    p.t <- unlist(plots2, recursive = F)
-    nulls <- which(sapply(p.t, is.null))
-    if(length(nulls) > 0)  p.t <- p.t[-nulls]
+    p <- unlist(plots2, recursive = F)
+    nulls <- which(sapply(p, is.null))
+    if(length(nulls) > 0)  p <- p[-nulls]
+    
+    rows <- ceiling(length(p)/4)
+    if(rows == 0) rows <- 1
+    
+    p.t <- ggarrange(plotlist = p, ncol = 4, nrow = rows)
+    
     return(p.t)
+    
   } else if(software == "polyqtlR"){
     effects.df <- effects %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>% 
-      filter(LG %in% lgs) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect")
-    p <- ggplot(effects.df, aes(x=pos, y=haplo, fill = effect)) + 
-      scale_fill_gradient2(low = "purple4", mid = "white",high = "seagreen") +
-      geom_bar(width=0.7, stat = "identity") + theme_bw()
-    return(p)
+      filter(LG %in% groups) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect") 
+    
+    effects.df <- effects.df %>% group_by(haplo, pheno) %>% mutate(x.axis = 1:n()) %>% ungroup() %>% as.data.frame()
+    
+    vlines <- split(effects.df$x.axis, effects.df$LG)
+    vlines <- sapply(vlines, function(x) x[1])
+    
+    p <- list()
+    for(i in 1:length(pheno.col)){
+      p[[i]] <- effects.df %>% filter(pheno == unique(qtl_info$pheno)[pheno.col][i]) %>%  
+        ggplot() +
+        geom_path(aes(x=x.axis, y=haplo, col = effect), size = 5)  +
+        scale_color_gradient2(low = "purple4", mid = "white",high = "seagreen") +
+        {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8)} +
+        labs(y = "Haplotype", x = "Linkage group", title = unique(qtl_info$pheno)[pheno.col][i]) +
+        annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust= 1, hjust= -0.1,geom="label") +
+        coord_cartesian(ylim = c(1,8.5)) +
+        theme_classic() + theme(axis.text.x=element_blank(),
+                                axis.ticks.x=element_blank(), legend.title = element_blank())
+    }
+    p.t <- ggarrange(plotlist = p, common.legend = T, ncol = 1, legend = "right")
+    return(p.t)
   }
 }
 

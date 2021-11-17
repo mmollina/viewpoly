@@ -1,3 +1,5 @@
+#' Upload example files
+#' 
 prepare_examples <- function(example){
   if(example == "hex_map"){
     withProgress(message = 'Working...', value = 0, {
@@ -295,10 +297,8 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
             class = "viewqtl")
 }
 
-polyqtlR_QTLscan_list <- tetra_polyqtlR_QTLscan
-polyqtlR_IBD <- tetra_polyqtlR_IBD
-polyqtlR_phenotypes <- tetra_polyqtlR_phenotypes
-
+#' Upload polyqtlR outputs
+#' 
 prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_phenotypes){
   withProgress(message = 'Working...', value = 0, {
     incProgress(0.1, detail = paste("Uploading polyqtlR data..."))
