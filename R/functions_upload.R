@@ -20,8 +20,8 @@ prepare_examples <- function(example){
     })
     return(list(map=viewmap_tetra, 
                 qtl=viewqtl_tetra, 
-                fasta= system.file("ext/Stuberosum.Chr01.fa.gz"),
-                gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz")))
+                fasta= system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly"),
+                gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz", package="viewpoly")))
   }
 }
 

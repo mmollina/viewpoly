@@ -25,7 +25,7 @@ mod_qtl_view_ui <- function(id){
           tags$h2(tags$b("View QTL")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = FALSE, status="primary",
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = FALSE,
                             pickerInput(ns("group"),
                                         label = h6("Select linkage groups"),
                                         choices = "This will be updated",
@@ -39,7 +39,7 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE,
                             pickerInput(ns("phenotypes"),
                                         label = h6("Select phenotypes"),
                                         choices = "This will be updated",

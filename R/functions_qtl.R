@@ -61,7 +61,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
   } else if(y.lab == "deltaDIC") {
     lines$SIG <- -lines$SIG
     y.lab <- "-\U0394 DIC"
-  }
+  } 
   
   # Filter group
   if(!is.null(lgs.id)){
@@ -119,7 +119,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
-        guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
+        guides(color = guide_legend("Trait"), color = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
         theme_classic()
     } else {
@@ -130,7 +130,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +
-        guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
+        guides(color = guide_legend("Trait"), color = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") +
         theme_classic()
     }
@@ -161,12 +161,12 @@ only_plot_profile <- function(pl.in){
   vlines <- split(pl.in$lines$x, pl.in$lines$LG)
   vlines <- sapply(vlines, function(x) x[1])
   
-  pl <- ggplot(data = pl.in$lines, aes(x = x, color = Trait)) +
+  pl <- ggplot(data = pl.in$lines, aes(x = x)) +
     {if(!all(is.na(pl.in$lines$INT))) geom_path(data=pl.in$lines, aes(x = x.int, y =y.dat), colour = "black")} +
     geom_line(data=pl.in$lines, aes(y = SIG, color = Trait), size=pl.in$linesize, alpha=0.8, show.legend = F) +
+    #guides(color = guide_legend("Trait")) + 
     {if(dim(pl.in$points)[1] > 0) geom_point(data=pl.in$points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
     {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8)} +  #threshold
-    guides(color = guide_legend("Trait"), fill = guide_legend("Trait"), shape = guide_legend("Trait")) + 
     labs(y = pl.in$y.lab, x = "Linkage group") +
     annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust=1, hjust= -0.1,geom="label") +
     ylim(c(min(pl.in$lines$y.dat),max(pl.in$lines$SIG, na.rm = T) + 3)) +

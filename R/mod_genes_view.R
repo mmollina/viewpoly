@@ -31,7 +31,7 @@ mod_genes_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                        box(width = 12, solidHeader = FALSE, collapsible = FALSE,  collapsed = FALSE,
                             pickerInput(ns("phenotypes"),
                                         label = h4("Phenotypes"),
                                         choices = "This will be updated",
@@ -45,7 +45,7 @@ mod_genes_view_ui <- function(id){
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                        box(width = 12, solidHeader = FALSE, collapsible = FALSE,  collapsed = FALSE,
                             selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
                         ), br(),
                  )
