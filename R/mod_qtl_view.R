@@ -25,7 +25,7 @@ mod_qtl_view_ui <- function(id){
           tags$h2(tags$b("View QTL")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = FALSE, status="primary",
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = FALSE,
                             pickerInput(ns("group"),
                                         label = h6("Select linkage groups"),
                                         choices = "This will be updated",
@@ -39,7 +39,7 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary",
+                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE,
                             pickerInput(ns("phenotypes"),
                                         label = h6("Select phenotypes"),
                                         choices = "This will be updated",
@@ -302,7 +302,8 @@ mod_qtl_view_server <- function(input, output, session,
   fn_download <- function()
   {
     p <- only_plot_profile(pl.in = qtl.data())
-    ggsave(p, file = fn_downloadname())    
+    ggsave(p, file = fn_downloadname(), 
+           width = 12.7, height = 8, units = "in")    
   }
   
   # download handler
@@ -336,16 +337,15 @@ mod_qtl_view_server <- function(input, output, session,
     } else {
       stop("Select a point or region on QTL profile graphic.") 
     }
-    plots <- plot_qtlpoly.effects(loadQTL()$qtl_info, loadQTL()$effects,
-                                  pheno.col = as.character(df$Trait), 
-                                  lgs = df$LG, position = df$`Position (cM)`)
-    
-    rows <- ceiling(length(plots)/4)
-    if(rows == 0) rows <- 1
-    
-    p <- ggarrange(plotlist = plots, ncol = 4, nrow = rows)
-    ggsave(p, file = fn_downloadname_effects(), height = plotHeight(), 
-           width = 2.5*plotHeight(), units = "mm")    
+    plots <- plot_effects(qtl_info = loadQTL()$qtl_info, 
+                          effects = loadQTL()$effects,
+                          pheno.col = as.character(df$Trait), 
+                          lgs = df$LG, 
+                          position = df$`Position (cM)`,
+                          groups = as.numeric(input$group),
+                          software = loadQTL()$software)
+
+    ggsave(plots, file = fn_downloadname_effects(), height = plotHeight()/3, width = plotHeight(),units = "mm", bg = "white")    
   }
   
   # download handler

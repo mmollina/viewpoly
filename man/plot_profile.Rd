@@ -13,7 +13,8 @@ plot_profile(
   by_range = TRUE,
   range.min = NULL,
   range.max = NULL,
-  plot = TRUE
+  plot = TRUE,
+  software = NULL
 )
 }
 \description{
