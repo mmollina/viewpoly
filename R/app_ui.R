@@ -64,7 +64,7 @@ app_ui <- function(request) {
         fluidPage(
           navbarPage( 
             tags$script(HTML("var header = $('.navbar > .container-fluid');
-header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"logo.png\" alt=\"alt\" style=\"float:right;width:150px;height:100px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
+header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"logo_white.png\" alt=\"alt\" style=\"float:right;width:120px;height:80px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
     console.log(header)")
             ),
             title =  "ViewPoly", 
@@ -79,7 +79,7 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
                      mod_upload_ui("upload_ui_1")),
             tabPanel("QTL", value = "qtl",
                      mod_qtl_view_ui("qtl_view_ui_1")),
-            tabPanel("Genes", value = "genes",
+            tabPanel("Genome Browser", value = "genes",
                      mod_genes_view_ui("genes_view_ui_1")),
             tabPanel("Map", value = "map",
                      mod_map_view_ui("map_view_ui_1"))

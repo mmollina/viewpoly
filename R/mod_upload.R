@@ -36,16 +36,18 @@ mod_upload_ui <- function(id){
                        actionBttn(ns("reset_map"), style = "unite", label = "reset", icon = icon("redo"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
+                       tags$p("Object of class `mappoly.map`."),
                        fileInput(ns("mappoly_in"), label = h6("File: mappoly_map.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polymapR output")),
+                       
                        fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.tsv or .tsv.gz)")),
                        box(
                          width = NULL, background = "red",
-                         "This is the most difficult way of upload your data. Good luck!"
+                         "This option for uploading the data can be challenging. Good luck!"
                        ),
                        fileInput(ns("dosages"), label = h6("File: dosages.tsv"), multiple = F),
                        fileInput(ns("genetic_map"), label = h6("File: genetic_map.tsv"), multiple = F),
@@ -70,73 +72,149 @@ mod_upload_ui <- function(id){
                        actionBttn(ns("reset_qtl"), style = "unite", label = "reset", icon = icon("redo"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTLpoly output")),
-                       fileInput(ns("qtlpoly_data"), label = h6("File: QTLpoly_data.RData"), multiple = F),
-                       fileInput(ns("qtlpoly_remim.mod"), label = h6("File: QTLpoly_remim.mod.RData"), multiple = F),
-                       fileInput(ns("qtlpoly_est.effects"), label = h6("File: QTLpoly_est.effects.RData"), multiple = F),
-                       fileInput(ns("qtlpoly_fitted.mod"), label = h6("File: QTLpoly_fitted.mod.RData"), multiple = F)
+                       tags$p("Access further information about these type of inputs", 
+                              tags$a(href= "https://guilherme-pereira.github.io/QTLpoly/1-tutorial","here")), hr(),
+                       fileInput(ns("qtlpoly_data"), label = h6("File: QTLpoly_data.RData", br(), br(),"Object of class: qtlpoly.data"), multiple = F),
+                       tags$p("Example code:"),
+                       tags$code("library(\"qtlpoly\")", br(), 
+                                 "data <- read_data(ploidy = 6, geno.prob = genoprob, pheno = pheno, step = 1)", br(),
+                                 "save(data, file = \"QTLpoly_data.RData\")"), hr(),
+                       
+                       fileInput(ns("qtlpoly_remim.mod"), label = h6("File: QTLpoly_remim.mod.RData", br(), br(), "Object of class: qtlpoly.remim"), multiple = F),
+                       
+                       tags$p("Example code:"),
+                       tags$code("remim.mod <- remim(data = data, w.size = 15, sig.fwd = 0.01, sig.bwd = 1e-04, d.sint = 1.5, n.clusters = 4, plot = \"remim\")", br(),
+                                 "save(remim.mod, file = \"QTLpoly_remim.mod.RData\")"), hr(),
+                       
+                       fileInput(ns("qtlpoly_est.effects"), label = h6("File: QTLpoly_est.effects.RData", br(), br(),"Object of class: qtlpoly.effects"), multiple = F),
+                       
+                       tags$p("Example code:"),
+                       tags$code("est.effects <- qtl_effects(ploidy = 6, fitted = fitted.mod)", br(),
+                                 "save(est.effects, file = \"QTLpoly_est.effects.RData\")"), hr(),
+                       
+                       fileInput(ns("qtlpoly_fitted.mod"), label = h6("File: QTLpoly_fitted.mod.RData", br(), br(), "Object of class: qtlpoly.fitted"), multiple = F),
+                       
+                       tags$p("Example code:"),
+                       tags$code("fitted.mod <- fit_model(data = data, model = remim.mod, probs = \"joint\", polygenes = \"none\")", br(),
+                                 "save(fitted.mod, file = \"QTLpoly_fitted.mod.RData\")"), br()
+                       
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload diaQTL output")),
+                       tags$p("Access further information about these type of inputs", 
+                              tags$a(href= "https://jendelman.github.io/diaQTL/diaQTL_Vignette.html","here")), hr(),
+                       
                        fileInput(ns("diaQTL_scan1"), label = h6("File: diaQTL_scan1_list.RData"), multiple = F),
+                       
+                       tags$p("Example code:"),
+                       tags$code("ans1 <- scan1(data = data, trait = \"tuber_shape\", params = list(burnIn=50,nIter=500), n.core = 2)", br(),
+                                 "ans2 <- scan1(data = data, trait = \"height\", params = list(burnIn=50,nIter=500), n.core = 2)",br(),
+                                 "scan1_list <- list(ans1, ans2)", br(),
+                                 "names(scan1_list) <- c(\"tuber_shape\",\"height\")", br(),
+                                 "save(scan1_list, file = \"diaQTL_scan1_list.RData\")"), hr(),
+                       
                        fileInput(ns("diaQTL_scan1.summaries"), label = h6("File: diaQTL_scan1.summaries_list.RData"), multiple = F),
+                       
+                       tags$p("Example code:"),
+                       tags$code("summary_ans1 <- scan1_summary(ans1, position=\"bp\")", br(),
+                                 "summary_ans2 <- scan1_summary(ans2, position=\"bp\")",br(),
+                                 "scan1.summaries_list <- list(summary_ans1, summary_ans2)", br(),
+                                 "names(scan1.summaries_list) <- c(\"tuber_shape\",\"height\")", br(),
+                                 "save(scan1.summaries_list, file = \"diaQTL_scan1.summaries_list.RData\")"), hr(),
+                       
+                       fileInput(ns("diaQTL_BayesCI"), label = h6("File: diaQTL_BayesCI_list.RData"), multiple = F),
+
+                       tags$p("Example code:"),
+                       tags$code("bayes1 <- BayesCI(ans1,data,chrom=\"5\",CI.prob=0.9)", br(),
+                                 "bayes2 <- BayesCI(ans1,data,chrom=\"7\",CI.prob=0.9)", br(),
+                                 "bayes3 <- BayesCI(ans1,data,chrom=\"10\",CI.prob=0.9)", br(),
+                       "BayesCI_list <- list(bayes1, bayes2, bayes3)", br(),
+                       "save(BayesCI_list, file = \"diaQTL_BayesCI_list.RData\")"), hr(),                     
+                       
                        fileInput(ns("diaQTL_fitQTL"), label = h6("File: diaQTL_fitQTL_list.RData"), multiple = F),
-                       fileInput(ns("diaQTL_BayesCI"), label = h6("File: diaQTL_BayesCI_list.RData"), multiple = F)
-                   ),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polyqtlR output")),
-                       fileInput(ns("polyqtlR_QTLscan_list"), label = h6("File: polyqtlR_QTLscan_list.RData"), multiple = F),
-                       fileInput(ns("polyqtlR_IBD"), label = h6("File: polyqtlR_IBD.RData"), multiple = F),
-                       fileInput(ns("polyqtlR_phenotypes"), label = h6("File: polyqtl_phenotypes.RData"), multiple = F),
-                   ),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
-                       box(
-                         width = NULL, background = "red",
-                         "This is the most difficult way of upload your data. Good luck!"
-                       ),
-                       fileInput(ns("selected_mks"), label = h6("File: selected_mks.tsv"), multiple = F),
-                       fileInput(ns("qtl_info"), label = h6("File: qtl_info.tsv"), multiple = F),
-                       fileInput(ns("blups"), label = h6("File: blups.tsv"), multiple = F),
-                       fileInput(ns("beta.hat"), label = h6("File: beta.hat.tsv"), multiple = F),
-                       fileInput(ns("profile"), label = h6("File: profile.tsv"), multiple = F),
-                       fileInput(ns("effects"), label = h6("File: effects.tsv"), multiple = F),
-                       fileInput(ns("probs"), label = h6("File: probs.tsv"), multiple = F),
-                       "Check the input format with the example file:", br(), br(),
-                       radioButtons(ns("downloadType_qtl"), "", 
-                                    choices = c("selected_mks.tsv" = "selected_mks",
-                                                "qtl_info.tsv" = "qtl_info",
-                                                "blups.tsv" = "blups",
-                                                "beta.hat.tsv" = "beta.hat",
-                                                "profile.tsv" = "profile",
-                                                "effects.tsv" = "effects",
-                                                "probs.tsv" = "probs"),
-                                    inline = TRUE), br(), br(),
-                   )
-               )
-             )
-      ), br(),
-      column(width = 12,
-             fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View JBrowse")),
-                   div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_genome"), style = "unite", label = "reset", icon = icon("redo"))
-                   ), br(), br(), 
-                   tags$h5(tags$b("Upload genome information")),
-                   p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
+                       
+                       tags$p("Example code:"),
+                       tags$code("fit1.1 <- fitQTL(data=data, trait=\"tuber_shape\", params=params, qtl=model1.1)", br(),
+                                 "fit1.2 <- fitQTL(data=data, trait=\"tuber_shape\", params=params, qtl=model1.2)", br(),
+                                 "fit2.1 <- fitQTL(data=data, trait=\"height\", params=params, qtl=model2.1)", br(),
+                                 "fit2.2 <- fitQTL(data=data, trait=\"height\", params=params, qtl=model2.2, epistasis=data.frame(marker1=qtl.10at63,marker2=qtl.1at133))", br(),
+                       "feno1 <- list(fit1.1, fit1.2)", br(),
+                       "feno2 <- list(fit2.1, fit2.2)", br(),
+                       "fitQTL_list <- list(feno1, feno2)", br(),
+                       "names(fitQTL_list) <- c(\"tuber_shape\",\"height\")", br(),
+                       "save(fitQTL_list, file = \"diaQTL_fitQTL_list.RData\")")                    
+               ),
+               box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polyqtlR output")),
+                   tags$p("Access further information about these type of inputs", 
+                          tags$a(href= "https://cran.r-project.org/web/packages/polyqtlR/vignettes/polyqtlR_vignette.html","here")), hr(),
+                   
+                   fileInput(ns("polyqtlR_phenotypes"), label = h6("File: polyqtl_phenotypes.RData"), multiple = F), hr(),
+                   
+                   fileInput(ns("polyqtlR_IBD"), label = h6("File: polyqtlR_IBD.RData"), multiple = F),
+                   
+                   tags$p("Example code:"),
+                   tags$code("IBD_4x <- estimate_IBD(phased_maplist = phased_maplist.4x, genotypes = SNP_dosages.4x, method = \"heur\", ploidy = 4)", br(),
+                             "save(IBD_4x, file = \"polyqtlR_IBD.RData\")"), hr(),
+                   
+                   fileInput(ns("polyqtlR_QTLscan_list"), label = h6("File: polyqtlR_QTLscan_list.RData"), multiple = F),
+
+                   tags$p("Example code:"),
+                   tags$code("qtl_LODs.4x.trait1 <- QTLscan(IBD_list = IBD_4x, Phenotype.df = Phenotypes_4x, genotype.ID = \"geno\", trait.ID = \"pheno1\", block = \"year\")", br(),
+                             "qtl_LODs.4x.trait2 <- QTLscan(IBD_list = IBD_4x, Phenotype.df = Phenotypes_4x, genotype.ID = \"geno\", trait.ID = \"pheno2\", block = \"year\")", br(),
+                             "QTLscan_list <- list(trait1 = qtl_LODs.4x.trait1, trait2 = qtl_LODs.4x.trait2)", br(),
+                             "save(QTLscan_list, file = \"polyqtlR_QTLscan_list.RData\")")
+                   
+               ),
+               box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
                    box(
                      width = NULL, background = "red",
-                     "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
+                     "This option for uploading the data can be challenging. Good luck!"
                    ),
-                   fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = T),
-                   tags$h5(tags$b("Upload .gff3 file with genes information")),
-                   fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = T),
-                   tags$h5(tags$b("Upload VCF file with genes information")),
-                   box(
-                     width = NULL, background = "red",
-                     "Warning! The uploaded VCF file should be the same one used to build the genetic map"
-                   ),
-                   fileInput(ns("vcf"), label = h6("File: markers.vcf"), multiple = T),
+                   fileInput(ns("selected_mks"), label = h6("File: selected_mks.tsv"), multiple = F),
+                   fileInput(ns("qtl_info"), label = h6("File: qtl_info.tsv"), multiple = F),
+                   fileInput(ns("blups"), label = h6("File: blups.tsv"), multiple = F),
+                   fileInput(ns("beta.hat"), label = h6("File: beta.hat.tsv"), multiple = F),
+                   fileInput(ns("profile"), label = h6("File: profile.tsv"), multiple = F),
+                   fileInput(ns("effects"), label = h6("File: effects.tsv"), multiple = F),
+                   fileInput(ns("probs"), label = h6("File: probs.tsv"), multiple = F),
+                   "Check the input format with the example file:", br(), br(),
+                   radioButtons(ns("downloadType_qtl"), "", 
+                                choices = c("selected_mks.tsv" = "selected_mks",
+                                            "qtl_info.tsv" = "qtl_info",
+                                            "blups.tsv" = "blups",
+                                            "beta.hat.tsv" = "beta.hat",
+                                            "profile.tsv" = "profile",
+                                            "effects.tsv" = "effects",
+                                            "probs.tsv" = "probs"),
+                                inline = TRUE), br(), br(),
                )
              )
       )
+    ), br(),
+    column(width = 12,
+           fluidPage(
+             box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View Genome Browser")),
+                 div(style = "position:absolute;right:1em;",
+                     actionBttn(ns("reset_genome"), style = "unite", label = "reset", icon = icon("redo"))
+                 ), br(), br(), 
+                 tags$h5(tags$b("Upload genome information")),
+                 p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
+                 box(
+                   width = NULL, background = "red",
+                   "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
+                 ),
+                 fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = T),
+                 tags$h5(tags$b("Upload .gff3 file with genes information")),
+                 fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = T),
+                 tags$h5(tags$b("Upload VCF file with genes information")),
+                 box(
+                   width = NULL, background = "red",
+                   "Warning! The uploaded VCF file should be the same one used to build the genetic map"
+                 ),
+                 fileInput(ns("vcf"), label = h6("File: markers.vcf"), multiple = T),
+             )
+           )
     )
+  )
   )
 }
 
@@ -160,7 +238,6 @@ mod_upload_server <- function(input, output, session, parent_session){
     names(dataset_choices) <- c("Potato genetic map - Atlantic x B1829-5",
                                 "Sweetpotato genetic map - Beauregard x Tanzania (BT)",
                                 Objs)
-    print(dataset_choices)
     updateRadioButtons(session, "example_map",
                        label="Check one of the availables datasets:",
                        choices = dataset_choices,

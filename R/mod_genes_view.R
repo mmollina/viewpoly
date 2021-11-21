@@ -24,7 +24,8 @@ mod_genes_view_ui <- function(id){
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
                      actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),  br(), br(),
-                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
+                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success"), br(), br(),
+                     downloadButton(ns("export_viewpoly"), "Export VIEWpoly dataset",icon("download"))
                  )
           ),
           tags$h2(tags$b("View Genes")), br(), hr(),
@@ -125,6 +126,19 @@ mod_genes_view_server <- function(input, output, session,
       return(loadExample()$qtl)
     }
   })
+  
+  output$export_viewpoly <- downloadHandler(
+    filename = function() {
+      paste0("viewpoly.RData")
+    },
+    content = function(file) {
+      
+      filetemp <- structure(list(loadMap(), loadQTL(), 
+                                 loadJBrowse_fasta()$name[1], loadJBrowse_gff3()$name[1], 
+                                 loadJBrowse_vcf), class = "viewpoly")
+      save(filetemp, file = file)
+    }
+  )
   
   #  Trying to fix server issue
   observeEvent(input$server_off, {
@@ -228,7 +242,7 @@ mod_genes_view_server <- function(input, output, session,
       stop("Upload the QTL information in upload session to access this feature.")
     }
   })
-
+  
   output$interval <- renderUI({ 
     qtl.int()
   })
