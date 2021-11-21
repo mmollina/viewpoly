@@ -17,25 +17,15 @@ app_server <- function( input, output, session ) {
   # QTL view
   callModule(mod_qtl_view_server,
              "qtl_view_ui_1",
-             loadExample = datas$loadExample,
-             loadMap_custom = datas$loadMap_custom,
-             loadMap_mappoly = datas$loadMap_mappoly,
-             loadQTL_custom = datas$loadQTL_custom,
-             loadQTL_qtlpoly = datas$loadQTL_qtlpoly,
-             loadQTL_diaQTL = datas$loadQTL_diaQTL,
-             loadQTL_polyqtlR = datas$loadQTL_polyqtlR,
+             loadMap = datas$loadMap,
+             loadQTL = datas$loadQTL,
              parent_session=session)
   
   # Genes view
   callModule(mod_genes_view_server,
              "genes_view_ui_1", 
-             loadExample = datas$loadExample,
-             loadMap_custom = datas$loadMap_custom,
-             loadMap_mappoly = datas$loadMap_mappoly,
-             loadQTL_custom = datas$loadQTL_custom,
-             loadQTL_qtlpoly = datas$loadQTL_qtlpoly,
-             loadQTL_diaQTL = datas$loadQTL_diaQTL,
-             loadQTL_polyqtlR = datas$loadQTL_polyqtlR,
+             loadMap = datas$loadMap,
+             loadQTL = datas$loadQTL,
              loadJBrowse_fasta = datas$loadJBrowse_fasta, 
              loadJBrowse_gff3 = datas$loadJBrowse_gff3, 
              loadJBrowse_vcf = datas$loadJBrowse_vcf, 
@@ -44,12 +34,7 @@ app_server <- function( input, output, session ) {
   # Map view
   callModule(mod_map_view_server,
              "map_view_ui_1", 
-             loadExample = datas$loadExample,
-             loadMap_custom = datas$loadMap_custom,
-             loadMap_mappoly = datas$loadMap_mappoly,
-             loadQTL_custom = datas$loadQTL_custom,
-             loadQTL_qtlpoly = datas$loadQTL_qtlpoly,
-             loadQTL_diaQTL = datas$loadQTL_diaQTL,
-             loadQTL_polyqtlR = datas$loadQTL_polyqtlR,
+             loadMap = datas$loadMap,
+             loadQTL = datas$loadQTL,
              parent_session=session)
 }

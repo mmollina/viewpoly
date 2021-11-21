@@ -24,8 +24,7 @@ mod_genes_view_ui <- function(id){
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
                      actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),  br(), br(),
-                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success"), br(), br(),
-                     downloadButton(ns("export_viewpoly"), "Export VIEWpoly dataset",icon("download"))
+                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("View Genes")), br(), hr(),
@@ -84,61 +83,10 @@ mod_genes_view_ui <- function(id){
 #'
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, 
-                                  loadExample,
-                                  loadMap_custom, loadMap_mappoly,
-                                  loadQTL_custom, loadQTL_qtlpoly, loadQTL_diaQTL, loadQTL_polyqtlR,
+                                  loadMap, loadQTL,
                                   loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, 
                                   parent_session){
   ns <- session$ns
-  
-  loadMap = reactive({
-    if(is.null(loadExample()) & 
-       is.null(loadMap_custom()) & 
-       is.null(loadMap_mappoly())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadMap_custom())){
-      return(loadMap_custom())
-    } else if(!is.null(loadMap_mappoly())){
-      return(loadMap_mappoly())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$map)
-    }
-  })
-  
-  loadQTL = reactive({
-    if(is.null(loadExample()) & 
-       is.null(loadQTL_custom()) & 
-       is.null(loadQTL_qtlpoly()) & 
-       is.null(loadQTL_diaQTL()) &
-       is.null(loadQTL_polyqtlR())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadQTL_custom())){
-      return(loadQTL_custom())
-    } else if(!is.null(loadQTL_qtlpoly())){
-      return(loadQTL_qtlpoly())
-    } else if(!is.null(loadQTL_diaQTL())){
-      return(loadQTL_diaQTL())
-    } else if(!is.null(loadQTL_polyqtlR())){
-      return(loadQTL_polyqtlR())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$qtl)
-    }
-  })
-  
-  output$export_viewpoly <- downloadHandler(
-    filename = function() {
-      paste0("viewpoly.RData")
-    },
-    content = function(file) {
-      
-      filetemp <- structure(list(loadMap(), loadQTL(), 
-                                 loadJBrowse_fasta()$name[1], loadJBrowse_gff3()$name[1], 
-                                 loadJBrowse_vcf), class = "viewpoly")
-      save(filetemp, file = file)
-    }
-  )
   
   #  Trying to fix server issue
   observeEvent(input$server_off, {
