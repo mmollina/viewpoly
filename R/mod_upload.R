@@ -17,22 +17,24 @@ mod_upload_ui <- function(id){
                  actionButton(ns("goQTL"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
              ),
              tags$h2(tags$b("Upload data")), br(),
-             "Use this session to upload your data or select one of our examples. 
+             "Use this session to select the available datasets or to upload your data. 
            Click `Next` to build graphics in the next sessions.", br(), br()
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View Example")),
-                   selectInput(ns("example_map"), width = 500, label = "If you still don't have your own dataset, you can view one of our examples:", 
-                               choices = list("Sweetpotato genetic map - Beauregard x Tanzania (BT)" = "hex_map",
-                                              "Potato genetic map - Atlantic x B1829-5" = "tetra_map"),
-                               selected = "tetra_map"), br(),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = tags$h4(tags$b("Available datasets")),
+                   radioButtons(ns("example_map"), width = 500, label = "Check one of the availables datasets:", 
+                                choices = "tetra_map",
+                                selected = "tetra_map"), br(),
                )
              )
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View Map")),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload View Map files")),
+                   div(style = "position:absolute;right:1em;",
+                       actionBttn(ns("reset_map"), style = "unite", label = "reset", icon = icon("redo"))
+                   ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
                        fileInput(ns("mappoly_in"), label = h6("File: mappoly_map.RData"), multiple = F)
                    ),
@@ -63,7 +65,10 @@ mod_upload_ui <- function(id){
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title =   tags$h4(tags$b("View QTL")),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title =   tags$h4(tags$b("Upload View QTL files")),
+                   div(style = "position:absolute;right:1em;",
+                       actionBttn(ns("reset_qtl"), style = "unite", label = "reset", icon = icon("redo"))
+                   ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTLpoly output")),
                        fileInput(ns("qtlpoly_data"), label = h6("File: QTLpoly_data.RData"), multiple = F),
                        fileInput(ns("qtlpoly_remim.mod"), label = h6("File: QTLpoly_remim.mod.RData"), multiple = F),
@@ -110,6 +115,9 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("View JBrowse")),
+                   div(style = "position:absolute;right:1em;",
+                       actionBttn(ns("reset_genome"), style = "unite", label = "reset", icon = icon("redo"))
+                   ), br(), br(), 
                    tags$h5(tags$b("Upload genome information")),
                    p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
                    box(
@@ -143,6 +151,20 @@ mod_upload_server <- function(input, output, session, parent_session){
   #  Trying to fix server issue
   observeEvent(input$server_off, {
     httpuv::stopAllServers()
+  })
+  
+  # Check environment
+  observe({
+    Objs <- Filter(function(x) inherits(get(x), 'viewpoly' ), ls(envir = .GlobalEnv) )
+    dataset_choices <- as.list(c("tetra_map","hex_map", Objs))
+    names(dataset_choices) <- c("Potato genetic map - Atlantic x B1829-5",
+                                "Sweetpotato genetic map - Beauregard x Tanzania (BT)",
+                                Objs)
+    print(dataset_choices)
+    updateRadioButtons(session, "example_map",
+                       label="Check one of the availables datasets:",
+                       choices = dataset_choices,
+                       selected= dataset_choices[[1]])
   })
   
   # Format examples
@@ -189,6 +211,28 @@ mod_upload_server <- function(input, output, session, parent_session){
                       selected = "qtl")
   })
   
+  # Reset buttons
+  observeEvent(input$reset_map,{
+    input$dosages = input$phases = input$genetic_map = NULL
+    input$mappoly_in = input$selected_mks = NULL
+  })
+  
+  observeEvent(input$reset_qtl,{
+    input$qtl_info = NULL
+    input$blups = input$beta.hat = input$profile = input$effects = NULL
+    input$probs = input$qtlpoly_data = input$qtlpoly_remim.mod = NULL
+    input$qtlpoly_est.effects = input$qtlpoly_fitted.mod = NULL
+    input$diaQTL_data = input$diaQTL_scan1 = NULL 
+    input$diaQTL_scan1.summaries = input$diaQTL_fitQTL = NULL
+    input$diaQTL_BayesCI = input$polyqtlR_QTLscan_list = NULL
+    input$polyqtlR_IBD = input$polyqtlR_phenotypes = NULL
+  })
+  
+  observeEvent(input$reset_genome,{
+    input$fasta = NULL 
+    input$gff3 = input$vcf = NULL    
+  })
+  
   return(list(
     
     loadExample = reactive({
@@ -216,7 +260,7 @@ mod_upload_server <- function(input, output, session, parent_session){
          is.null(input$fasta) &
          is.null(input$gff3) &
          is.null(input$vcf))
-      prepare_examples(input$example_map)
+      prepare_examples(input$example_map, env.obj = get(input$example_map))
       else NULL
     }),
     

@@ -63,7 +63,7 @@ mod_genes_view_ui <- function(id){
             plotlyOutput(ns("plot_pos"))
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
-            actionButton(ns("create_server"), "Open JBrowseR",icon("refresh")), br(),
+            actionButton(ns("create_server"), "Open JBrowseR",icon("sync")), br(),
             JBrowseROutput(ns("browserOutput"))
         ),br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Download Genes Info"),
