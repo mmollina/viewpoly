@@ -27,7 +27,7 @@ mod_genes_view_ui <- function(id){
                      actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
-          tags$h2(tags$b("View Genes")), br(), hr(),
+          tags$h2(tags$b("View Genome Browser")), br(), hr(),
           
           column(6,
                  column(6,
@@ -59,14 +59,14 @@ mod_genes_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl"))
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Linkage Map position (cM) x Genomic position (Mp)"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Linkage Map position (cM) x Physical position (Mp)"),
             plotlyOutput(ns("plot_pos"))
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
             actionButton(ns("create_server"), "Open JBrowseR",icon("sync")), br(),
             JBrowseROutput(ns("browserOutput"))
         ),br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Download Genes Info"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Genes table"),
             DT::dataTableOutput(ns("genes_ano"))
         )
       )

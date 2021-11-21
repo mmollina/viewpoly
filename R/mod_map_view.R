@@ -60,13 +60,12 @@ mod_map_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl")), 
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Haplotypes and dosages"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Map"),
             plotOutput(ns("plot_map"), height = "500px"),
-            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Parents haplotypes"),
+            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Parents haplotypes table"),
                 DT::dataTableOutput(ns("parents_haplo"))
             ),
-            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Progeny haplotypes"),
-                DT::dataTableOutput(ns("progeny_haplo"))
+            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Map summary"),
             )
         )
       )

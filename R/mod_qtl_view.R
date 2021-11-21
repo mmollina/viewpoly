@@ -78,11 +78,13 @@ mod_qtl_view_ui <- function(id){
                                 uiOutput(ns("plot.ui"))
                          )
                      ), br(),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL info"),
-                         DT::dataTableOutput(ns("info"))
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
                          DT::dataTableOutput(ns("breeding_values"))
+                     ),
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL summary"),
+                         DT::dataTableOutput(ns("info"))
                      )
                  )
           )
@@ -105,7 +107,6 @@ mod_qtl_view_server <- function(input, output, session,
   
   observe({
     # Dynamic linkage group number
-    print(loadMap())
     group_choices <- as.list(1:length(loadMap()$d.p1))
     names(group_choices) <- 1:length(loadMap()$d.p1)
     
