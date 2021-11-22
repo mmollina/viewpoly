@@ -33,18 +33,26 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload View Map files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_map"), style = "unite", label = "reset", icon = icon("redo"))
+                       actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("redo"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
                        tags$p("Object of class `mappoly.map`."),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_mappoly"), style = "jelly", color = "royal",  size = "sm", label = "submit MAPpoly", icon = icon("share-square")), 
+                       ), br(), br(),
                        fileInput(ns("mappoly_in"), label = h6("File: mappoly_map.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polymapR output")),
-                       
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_polymapR"), style = "jelly", color = "royal",  size = "sm", label = "submit polymapR", icon = icon("share-square")), 
+                       ), br(), br(),
                        fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F)
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.tsv or .tsv.gz)")),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_map_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit map custom", icon = icon("share-square")), 
+                       ), br(), br(),
                        box(
                          width = NULL, background = "red",
                          "This option for uploading the data can be challenging. Good luck!"
@@ -69,9 +77,12 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title =   tags$h4(tags$b("Upload View QTL files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_qtl"), style = "unite", label = "reset", icon = icon("redo"))
+                       actionBttn(ns("reset_qtl"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("redo"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTLpoly output")),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_qtlpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit QTLpoly", icon = icon("share-square")), 
+                       ), br(), br(),
                        tags$p("Access further information about these type of inputs", 
                               tags$a(href= "https://guilherme-pereira.github.io/QTLpoly/1-tutorial","here")), hr(),
                        fileInput(ns("qtlpoly_data"), label = h6("File: QTLpoly_data.RData", br(), br(),"Object of class: qtlpoly.data"), multiple = F),
@@ -100,6 +111,9 @@ mod_upload_ui <- function(id){
                        
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload diaQTL output")),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_diaQTL"), style = "jelly", color = "royal",  size = "sm", label = "submit diaQTL", icon = icon("share-square")), 
+                       ), br(), br(),
                        tags$p("Access further information about these type of inputs", 
                               tags$a(href= "https://jendelman.github.io/diaQTL/diaQTL_Vignette.html","here")), hr(),
                        
@@ -144,6 +158,9 @@ mod_upload_ui <- function(id){
                                  "save(fitQTL_list, file = \"diaQTL_fitQTL_list.RData\")")                    
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polyqtlR output")),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_polyqtlR"), style = "jelly", color = "royal",  size = "sm", label = "submit polyqtlR", icon = icon("share-square")), 
+                       ), br(), br(),
                        tags$p("Access further information about these type of inputs", 
                               tags$a(href= "https://cran.r-project.org/web/packages/polyqtlR/vignettes/polyqtlR_vignette.html","here")), hr(),
                        
@@ -165,6 +182,9 @@ mod_upload_ui <- function(id){
                        
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_qtl_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit QTL custom", icon = icon("share-square")), 
+                       ), br(), br(),
                        box(
                          width = NULL, background = "red",
                          "This option for uploading the data can be challenging. Good luck!"
@@ -196,7 +216,8 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload Genome Browser files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_genome"), style = "unite", label = "reset", icon = icon("redo"))
+                       actionBttn(ns("submit_genome"), style = "jelly", color = "royal",  size = "sm", label = "submit", icon = icon("share-square")),
+                       actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("redo"))
                    ), br(), br(), 
                    tags$h5(tags$b("Upload genome information")),
                    p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
@@ -298,158 +319,283 @@ mod_upload_server <- function(input, output, session, parent_session){
   })
   
   # Reset buttons
-  observeEvent(input$reset_map,{
-    input$dosages = input$phases = input$genetic_map = NULL
-    input$mappoly_in = input$selected_mks = NULL
+  values <- reactiveValues(
+    upload_state_map = 0,
+    upload_state_mappoly = 0,
+    upload_state_polymapR = 0,
+    upload_state_map_custom = 0,
+    upload_state_qtl = 0,
+    upload_state_qtlpoly = 0,
+    upload_state_diaQTL = 0,
+    upload_state_polyqtlR = 0,
+    upload_state_qtl_custom = 0,
+    upload_state_genome = 0
+  )
+  
+  observeEvent(input$reset_map, {
+    values$upload_state_map <- 'reset'
+    values$upload_state_mappoly = 0
+    values$upload_state_polymapR = 0
+    values$upload_state_map_custom = 0
   })
   
-  observeEvent(input$reset_qtl,{
-    input$qtl_info = NULL
-    input$blups = input$beta.hat = input$profile = input$effects = NULL
-    input$probs = input$qtlpoly_data = input$qtlpoly_remim.mod = NULL
-    input$qtlpoly_est.effects = input$qtlpoly_fitted.mod = NULL
-    input$diaQTL_data = input$diaQTL_scan1 = NULL 
-    input$diaQTL_scan1.summaries = input$diaQTL_fitQTL = NULL
-    input$diaQTL_BayesCI = input$polyqtlR_QTLscan_list = NULL
-    input$polyqtlR_IBD = input$polyqtlR_phenotypes = NULL
+  observeEvent(input$reset_qtl, {
+    values$upload_state_qtl <- 'reset'
+    values$upload_state_qtlpoly = 0
+    values$upload_state_diaQTL = 0
+    values$upload_state_polyqtlR = 0
+    values$upload_state_qtl_custom = 0
   })
   
-  observeEvent(input$reset_genome,{
-    input$fasta = NULL 
-    input$gff3 = input$vcf = NULL    
+  observeEvent(input$reset_genome, {
+    values$upload_state_genome <- 'reset'
   })
   
+  observeEvent(input$submit_mappoly, {
+    values$upload_state_mappoly <- 'uploaded'
+    values$upload_state_map <- 0
+  })
+  
+  observeEvent(input$submit_polymapR, {
+    values$upload_state_polymapR <- 'uploaded'
+    values$upload_state_map <- 0
+  })
+  
+  observeEvent(input$submit_map_custom, {
+    values$upload_state_map_custom <- 'uploaded'
+    values$upload_state_map <- 0
+  })
+  
+  observeEvent(input$submit_qtlpoly, {
+    values$upload_state_qtlpoly <- 'uploaded'
+    values$upload_state_qtl = 0
+  })
+  
+  
+  observeEvent(input$submit_diaQTL, {
+    values$upload_state_diaQTL <- 'uploaded'
+    values$upload_state_qtl = 0
+  })
+  
+  
+  observeEvent(input$submit_polyqtlR, {
+    values$upload_state_polyqtlR <- 'uploaded'
+    values$upload_state_qtl = 0
+  })
+  
+  observeEvent(input$submit_qtl_custom, {
+    values$upload_state_qtl_custom <- 'uploaded'
+    values$upload_state_qtl = 0
+  })
+  
+  observeEvent(input$submit_genome, {
+    values$upload_state_genome <- 'uploaded'
+  })
+  
+  input_map <- reactive({
+    if (values$upload_state_map == 0 & 
+        values$upload_state_mappoly == 0 & 
+        values$upload_state_polymapR == 0 &
+        values$upload_state_map_custom == 0) {
+      return(NULL)
+    } else if (values$upload_state_map == 'reset') {
+      return(NULL)
+    } else if(values$upload_state_mappoly == "uploaded"){
+      return(list(mappoly_in = input$mappoly_in))
+    } else if(values$upload_state_polymapR == "uploaded"){
+      return(list(polymapR.dataset = input$polymapR.dataset,
+                  polymapR.map = input$polymapR.map))
+    } else if(values$upload_state_map_custom == "uploaded"){
+      return(list(dosages = input$dosages,
+                  phases = input$phases,
+                  genetic_map = input$genetic_map))
+    }
+  })
+  
+  input_qtl <- reactive({
+    if (values$upload_state_qtl == 0 & 
+        values$upload_state_qtlpoly == 0 & 
+        values$upload_state_diaQTL == 0 &
+        values$upload_state_polyqtlR == 0 &
+        values$upload_state_qtl_custom == 0) {
+      return(NULL)
+    } else if (values$upload_state_qtl == 'reset') {
+      return(NULL)
+    } else if(values$upload_state_qtl_custom == "uploaded"){
+      return(list(selected_mks = input$selected_mks,
+                  qtl_info = input$qtl_info,
+                  blups = input$blups,
+                  beta.hat = input$beta.hat,
+                  profile = input$profile,
+                  effects = input$effects,
+                  probs = input$probs))
+    } else if(values$upload_state_qtlpoly == "uploaded"){
+      return(list(
+        qtlpoly_data = input$qtlpoly_data,
+        qtlpoly_remim.mod = input$qtlpoly_remim.mod,
+        qtlpoly_est.effects = input$qtlpoly_est.effects,
+        qtlpoly_fitted.mod = input$qtlpoly_fitted.mod))
+    } else if(values$upload_state_diaQTL == "uploaded"){
+      return(list(
+        diaQTL_data = input$diaQTL_data,
+        diaQTL_scan1 = input$diaQTL_scan1,
+        diaQTL_scan1.summaries = input$diaQTL_scan1.summaries,
+        diaQTL_fitQTL = input$diaQTL_fitQTL,
+        diaQTL_BayesCI = input$diaQTL_BayesCI
+      ))
+    } else if(values$upload_state_polyqtlR == "uploaded"){
+      return(list(
+        polyqtlR_QTLscan_list = input$polyqtlR_QTLscan_list,
+        polyqtlR_IBD = input$polyqtlR_IBD,
+        polyqtlR_phenotypes = input$polyqtlR_phenotypes
+      ))
+    } 
+  })
+  
+  input_genome  <- reactive({
+    if (is.null(values$upload_state_genome)) {
+      return(NULL)
+    } else if (values$upload_state_genome == 'reset') {
+      return(NULL)
+    } else if(values$upload_state_genome == "uploaded"){
+      return(list(fasta = input$fasta,
+                  gff3 = input$gff3,
+                  vcf = input$vcf))
+    }
+  })
+  
+  # Wait system for the uploads
   loadExample = reactive({
-    if(is.null(input$dosages) & is.null(input$phases) & is.null(input$genetic_map) &
-       is.null(input$mappoly_in) &
-       is.null(input$selected_mks) & 
-       is.null(input$qtl_info) & 
-       is.null(input$blups) & 
-       is.null(input$beta.hat) & 
-       is.null(input$profile) & 
-       is.null(input$effects) & 
-       is.null(input$probs) &
-       is.null(input$qtlpoly_data) & 
-       is.null(input$qtlpoly_remim.mod) &
-       is.null(input$qtlpoly_est.effects) &
-       is.null(input$qtlpoly_fitted.mod) &
-       is.null(input$diaQTL_data) & 
-       is.null(input$diaQTL_scan1) &
-       is.null(input$diaQTL_scan1.summaries) &
-       is.null(input$diaQTL_fitQTL) &
-       is.null(input$diaQTL_BayesCI) &
-       is.null(input$polyqtlR_QTLscan_list) & 
-       is.null(input$polyqtlR_IBD) &
-       is.null(input$polyqtlR_phenotypes) &
-       is.null(input$fasta) &
-       is.null(input$gff3) &
-       is.null(input$vcf))
+    if(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map) &
+       is.null(input_map()$mappoly_in) &
+       is.null(input_qtl()$selected_mks) & 
+       is.null(input_qtl()$qtl_info) & 
+       is.null(input_qtl()$blups) & 
+       is.null(input_qtl()$beta.hat) & 
+       is.null(input_qtl()$profile) & 
+       is.null(input_qtl()$effects) & 
+       is.null(input_qtl()$probs) &
+       is.null(input_qtl()$qtlpoly_data) & 
+       is.null(input_qtl()$qtlpoly_remim.mod) &
+       is.null(input_qtl()$qtlpoly_est.effects) &
+       is.null(input_qtl()$qtlpoly_fitted.mod) &
+       is.null(input_qtl()$diaQTL_data) & 
+       is.null(input_qtl()$diaQTL_scan1) &
+       is.null(input_qtl()$diaQTL_scan1.summaries) &
+       is.null(input_qtl()$diaQTL_fitQTL) &
+       is.null(input_qtl()$diaQTL_BayesCI) &
+       is.null(input_qtl()$polyqtlR_QTLscan_list) & 
+       is.null(input_qtl()$polyqtlR_IBD) &
+       is.null(input_qtl()$polyqtlR_phenotypes) &
+       is.null(input_genome()$fasta) &
+       is.null(input_genome()$gff3) &
+       is.null(input_genome()$vcf))
     prepare_examples(input$example_map, env.obj = get(input$example_map))
     else NULL
   })
   
   loadMap_custom = reactive({
-    if(!(is.null(input$dosages) & is.null(input$phases) & is.null(input$genetic_map))){
-      req(input$dosages, input$phases, input$genetic_map)
-      prepare_map_custom_files(input$dosages,
-                               input$phases,
-                               input$genetic_map)
+    if(!(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map))){
+      req(input_map()$dosages, input_map()$phases, input_map()$genetic_map)
+      prepare_map_custom_files(input_map()$dosages,
+                               input_map()$phases,
+                               input_map()$genetic_map)
     } else NULL
   })
   
   loadMap_mappoly =  reactive({
-    if(!is.null(input$mappoly_in))
-      prepare_MAPpoly(input$mappoly_in)
+    if(!is.null(input_map()$mappoly_in))
+      prepare_MAPpoly(input_map()$mappoly_in)
     else NULL
   })
   
   loadQTL_custom = reactive({
-    if(!(is.null(input$selected_mks) & 
-         is.null(input$qtl_info) & 
-         is.null(input$blups) & 
-         is.null(input$beta.hat) & 
-         is.null(input$profile) & 
-         is.null(input$effects) & 
-         is.null(input$probs))) {
-      req(input$selected_mks, input$qtl_info, input$blups,
-          input$beta.hat, input$profile, input$effects,
-          input$probs)
-      prepare_qtl_custom_files(input$selected_mks,
-                               input$qtl_info,
-                               input$blups,
-                               input$beta.hat,
-                               input$profile,
-                               input$effects,
-                               input$probs)
+    if(!(is.null(input_qtl()$selected_mks) & 
+         is.null(input_qtl()$qtl_info) & 
+         is.null(input_qtl()$blups) & 
+         is.null(input_qtl()$beta.hat) & 
+         is.null(input_qtl()$profile) & 
+         is.null(input_qtl()$effects) & 
+         is.null(input_qtl()$probs))) {
+      req(input_qtl()$selected_mks, input_qtl()$qtl_info, input_qtl()$blups,
+          input_qtl()$beta.hat, input_qtl()$profile, input_qtl()$effects,
+          input_qtl()$probs)
+      prepare_qtl_custom_files(input_qtl()$selected_mks,
+                               input_qtl()$qtl_info,
+                               input_qtl()$blups,
+                               input_qtl()$beta.hat,
+                               input_qtl()$profile,
+                               input_qtl()$effects,
+                               input_qtl()$probs)
     } else NULL
   })
   
   loadQTL_qtlpoly = reactive({
-    if(!(is.null(input$qtlpoly_data) & 
-         is.null(input$qtlpoly_remim.mod) &
-         is.null(input$qtlpoly_est.effects) &
-         is.null(input$qtlpoly_fitted.mod))) {
+    if(!(is.null(input_qtl()$qtlpoly_data) & 
+         is.null(input_qtl()$qtlpoly_remim.mod) &
+         is.null(input_qtl()$qtlpoly_est.effects) &
+         is.null(input_qtl()$qtlpoly_fitted.mod))) {
       
-      req(input$qtlpoly_data, 
-          input$qtlpoly_remim.mod,
-          input$qtlpoly_est.effects,
-          input$qtlpoly_fitted.mod)
+      req(input_qtl()$qtlpoly_data, 
+          input_qtl()$qtlpoly_remim.mod,
+          input_qtl()$qtlpoly_est.effects,
+          input_qtl()$qtlpoly_fitted.mod)
       
-      prepare_QTLpoly(input$qtlpoly_data,
-                      input$qtlpoly_remim.mod,
-                      input$qtlpoly_est.effects,
-                      input$qtlpoly_fitted.mod)
+      prepare_QTLpoly(input_qtl()$qtlpoly_data,
+                      input_qtl()$qtlpoly_remim.mod,
+                      input_qtl()$qtlpoly_est.effects,
+                      input_qtl()$qtlpoly_fitted.mod)
     } else NULL
   })
   
   loadQTL_diaQTL = reactive({
-    if(!(is.null(input$diaQTL_scan1) &
-         is.null(input$diaQTL_scan1.summaries) &
-         is.null(input$diaQTL_fitQTL) &
-         is.null(input$diaQTL_BayesCI))) {
+    if(!(is.null(input_qtl()$diaQTL_scan1) &
+         is.null(input_qtl()$diaQTL_scan1.summaries) &
+         is.null(input_qtl()$diaQTL_fitQTL) &
+         is.null(input_qtl()$diaQTL_BayesCI))) {
       
-      req(input$diaQTL_scan1,
-          input$diaQTL_scan1.summaries,
-          input$diaQTL_fitQTL,
-          input$diaQTL_BayesCI)
+      req(input_qtl()$diaQTL_scan1,
+          input_qtl()$diaQTL_scan1.summaries,
+          input_qtl()$diaQTL_fitQTL,
+          input_qtl()$diaQTL_BayesCI)
       
-      prepare_diaQTL(input$diaQTL_scan1,
-                     input$diaQTL_scan1.summaries,
-                     input$diaQTL_fitQTL,
-                     input$diaQTL_BayesCI)
+      prepare_diaQTL(input_qtl()$diaQTL_scan1,
+                     input_qtl()$diaQTL_scan1.summaries,
+                     input_qtl()$diaQTL_fitQTL,
+                     input_qtl()$diaQTL_BayesCI)
     } else NULL
   })
   
   loadQTL_polyqtlR = reactive({
-    if(!(is.null(input$polyqtlR_QTLscan_list) & 
-         is.null(input$polyqtlR_IBD) &
-         is.null(input$polyqtlR_phenotypes))) {
+    if(!(is.null(input_qtl()$polyqtlR_QTLscan_list) & 
+         is.null(input_qtl()$polyqtlR_IBD) &
+         is.null(input_qtl()$polyqtlR_phenotypes))) {
       
-      req(input$polyqtlR_QTLscan_list,
-          input$polyqtlR_IBD,
-          input$polyqtlR_phenotypes)
+      req(input_qtl()$polyqtlR_QTLscan_list,
+          input_qtl()$polyqtlR_IBD,
+          input_qtl()$polyqtlR_phenotypes)
       
-      prepare_polyqtlR(input$polyqtlR_QTLscan_list,
-                       input$polyqtlR_IBD,
-                       input$polyqtlR_phenotypes)
+      prepare_polyqtlR(input_qtl()$polyqtlR_QTLscan_list,
+                       input_qtl()$polyqtlR_IBD,
+                       input_qtl()$polyqtlR_phenotypes)
     } else NULL
   })
   
   loadJBrowse_fasta = reactive({
-    if(!is.null(input$fasta))
-      input$fasta$datapath
+    if(!is.null(input_genome()$fasta))
+      input_genome()$fasta$datapath
     else NULL
   })
   
   loadJBrowse_gff3 = reactive({
-    if(!is.null(input$gff3))
-      input$gff3$datapath
+    if(!is.null(input_genome()$gff3))
+      input_genome()$gff3$datapath
     else NULL
   })
   
   loadJBrowse_vcf = reactive({
-    if(!is.null(input$vcf))
-      input$vcf$datapath
+    if(!is.null(input_genome()$vcf))
+      input_genome()$vcf$datapath
     else NULL
   })
   
