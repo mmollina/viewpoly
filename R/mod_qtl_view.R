@@ -78,11 +78,13 @@ mod_qtl_view_ui <- function(id){
                                 uiOutput(ns("plot.ui"))
                          )
                      ), br(),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL info"),
-                         DT::dataTableOutput(ns("info"))
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
                          DT::dataTableOutput(ns("breeding_values"))
+                     ),
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL summary"),
+                         DT::dataTableOutput(ns("info"))
                      )
                  )
           )
@@ -99,45 +101,9 @@ mod_qtl_view_ui <- function(id){
 #' 
 #' @noRd 
 mod_qtl_view_server <- function(input, output, session, 
-                                loadExample, 
-                                loadMap_custom, loadMap_mappoly, 
-                                loadQTL_custom, loadQTL_qtlpoly, loadQTL_diaQTL, loadQTL_polyqtlR,
+                                loadMap, loadQTL,
                                 parent_session){
   ns <- session$ns
-  
-  loadMap = reactive({
-    if(is.null(loadExample()) & is.null(loadMap_custom()) & is.null(loadMap_mappoly())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadMap_custom())){
-      return(loadMap_custom())
-    } else if(!is.null(loadMap_mappoly())){
-      return(loadMap_mappoly())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$map)
-    }
-  })
-  
-  loadQTL = reactive({
-    if(is.null(loadExample()) & 
-       is.null(loadQTL_custom()) & 
-       is.null(loadQTL_qtlpoly()) & 
-       is.null(loadQTL_diaQTL()) &
-       is.null(loadQTL_polyqtlR())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadQTL_custom())){
-      return(loadQTL_custom())
-    } else if(!is.null(loadQTL_qtlpoly())){
-      return(loadQTL_qtlpoly())
-    } else if(!is.null(loadQTL_diaQTL())){
-      return(loadQTL_diaQTL())
-    } else if(!is.null(loadQTL_polyqtlR())){
-      return(loadQTL_polyqtlR())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$qtl)
-    }
-  })
   
   observe({
     # Dynamic linkage group number

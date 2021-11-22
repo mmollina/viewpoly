@@ -4,7 +4,7 @@
 \alias{prepare_examples}
 \title{Upload example files}
 \usage{
-prepare_examples(example)
+prepare_examples(example, env.obj = NULL)
 }
 \description{
 Upload example files

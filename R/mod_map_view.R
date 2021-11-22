@@ -60,13 +60,12 @@ mod_map_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             plotlyOutput(ns("plot_qtl")), 
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Haplotypes and dosages"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Map"),
             plotOutput(ns("plot_map"), height = "500px"),
-            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Parents haplotypes"),
+            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Parents haplotypes table"),
                 DT::dataTableOutput(ns("parents_haplo"))
             ),
-            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Progeny haplotypes"),
-                DT::dataTableOutput(ns("progeny_haplo"))
+            box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Map summary"),
             )
         )
       )
@@ -81,45 +80,9 @@ mod_map_view_ui <- function(id){
 #'
 #' @noRd 
 mod_map_view_server <- function(input, output, session, 
-                                loadExample,
-                                loadMap_custom, loadMap_mappoly,
-                                loadQTL_custom, loadQTL_qtlpoly, loadQTL_diaQTL, loadQTL_polyqtlR,
+                                loadMap, loadQTL,
                                 parent_session){
   ns <- session$ns
-  
-  loadMap = reactive({
-    if(is.null(loadExample()) & is.null(loadMap_custom()) & is.null(loadMap_mappoly())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadMap_custom())){
-      return(loadMap_custom())
-    } else if(!is.null(loadMap_mappoly())){
-      return(loadMap_mappoly())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$map)
-    }
-  })
-  
-  loadQTL = reactive({
-    if(is.null(loadExample()) & 
-       is.null(loadQTL_custom()) & 
-       is.null(loadQTL_diaQTL()) &
-       is.null(loadQTL_polyqtlR())) {
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadQTL_custom())){
-      return(loadQTL_custom())
-    } else if(!is.null(loadQTL_qtlpoly())){
-      return(loadQTL_qtlpoly())
-    } else if(!is.null(loadQTL_diaQTL())){
-      return(loadQTL_diaQTL())
-    } else if(!is.null(loadQTL_polyqtlR())){
-      return(loadQTL_polyqtlR())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$qtl)
-    }
-  })
-  
   observe({
     # Dynamic linkage group number
     group_choices <- as.list(1:length(loadMap()$d.p1))
