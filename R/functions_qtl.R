@@ -313,6 +313,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
           geom_line() + 
           coord_polar() +
           ylim(min(all.additive$Estimates),max(all.additive$Estimates)) +
+          labs(title = paste0("LG", lgs[i])) +
           annotate(x= 0,y=breaks, label= round(breaks,2),geom="text") +
           theme_bw() + 
           theme(axis.title.y=element_blank(),
@@ -358,10 +359,13 @@ plot_effects <- function(data_effects.obj, software, design = c("bar", "circle",
   if(software == "polyqtlR"){
     p.t <- ggarrange(plotlist = data_effects.obj, common.legend = T, ncol = 1, legend = "right")
   } else {
-    rows <- ceiling(length(data_effects.obj)/4)
-    if(rows == 0) rows <- 1
-    
-    p.t <- ggarrange(plotlist = data_effects.obj, ncol = 4, nrow = rows)
+    if(design == "bar" | design == "digenic"){
+      rows <- ceiling(length(data_effects.obj)/4)
+      if(rows == 0) rows <- 1
+      p.t <- ggarrange(plotlist = data_effects.obj, ncol = 4, nrow = rows)
+    } else {
+      p.t <- ggarrange(plotlist = data_effects.obj, ncol = 4)
+    }
   }
   return(p.t)
 }
