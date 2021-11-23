@@ -37,12 +37,12 @@ app_ui <- function(request) {
         border-top-color:#6c81c0;
         }
         
-        .box.box-solid.box-royal>.box-header {
+        .box.box-solid.box-info>.box-header {
         color:#fff;
         background:#22284c
         }
         
-        .box.box-solid.box-royal{
+        .box.box-solid.box-info{
         border-bottom-color:#22284c;
         border-left-color:#22284c;
         border-right-color:#22284c;

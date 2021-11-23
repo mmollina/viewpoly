@@ -67,6 +67,11 @@ mod_qtl_view_ui <- function(id){
                                        click=ns("plot_click"), brush = ns("plot_brush"))
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
+                         div(style = "position:absolute;right:3em;",
+                             radioButtons(ns("effects_design"), "Design", 
+                                          choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Digenic" = "digenic"), 
+                                          selected = "bar", inline= T)
+                         ), br(), br(), 
                          column(2,
                                 downloadBttn(ns('bn_download_effects'), style = "gradient", color = "royal")
                          ),
@@ -79,6 +84,7 @@ mod_qtl_view_ui <- function(id){
                          )
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
+                         textOutput(ns("homo_probs")),
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
                          DT::dataTableOutput(ns("breeding_values"))
@@ -142,8 +148,6 @@ mod_qtl_view_server <- function(input, output, session,
                          pheno.col = idx,
                          lgs.id = as.numeric(input$group), 
                          by_range=F, plot = F)
-      
-      pl
     } else
       stop("Upload the QTL information in upload session to access this feature.")
   })
@@ -152,7 +156,7 @@ mod_qtl_view_server <- function(input, output, session,
     only_plot_profile(pl.in = qtl.data())
   })
   
-  output$effects <- renderPlot({
+  effects.data <- reactive({
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
         df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
@@ -161,16 +165,20 @@ mod_qtl_view_server <- function(input, output, session,
       } else {
         stop("Select a point or region on QTL profile graphic.") 
       }
-      plots <- plot_effects(qtl_info = loadQTL()$qtl_info, 
-                            effects = loadQTL()$effects,
-                            pheno.col = as.character(df$Trait), 
-                            lgs = df$LG, 
-                            position = df$`Position (cM)`,
-                            groups = as.numeric(input$group),
-                            software = loadQTL()$software)
-      plots
+      data <- data_effects(qtl_info = loadQTL()$qtl_info, 
+                           effects = loadQTL()$effects,
+                           pheno.col = as.character(df$Trait), 
+                           lgs = df$LG, 
+                           position = df$`Position (cM)`,
+                           groups = as.numeric(input$group),
+                           software = loadQTL()$software,
+                           design = input$effects_design)
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
+  })
+  
+  output$effects <- renderPlot({
+    plot_effects(effects.data(), software = loadQTL()$software, design = input$effects_design)
   })
   
   plotHeight <- reactive({
@@ -192,7 +200,19 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$plot.ui <- renderUI({
-    plotOutput(ns("effects"), height =  plotHeight())
+    plotOutput(ns("effects"), height =  plotHeight(), click=ns("effects_click"))
+  })
+  
+  output$homo_probs <- renderText({
+    if(!is.null(loadQTL())){
+      if(!is.null(input$effects_click)){
+        print(input$effects_click)
+        paste(input$effects_click$x, "_", input$effects_click$y)
+      } else {
+        stop("Select a point or region on QTL profile graphic.") 
+      }
+    } else 
+      stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$info <- DT::renderDataTable(server = FALSE, {
@@ -310,7 +330,7 @@ mod_qtl_view_server <- function(input, output, session,
                           position = df$`Position (cM)`,
                           groups = as.numeric(input$group),
                           software = loadQTL()$software)
-
+    
     ggsave(plots, file = fn_downloadname_effects(), height = plotHeight()/3, width = plotHeight(),units = "mm", bg = "white")    
   }
   

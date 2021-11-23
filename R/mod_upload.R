@@ -33,7 +33,7 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload View Map files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("redo"))
+                       actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
                        tags$p("Object of class `mappoly.map`."),
@@ -77,7 +77,7 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title =   tags$h4(tags$b("Upload View QTL files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_qtl"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("redo"))
+                       actionBttn(ns("reset_qtl"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTLpoly output")),
                        div(style = "position:absolute;right:1em;",
@@ -217,7 +217,7 @@ mod_upload_ui <- function(id){
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload Genome Browser files")),
                    div(style = "position:absolute;right:1em;",
                        actionBttn(ns("submit_genome"), style = "jelly", color = "royal",  size = "sm", label = "submit", icon = icon("share-square")),
-                       actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("redo"))
+                       actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
                    ), br(), br(), 
                    tags$h5(tags$b("Upload genome information")),
                    p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
