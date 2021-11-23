@@ -3,7 +3,15 @@ title: "About"
 output: html_document
 ---
 
-`ViewPoly` is a R package for visualizing and exploring results from polyploid computational tools using an interactive graphical user interface. The package allows users to directly upload output files from polyploid tool, (polymapR, MAPpoly, PolyOrigin, polyqtlR, QTLpoly) and genomic assembly and annotation files. ViewPoly uses Shiny, Plotly, and JBrowseR libraries to graphically display the SNP dosages in parentals and offspring, and their respective haplotypes in the genetic map. It also shows the results of QTL analysis, including confidence intervals, estimated effects, and their corresponding genomic positions, which can be interactively explored with a genome browser, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables for further analysis and presentation.
+### VIEWpoly
+
+<br />
+
+<div><img src="viewpoly-flowchart.png" alt="alt" align="center" style="width:1200px;height:570px;"></div>
+
+<br />
+
+`ViewPoly` is a shiny app and R package for visualizing and exploring results from polyploid computational tools using an interactive graphical user interface. The package allows users to directly upload output files from polyploid tool, (polymapR, MAPpoly, polyqtlR, QTLpoly, diaQTL) and genomic assembly and annotation files. ViewPoly uses Shiny, golem, ggplot, Plotly, and JBrowseR libraries to graphically display the SNP dosages in parentals and offspring, and their respective haplotypes in the genetic map. It also shows the results of QTL analysis, including confidence intervals, estimated effects, and their corresponding genomic positions, which can be interactively explored with a genome browser, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables for further analysis and presentation.
 
 ### Quick Start
 
@@ -16,11 +24,14 @@ viewpoly::run_app()
 
 The `Upload` tab has options for diverse types of inputs. You can upload directly outputs from:
 
-* MAPpoly
-* QTLpoly
-* TSV standard formats
+* [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html)
+* [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html)
+* [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html)
+* [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html)
+* [diaQTL](https://github.com/jendelman/diaQTL)
+* CSV, TSV or TSV.GZ standard formats
 
-To associate the genetic maps and QTLs with genomic information, it is also required:
+To associate the genetic maps and QTL with genomic information, it is also required:
 
 * FASTA reference genome
 * GFF3 annotation file
@@ -29,10 +40,8 @@ To associate the genetic maps and QTLs with genomic information, it is also requ
 
 testing
 
-<iframe width="420" height="315"
+<iframe width="600" height="315"
 src="https://www.youtube.com/embed/PTDgP3BDPIU?start=170&end=495">
 </iframe> 
 
-### Overview of features
 
-<div><img src="features_overview.png" alt="alt" style="width:500px;height:570px;"></div>
