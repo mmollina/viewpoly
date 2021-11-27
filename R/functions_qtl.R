@@ -359,12 +359,14 @@ plot_effects <- function(data_effects.obj, software, design = c("bar", "circle",
   if(software == "polyqtlR"){
     p.t <- ggarrange(plotlist = data_effects.obj, common.legend = T, ncol = 1, legend = "right")
   } else {
-    if(design == "bar" | design == "digenic"){
+    if(design == "circle"){
+      rows <- ceiling(length(data_effects.obj)/3)
+      if(rows == 0) rows <- 1
+      p.t <- ggarrange(plotlist = data_effects.obj, nrow = rows, ncol = 3)
+    } else {
       rows <- ceiling(length(data_effects.obj)/4)
       if(rows == 0) rows <- 1
-      p.t <- ggarrange(plotlist = data_effects.obj, ncol = 4, nrow = rows)
-    } else {
-      p.t <- ggarrange(plotlist = data_effects.obj, ncol = 4)
+      p.t <- ggarrange(plotlist = data_effects.obj, nrow = rows, ncol = 4)
     }
   }
   return(p.t)

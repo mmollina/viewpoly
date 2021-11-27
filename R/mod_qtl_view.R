@@ -193,23 +193,33 @@ mod_qtl_view_server <- function(input, output, session,
       counts <- nrow(dframe)
       counts <- ceiling(counts/4)
       if(counts == 0) counts <- 1
-      if(loadQTL()$software == "polyqtlR") size <- counts*650 else size <- counts*350
+      if(loadQTL()$software == "polyqtlR") {
+        size <- counts*650 
+      } else if(input$effects_design == "bar" | input$effects_design == "digenic"){ 
+        size <- counts*350
+      } else if(input$effects_design == "circle"){
+        counts <- length(unique(dframe$LG))
+        counts <- ceiling(counts/3)
+        if(counts == 0) counts <- 1
+        size <- counts*350
+      }
       size
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$plot.ui <- renderUI({
-    plotOutput(ns("effects"), height =  plotHeight(), click=ns("effects_click"))
+    plotOutput(ns("effects"), height =  plotHeight())
   })
   
   output$homo_probs <- renderText({
     if(!is.null(loadQTL())){
-      if(!is.null(input$effects_click)){
-        print(input$effects_click)
-        paste(input$effects_click$x, "_", input$effects_click$y)
+      if(!is.null(input$plot_brush)){
+        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+      } else if(!is.null(input$plot_click)){
+        dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on QTL profile graphic.") 
+        stop("Select a point or region on QTL profile graphic.")
       }
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
