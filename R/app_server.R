@@ -29,6 +29,7 @@ app_server <- function( input, output, session ) {
              loadJBrowse_fasta = datas$loadJBrowse_fasta, 
              loadJBrowse_gff3 = datas$loadJBrowse_gff3, 
              loadJBrowse_vcf = datas$loadJBrowse_vcf, 
+             loadExample = datas$loadExample,
              parent_session=session)
   
   # Map view

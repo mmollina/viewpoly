@@ -57,10 +57,28 @@ mod_genes_view_ui <- function(id){
           uiOutput(ns("interval"))
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
-            plotlyOutput(ns("plot_qtl"))
+            column(2,
+                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
+            ),
+            column(10,
+                   radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+            ), br(),
+            column(12,
+                   hr(),
+                   plotlyOutput(ns("plot_qtl"))
+            )
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Linkage Map position (cM) x Physical position (Mp)"),
-            plotlyOutput(ns("plot_pos"))
+            column(2,
+                   downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
+            ),
+            column(10,
+                   radioButtons(ns("fformat_phi"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+            ), br(),
+            column(12,
+                   hr(),
+                   plotlyOutput(ns("plot_pos"))
+            )
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
             actionButton(ns("create_server"), "Open JBrowseR",icon("sync")), br(),
@@ -85,6 +103,7 @@ mod_genes_view_ui <- function(id){
 mod_genes_view_server <- function(input, output, session, 
                                   loadMap, loadQTL,
                                   loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, 
+                                  loadExample,
                                   parent_session){
   ns <- session$ns
   
@@ -353,6 +372,83 @@ mod_genes_view_server <- function(input, output, session,
     
     ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
   })
+  
+  ## Downloads
+  
+  # QTL profile
+  fn_downloadname <- reactive({
+    seed <- sample(1:1000,1)
+    if(input$fformat=="png") filename <- paste0("profile","_",seed,".png")
+    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tif")
+    if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
+    if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
+    return(filename)
+  })
+  
+  # download profile 
+  fn_download <- function()
+  {
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+    pl <- plot_profile(profile = loadQTL()$profile, qtl_info = loadQTL()$qtl_info, selected_mks = loadQTL()$selected_mks,
+                       pheno.col = idx,
+                       lgs.id = as.numeric(input$group),
+                       range.min = input$range[1],
+                       range.max = input$range[2], 
+                       by_range=T, 
+                       software = loadQTL()$software)
+    ggsave(pl, file = fn_downloadname(), 
+           width = 12.7, height = 8, units = "in")    
+  }
+  
+  # download handler
+  output$bn_download <- downloadHandler(
+    filename = fn_downloadname,
+    content = function(file) {
+      fn_download()
+      file.copy(fn_downloadname(), file, overwrite=T)
+    }
+  )
+  
+  # Download cMxMb
+  fn_downloadname_phi <- reactive({
+    seed <- sample(1:1000,1)
+    if(input$fformat_phi=="png") filename <- paste0("linkageXphisical","_",seed,".png")
+    if(input$fformat_phi=="tiff") filename <- paste0("linkageXphisical","_",seed,".tif")
+    if(input$fformat_phi=="jpeg") filename <- paste0("linkageXphisical","_",seed,".jpg")
+    if(input$fformat_phi=="pdf") filename <- paste0("linkageXphisical","_",seed,".pdf")
+    return(filename)
+  })
+  
+  # download  
+  fn_download_phi <- function()
+  {
+    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
+    
+    map.lg$high <- map.lg$g.dist
+    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
+    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
+    
+    map.lg$high <- as.factor(map.lg$high)
+    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
+                                                                                   "Genetic:", round(l.dist,2), "cM \n",
+                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
+      geom_point() + scale_color_manual(values=c('black','red')) + 
+      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
+      theme_bw() + theme(legend.position = "none") 
+    
+    ggsave(p, file = fn_downloadname_phi(), 
+           width = 12.7, height = 8, units = "in")    
+  }
+  
+  # download handler
+  output$bn_download_phi <- downloadHandler(
+    filename = fn_downloadname_phi,
+    content = function(file) {
+      fn_download_phi()
+      file.copy(fn_downloadname_phi(), file, overwrite=T)
+    }
+  )
+  
 }
 
 ## To be copied in the UI
