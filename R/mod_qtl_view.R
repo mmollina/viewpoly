@@ -84,7 +84,17 @@ mod_qtl_view_ui <- function(id){
                          )
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
-                         textOutput(ns("homo_probs")),
+                         pickerInput(ns("haplo"),
+                                     label = h6("Select haplotypes"),
+                                     choices = "Select QTL in the profile graphic to update",
+                                     selected = "Select QTL in the profile graphic to update",
+                                     options = list(
+                                       size = 5,
+                                       `selected-text-format` = "count > 3",
+                                       `live-search`=TRUE
+                                     ), 
+                                     multiple = TRUE), hr(),
+                         plotOutput(ns("haplotypes"))
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
                          DT::dataTableOutput(ns("breeding_values"))
@@ -160,8 +170,6 @@ mod_qtl_view_server <- function(input, output, session,
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
         df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-      } else if(!is.null(input$plot_click)){
-        df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
       } else {
         stop("Select a point or region on QTL profile graphic.") 
       }
@@ -185,46 +193,109 @@ mod_qtl_view_server <- function(input, output, session,
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-      } else if(!is.null(input$plot_click)){
-        dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
       } else {
         stop("Select a point or region on QTL profile graphic.")
       }
       counts <- nrow(dframe)
       counts <- ceiling(counts/4)
       if(counts == 0) counts <- 1
-      if(loadQTL()$software == "polyqtlR") size <- counts*650 else size <- counts*350
+      if(loadQTL()$software == "polyqtlR") {
+        size <- counts*650 
+      } else if(input$effects_design == "bar" | input$effects_design == "digenic"){ 
+        size <- counts*350
+      } else if(input$effects_design == "circle"){
+        counts <- length(unique(dframe$LG))
+        counts <- ceiling(counts/3)
+        if(counts == 0) counts <- 1
+        size <- counts*350
+      }
       size
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$plot.ui <- renderUI({
-    plotOutput(ns("effects"), height =  plotHeight(), click=ns("effects_click"))
+    plotOutput(ns("effects"), height =  plotHeight())
   })
   
-  output$homo_probs <- renderText({
+  observe({
     if(!is.null(loadQTL())){
-      if(!is.null(input$effects_click)){
-        print(input$effects_click)
-        paste(input$effects_click$x, "_", input$effects_click$y)
+      if(!is.null(input$plot_brush)){
+        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on QTL profile graphic.") 
+        dframe <- NULL
+        updatePickerInput(session, "haplo",
+                          label = "Select haplotypes",
+                          choices = "Select QTL in the profile graphic to update",
+                          selected= "Select QTL in the profile graphic to update")
       }
-    } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+    } else {
+      dframe <- NULL
+      updatePickerInput(session, "haplo",
+                        label = "Select haplotypes",
+                        choices = "Upload the QTL information in upload session to access this feature.",
+                        selected= "Upload the QTL information in upload session to access this feature.")
+    }
+    
+    if(!is.null(dframe)){
+      haplo_choices <- paste0("Trait:", dframe$Trait, "_LG:", dframe$LG, "_Pos:", dframe$`Position (cM)`)
+      alleles <- effects.data()[[1]]$data$Alleles[!grepl("_",effects.data()[[1]]$data$Alleles)]
+      alleles <- rep(alleles, length(haplo_choices))
+      haplo_choices <- rep(haplo_choices, each = length(alleles)/length(haplo_choices))
+      haplo_choices <- paste0(haplo_choices, "_homolog:", alleles)
+      haplo_choices <- as.list(haplo_choices)
+      names(haplo_choices) <- unlist(haplo_choices)
+      updatePickerInput(session, "haplo",
+                        label = "Select haplotypes",
+                        choices = haplo_choices,
+                        selected= haplo_choices[[1]])
+    }
+  })
+  
+  output$haplotypes <- renderPlot({
+    lgs <- sapply(strsplit(unlist(input$haplo), "_"),function(x) x[grep("LG", x)])
+    lgs <- gsub("LG:", "", lgs)
+    selec.lg <- loadQTL()$selected_mks %>% filter(LG %in% lgs)
+    homo.dat <- calc_homologprob(probs = loadQTL()$probs, selected_mks = selec.lg)
+    pos <- sapply(strsplit(unlist(input$haplo), "_"),function(x) x[grep("Pos", x)])
+    pos <- gsub("Pos:", "", pos)
+    homo <- sapply(strsplit(unlist(input$haplo), "_"),function(x) x[grep("homolog", x)])
+    homo <- gsub("homolog:", "", homo)
+    alleles <- effects.data()[[1]]$data$Alleles[!grepl("_",effects.data()[[1]]$data$Alleles)]
+    alleles <- rep(alleles, length(homo))
+    idx <- match(homo, alleles)
+
+    like.ind.all <- list()
+    for(i in 1:length(pos)){
+      homoprob_temp <- homo.dat$homoprob %>% 
+        filter(map.position %in% pos[i]) %>% filter(LG %in% lgs[i])
+      homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
+      homoprob_temp <- homoprob_temp %>% 
+        group_by(map.position, LG, individual) %>% 
+        summarise(best = which(probability > 0.5))
+      like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx[i])]
+      if(length(like.ind) ==0) like.ind <- NA
+      like.ind.all[[i]] <-  like.ind
+    }
+    like.intersect <- Reduce(intersect, like.ind.all)
+    if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("Any individual contain all the selected homolog/s")
+    p <- list()
+    for(i in 1:length(like.intersect)){
+      p[[i]] <- plot.mappoly.homoprob(homo.dat, 
+                                      lg = unique(as.numeric(lgs)), 
+                                      ind = as.character(like.intersect)[i], 
+                                      use.plotly = FALSE)
+    }
+    ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
   })
   
   output$info <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-      } else if(!is.null(input$plot_click)){
-        dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
       } else {
         stop("Select a point or region on graphic.")
       }
-      str(dframe)
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
       if(loadQTL()$software == "QTLpoly"){
         colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
@@ -250,8 +321,6 @@ mod_qtl_view_server <- function(input, output, session,
       if(loadQTL()$software == "QTLpoly"){
         if(!is.null(input$plot_brush)){
           dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-        } else if(!is.null(input$plot_click)){
-          dframe <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
         } else {
           stop("Select a point or region on graphic.")
         }
