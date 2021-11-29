@@ -355,7 +355,8 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
   }
 }
 
-plot_effects <- function(data_effects.obj, software, design = c("bar", "circle", "digenic")){
+plot_effects <- function(data_effects.obj, software, 
+                         design = c("bar", "circle", "digenic")){
   if(software == "polyqtlR"){
     p.t <- ggarrange(plotlist = data_effects.obj, common.legend = T, ncol = 1, legend = "right")
   } else {
@@ -453,10 +454,24 @@ calc_homologprob  <- function(probs, selected_mks){
     map <- data.frame(map.position = pos[[j]], marker = mrk.names)
     colnames(df.hom) <- c("homolog", "marker", "individual", "probability")
     df.hom <- merge(df.hom, map, sort = FALSE)
-    df.hom$LG <- j
+    df.hom$LG <- names(pos)[j]
     df.res <- rbind(df.res, df.hom)
   }
-  structure(list(info = list(ploidy = ploidy, n.ind = length(ind.names)) , homoprob = df.res), class = "mappoly.homoprob")
+  if(ploidy == 4){
+    df.res$homolog <- gsub("a", paste0("P1.1_"), df.res$homolog)
+    df.res$homolog <- gsub("b", paste0("P1.2_"), df.res$homolog)
+    df.res$homolog <- gsub("c", paste0("P1.3_"), df.res$homolog)
+    df.res$homolog <- gsub("d", paste0("P1.4_"), df.res$homolog)
+    df.res$homolog <- gsub("e", paste0("P2.1_"), df.res$homolog)
+    df.res$homolog <- gsub("f", paste0("P2.2_"), df.res$homolog)
+    df.res$homolog <- gsub("g", paste0("P2.3_"), df.res$homolog)
+    df.res$homolog <- gsub("h", paste0("P2.4_"), df.res$homolog)
+    df.res$homolog = substring(df.res$homolog,1, nchar(df.res$homolog)-1)
+  } # add 6 here
+  
+  structure(list(info = list(ploidy = ploidy, 
+                             n.ind = length(ind.names)) , 
+                 homoprob = df.res), class = "mappoly.homoprob")
 }
 
 #' Plots mappoly.homoprob from MAPpoly
