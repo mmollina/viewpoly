@@ -562,3 +562,41 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
     p <- plotly::ggplotly(p)
   return(p)
 }
+
+select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
+  lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
+  lgs <- gsub("LG:", "", lgs)
+  selec.lg <- selected_mks %>% filter(LG %in% lgs)
+  homo.dat <- calc_homologprob(probs = probs, selected_mks = selec.lg)
+  pos <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("Pos", x)])
+  pos <- gsub("Pos:", "", pos)
+  homo <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("homolog", x)])
+  homo <- gsub("homolog:", "", homo)
+  alleles <- effects.data[[1]]$data$Alleles[!grepl("_",effects.data[[1]]$data$Alleles)]
+  alleles <- rep(alleles, length(homo))
+  idx <- match(homo, alleles)
+  
+  like.ind.all <- list()
+  for(i in 1:length(pos)){
+    homoprob_temp <- homo.dat$homoprob %>% 
+      filter(map.position %in% pos[i]) %>% filter(LG %in% lgs[i])
+    homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
+    homoprob_temp <- homoprob_temp %>% 
+      group_by(map.position, LG, individual) %>% 
+      summarise(best = which(probability > 0.5))
+    like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx[i])]
+    if(length(like.ind) ==0) like.ind <- NA
+    like.ind.all[[i]] <-  like.ind
+  }
+  like.intersect <- Reduce(intersect, like.ind.all)
+  if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("Any individual contain all the selected homolog/s")
+  p <- list()
+  for(i in 1:length(like.intersect)){
+    p[[i]] <- plot.mappoly.homoprob(homo.dat, 
+                                    lg = unique(as.numeric(lgs)), 
+                                    ind = as.character(like.intersect)[i], 
+                                    use.plotly = FALSE)
+  }
+  return(p)
+}
+

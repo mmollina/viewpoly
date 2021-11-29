@@ -652,7 +652,8 @@ mod_upload_server <- function(input, output, session, parent_session){
               loadQTL = reactive(loadQTL()), 
               loadJBrowse_fasta = reactive(loadJBrowse_fasta()), 
               loadJBrowse_gff3 = reactive(loadJBrowse_gff3()), 
-              loadJBrowse_vcf = reactive(loadJBrowse_vcf())
+              loadJBrowse_vcf = reactive(loadJBrowse_vcf()),
+              loadExample = reactive(loadExample())
   ))
 }
 

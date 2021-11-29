@@ -93,8 +93,17 @@ mod_qtl_view_ui <- function(id){
                                        `selected-text-format` = "count > 3",
                                        `live-search`=TRUE
                                      ), 
-                                     multiple = TRUE), hr(),
-                         plotOutput(ns("haplotypes"))
+                                     multiple = TRUE), br(),
+                         column(2,
+                                downloadBttn(ns('bn_download_haplo'), style = "gradient", color = "royal")
+                         ),
+                         column(10,
+                                radioButtons(ns("fformat_haplo"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                         ), br(),
+                         column(12,
+                                hr(),
+                                plotOutput(ns("haplotypes"))
+                         )
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
                          DT::dataTableOutput(ns("breeding_values"))
@@ -253,39 +262,8 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$haplotypes <- renderPlot({
-    lgs <- sapply(strsplit(unlist(input$haplo), "_"),function(x) x[grep("LG", x)])
-    lgs <- gsub("LG:", "", lgs)
-    selec.lg <- loadQTL()$selected_mks %>% filter(LG %in% lgs)
-    homo.dat <- calc_homologprob(probs = loadQTL()$probs, selected_mks = selec.lg)
-    pos <- sapply(strsplit(unlist(input$haplo), "_"),function(x) x[grep("Pos", x)])
-    pos <- gsub("Pos:", "", pos)
-    homo <- sapply(strsplit(unlist(input$haplo), "_"),function(x) x[grep("homolog", x)])
-    homo <- gsub("homolog:", "", homo)
-    alleles <- effects.data()[[1]]$data$Alleles[!grepl("_",effects.data()[[1]]$data$Alleles)]
-    alleles <- rep(alleles, length(homo))
-    idx <- match(homo, alleles)
-
-    like.ind.all <- list()
-    for(i in 1:length(pos)){
-      homoprob_temp <- homo.dat$homoprob %>% 
-        filter(map.position %in% pos[i]) %>% filter(LG %in% lgs[i])
-      homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
-      homoprob_temp <- homoprob_temp %>% 
-        group_by(map.position, LG, individual) %>% 
-        summarise(best = which(probability > 0.5))
-      like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx[i])]
-      if(length(like.ind) ==0) like.ind <- NA
-      like.ind.all[[i]] <-  like.ind
-    }
-    like.intersect <- Reduce(intersect, like.ind.all)
-    if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("Any individual contain all the selected homolog/s")
-    p <- list()
-    for(i in 1:length(like.intersect)){
-      p[[i]] <- plot.mappoly.homoprob(homo.dat, 
-                                      lg = unique(as.numeric(lgs)), 
-                                      ind = as.character(like.intersect)[i], 
-                                      use.plotly = FALSE)
-    }
+    if(input$haplo == "Select QTL in the profile graphic to update") stop("Select QTL in the profile graphic to update")
+    p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
   })
   
@@ -344,7 +322,6 @@ mod_qtl_view_server <- function(input, output, session,
   # Download profile
   # create filename
   fn_downloadname <- reactive({
-    
     seed <- sample(1:1000,1)
     if(input$fformat=="png") filename <- paste0("profile","_",seed,".png")
     if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tif")
@@ -375,10 +352,10 @@ mod_qtl_view_server <- function(input, output, session,
   fn_downloadname_effects <- reactive({
     
     seed <- sample(1:1000,1)
-    if(input$fformat_effects=="png") filename <- paste0("profile","_",seed,".png")
-    if(input$fformat_effects=="tiff") filename <- paste0("profile","_",seed,".tif")
-    if(input$fformat_effects=="jpeg") filename <- paste0("profile","_",seed,".jpg")
-    if(input$fformat_effects=="pdf") filename <- paste0("profile","_",seed,".pdf")
+    if(input$fformat_effects=="png") filename <- paste0("effects","_",seed,".png")
+    if(input$fformat_effects=="tiff") filename <- paste0("effects","_",seed,".tif")
+    if(input$fformat_effects=="jpeg") filename <- paste0("effects","_",seed,".jpg")
+    if(input$fformat_effects=="pdf") filename <- paste0("effects","_",seed,".pdf")
     return(filename)
   })
   
@@ -387,18 +364,19 @@ mod_qtl_view_server <- function(input, output, session,
   {
     if(!is.null(input$plot_brush)){
       df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-    } else if(!is.null(input$plot_click)){
-      df <- nearPoints(qtl.data()[[2]], input$plot_click, xvar = "x", yvar = "y.dat")
     } else {
       stop("Select a point or region on QTL profile graphic.") 
     }
-    plots <- plot_effects(qtl_info = loadQTL()$qtl_info, 
-                          effects = loadQTL()$effects,
-                          pheno.col = as.character(df$Trait), 
-                          lgs = df$LG, 
-                          position = df$`Position (cM)`,
-                          groups = as.numeric(input$group),
-                          software = loadQTL()$software)
+    data <- data_effects(qtl_info = loadQTL()$qtl_info, 
+                         effects = loadQTL()$effects,
+                         pheno.col = as.character(df$Trait), 
+                         lgs = df$LG, 
+                         position = df$`Position (cM)`,
+                         groups = as.numeric(input$group),
+                         software = loadQTL()$software,
+                         design = input$effects_design)
+    
+    plots <- plot_effects(data, software = loadQTL()$software, design = input$effects_design)
     
     ggsave(plots, file = fn_downloadname_effects(), height = plotHeight()/3, width = plotHeight(),units = "mm", bg = "white")    
   }
@@ -409,6 +387,36 @@ mod_qtl_view_server <- function(input, output, session,
     content = function(file) {
       fn_download_effects()
       file.copy(fn_downloadname_effects(), file, overwrite=T)
+    }
+  )
+  
+  # Download haplotypes
+  # create filename
+  fn_downloadname_haplo <- reactive({
+    
+    seed <- sample(1:1000,1)
+    if(input$fformat_haplo=="png") filename <- paste0("haplotypes","_",seed,".png")
+    if(input$fformat_haplo=="tiff") filename <- paste0("haplotypes","_",seed,".tif")
+    if(input$fformat_haplo=="jpeg") filename <- paste0("haplotypes","_",seed,".jpg")
+    if(input$fformat_haplo=="pdf") filename <- paste0("haplotypes","_",seed,".pdf")
+    return(filename)
+  })
+  
+  # download 
+  fn_download_haplo <- function()
+  {
+    p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
+    plots <- ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
+    
+    ggsave(plots, file = fn_downloadname_haplo(), height = plotHeight()/2, width = plotHeight(),units = "mm", bg = "white")    
+  }
+  
+  # download handler
+  output$bn_download_haplo <- downloadHandler(
+    filename = fn_downloadname_haplo,
+    content = function(file) {
+      fn_download_haplo()
+      file.copy(fn_downloadname_haplo(), file, overwrite=T)
     }
   )
 }
