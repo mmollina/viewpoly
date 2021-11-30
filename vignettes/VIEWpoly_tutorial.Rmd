@@ -1,0 +1,43 @@
+---
+title: "VIEWpoly: a visualization tool for polyploid genetic analysis"
+author: "Cristiane Taniguti, Gabriel Gesteira, Jeekin Lau, Guilherme Pereira, David Byrne, Zhao-Bang Zeng, Oscar Riera-Lizarazu and Marcelo Mollinari"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    highlight: pygments
+    keep_md: yes
+    toc: yes
+    toc_depth: '3'
+    toc_float:
+      collapsed: no
+  md_document:
+    variant: markdown_github
+  pdf_document:
+    highlight: pygments
+    toc: yes
+    toc_depth: '2'
+  word_document:
+    toc: yes
+    toc_depth: '2'
+linestretch: 1.2
+bibliography: biblio.bib
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(eval = TRUE)
+```
+
+
+# Introduction
+
+# Inputs
+
+# VIEW QTL
+
+# Genome Browser
+
+# VIEW Map
+

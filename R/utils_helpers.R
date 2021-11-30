@@ -1,6 +1,6 @@
 #' Import data from polymapR
 #'
-#' Function to import datasets from polymapR. 
+#' Function to import datasets from polymapR. Function from MAPpoly.
 #' 
 #' See examples at \url{https://rpubs.com/mmollin/tetra_mappoly_vignette}.
 #'
@@ -36,7 +36,10 @@
 #'     models, _G3: Genes, Genomes, Genetics_. 
 #'     \doi{10.1534/g3.119.400378}
 #'     
-#' @export import_data_from_polymapR
+#' @rdname utils
+#' 
+#' @keywords internal
+#' 
 #' @importFrom reshape2 acast
 #' @importFrom dplyr filter arrange
 import_data_from_polymapR <- function(input.data, 
@@ -194,7 +197,7 @@ import_data_from_polymapR <- function(input.data,
 
 #' Import phased map list from polymapR
 #'
-#' Function to import phased map lists from polymapR
+#' Function to import phased map lists from polymapR. Function from MAPpoly.
 #' 
 #' See examples at \url{https://rpubs.com/mmollin/tetra_mappoly_vignette}.
 #' 
@@ -218,7 +221,9 @@ import_data_from_polymapR <- function(input.data,
 #'     models, _G3: Genes, Genomes, Genetics_. 
 #'     \doi{10.1534/g3.119.400378}
 #'     
-#' @export import_phased_maplist_from_polymapR
+#' @rdname utils
+#' 
+#' @keywords internal
 import_phased_maplist_from_polymapR <- function(maplist, 
                                                 mappoly.data, 
                                                 ploidy = NULL){
@@ -263,6 +268,9 @@ import_phased_maplist_from_polymapR <- function(maplist,
 
 #' prepare maps for plot - from MAPpoly
 #' @param void internal function to be documented
+#' 
+#' @rdname utils
+#' 
 #' @keywords internal
 prepare_map <- function(input.map, config = "best"){
   if (!inherits(input.map, "mappoly.map")) {
@@ -310,19 +318,26 @@ prepare_map <- function(input.map, config = "best"){
 #'
 #' @param void internal function to be documented
 #' @keywords internal
-#' @export
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
 imf_h <- function(r) {
   r[r >= 0.5] <- 0.5 - 1e-14
   -50 * log(1 - 2 * r)
 }
 
 #' Extract the LOD Scores in a \code{'mappoly.map'} object
+#' Function from MAPpoly.
 #' @param x an object of class \code{mappoly.map}
 #' @param sorted logical. if \code{TRUE}, the LOD Scores are displayed
 #'     in a decreasing order
 #' @return a numeric vector containing the LOD Scores
 #' @keywords internal
-#' @export
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
 get_LOD <- function(x, sorted = TRUE) {
   w <- sapply(x$maps, function(x) x$loglike)
   LOD <- w - max(w)
@@ -331,7 +346,8 @@ get_LOD <- function(x, sorted = TRUE) {
   abs(LOD)
 }
 
-#' Linkage phase format conversion: list to matrix
+#' Linkage phase format conversion: list to matrix.
+#' Function from MAPpoly.
 #'
 #' This function converts linkage phase configurations from list
 #' to matrix form
@@ -342,9 +358,10 @@ get_LOD <- function(x, sorted = TRUE) {
 #'
 #' @return a matrix whose columns represent homologous chromosomes and
 #'     the rows represent markers
-#'
+#' 
+#' @rdname utils
+#' 
 #' @keywords internal
-#' @export
 ph_list_to_matrix <- function(L, ploidy) {
   M <- matrix(0, nrow = length(L), ncol = ploidy)
   for (i in 1:nrow(M)) if (all(L[[i]] != 0))
@@ -354,6 +371,9 @@ ph_list_to_matrix <- function(L, ploidy) {
 
 #' Addapted from polyqtlR
 #' 
+#' @rdname utils
+#' 
+#' @keywords internal
 find_polyqtlR_Peak <- function(LOD_data, linkage_group) {
   if (is.null(LOD_data$Perm.res)) {
     warning("No significance threshold available to check")
@@ -373,7 +393,9 @@ find_polyqtlR_Peak <- function(LOD_data, linkage_group) {
 
 #' Addapted from polyqtlR
 #' 
+#' @rdname utils
 #' 
+#' @keywords internal
 polyqtlReffects <- function(IBD_list, 
                             Phenotype.df, 
                             genotype.ID, 
@@ -478,6 +500,9 @@ polyqtlReffects <- function(IBD_list,
 
 #' From polyqtlR
 #' 
+#' @rdname utils
+#' 
+#' @keywords internal
 list.depth <- function (obj, objdepth = 0) {
   if (!is.list(obj)) {
     return(objdepth)

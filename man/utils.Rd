@@ -2,6 +2,14 @@
 % Please edit documentation in R/utils_helpers.R
 \name{import_data_from_polymapR}
 \alias{import_data_from_polymapR}
+\alias{import_phased_maplist_from_polymapR}
+\alias{prepare_map}
+\alias{imf_h}
+\alias{get_LOD}
+\alias{ph_list_to_matrix}
+\alias{find_polyqtlR_Peak}
+\alias{polyqtlReffects}
+\alias{list.depth}
 \title{Import data from polymapR}
 \usage{
 import_data_from_polymapR(
@@ -16,11 +24,35 @@ import_data_from_polymapR(
   filter.non.conforming = TRUE,
   verbose = TRUE
 )
+
+import_phased_maplist_from_polymapR(maplist, mappoly.data, ploidy = NULL)
+
+prepare_map(input.map, config = "best")
+
+imf_h(r)
+
+get_LOD(x, sorted = TRUE)
+
+ph_list_to_matrix(L, ploidy)
+
+find_polyqtlR_Peak(LOD_data, linkage_group)
+
+polyqtlReffects(
+  IBD_list,
+  Phenotype.df,
+  genotype.ID,
+  trait.ID.c,
+  linkage_group,
+  LOD_data,
+  cM_range = NULL
+)
+
+list.depth(obj, objdepth = 0)
 }
 \arguments{
 \item{input.data}{a \code{polymapR} dataset}
 
-\item{ploidy}{the ploidy level}
+\item{ploidy}{ploidy level}
 
 \item{parent1}{a character string containing the name (or pattern of genotype IDs) of parent 1}
 
@@ -44,11 +76,39 @@ expected genotypes under no double reduction. Since markers were already filtere
 
 \item{verbose}{if \code{TRUE} (default), the current progress is shown; if
 \code{FALSE}, no output is produced}
+
+\item{maplist}{a list of phased maps obtained using function 
+\code{create_phased_maplist} from package \code{polymapR}}
+
+\item{mappoly.data}{a dataset used to obtain \code{maplist}, 
+converted into class \code{mappoly.data}}
+
+\item{x}{an object of class \code{mappoly.map}}
+
+\item{sorted}{logical. if \code{TRUE}, the LOD Scores are displayed
+in a decreasing order}
+
+\item{L}{a list of configuration phases}
+
+\item{void}{internal function to be documented}
+}
+\value{
+a numeric vector containing the LOD Scores
+
+a matrix whose columns represent homologous chromosomes and
+    the rows represent markers
 }
 \description{
-Function to import datasets from polymapR.
+Function to import datasets from polymapR. Function from MAPpoly.
+
+Function to import phased map lists from polymapR. Function from MAPpoly.
+
+This function converts linkage phase configurations from list
+to matrix form
 }
 \details{
+See examples at \url{https://rpubs.com/mmollin/tetra_mappoly_vignette}.
+
 See examples at \url{https://rpubs.com/mmollin/tetra_mappoly_vignette}.
 }
 \references{
@@ -62,7 +122,21 @@ Bourke PM et al: (2019) PolymapR — linkage analysis and genetic map
     populations with high ploidy level using hidden Markov
     models, _G3: Genes, Genomes, Genetics_. 
     \doi{10.1534/g3.119.400378}
+
+Bourke PM et al: (2019) PolymapR — linkage analysis and genetic map 
+    construction from F1 populations of outcrossing polyploids. 
+    _Bioinformatics_ 34:3496–3502.
+    \doi{10.1093/bioinformatics/bty1002}
+
+    Mollinari, M., and Garcia, A.  A. F. (2019) Linkage
+    analysis and haplotype phasing in experimental autopolyploid
+    populations with high ploidy level using hidden Markov
+    models, _G3: Genes, Genomes, Genetics_. 
+    \doi{10.1534/g3.119.400378}
 }
 \author{
 Marcelo Mollinari \email{mmollin@ncsu.edu}
+
+Marcelo Mollinari \email{mmollin@ncsu.edu}
 }
+\keyword{internal}

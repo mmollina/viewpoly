@@ -49,14 +49,10 @@ mod_upload_ui <- function(id){
                        fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F)
                    ),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.tsv or .tsv.gz)")),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_map_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit map custom", icon = icon("share-square")), 
                        ), br(), br(),
-                       box(
-                         width = NULL, background = "red",
-                         "This option for uploading the data can be challenging. Good luck!"
-                       ),
                        fileInput(ns("dosages"), label = h6("File: dosages.tsv"), multiple = F),
                        fileInput(ns("genetic_map"), label = h6("File: genetic_map.tsv"), multiple = F),
                        fileInput(ns("phases"), label = h6("File: phases.tsv"), multiple = F),
@@ -181,14 +177,10 @@ mod_upload_ui <- function(id){
                                  "save(QTLscan_list, file = \"polyqtlR_QTLscan_list.RData\")")
                        
                    ),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.tsv or .tsv.gz)")),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_qtl_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit QTL custom", icon = icon("share-square")), 
                        ), br(), br(),
-                       box(
-                         width = NULL, background = "red",
-                         "This option for uploading the data can be challenging. Good luck!"
-                       ),
                        fileInput(ns("selected_mks"), label = h6("File: selected_mks.tsv"), multiple = F),
                        fileInput(ns("qtl_info"), label = h6("File: qtl_info.tsv"), multiple = F),
                        fileInput(ns("blups"), label = h6("File: blups.tsv"), multiple = F),
@@ -643,7 +635,7 @@ mod_upload_server <- function(input, output, session, parent_session){
       
       filetemp <- structure(list(loadMap(), loadQTL(), 
                                  loadJBrowse_fasta(), loadJBrowse_gff3(), 
-                                 loadJBrowse_vcf), class = "viewpoly")
+                                 loadJBrowse_vcf, version = packageVersion("viewpoly")), class = "viewpoly")
       save(filetemp, file = file)
     }
   )  

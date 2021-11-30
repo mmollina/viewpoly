@@ -1,3 +1,10 @@
+
+#' Draws linkage map, parents haplotypes and marker doses
+#' Adapted from MAPpoly
+#' 
+#' @rdname viewmap
+#' 
+#' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
                          maps, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
 {
@@ -91,6 +98,12 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   #        box.lty=0, bg="transparent")
 }
 
+#' Gets summary information from map.
+#' Adapted from MAPpoly
+#' 
+#' @rdname viewmap
+#' 
+#' @keywords internal
 map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
                       maps, d.p1, d.p2){
   ch <- as.numeric(ch)
@@ -126,7 +139,9 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' @author Gabriel Gesteira, \email{gabrielgesteira@usp.br}
 #' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
 #' 
-#' @export summary_maps
+#' @rdname viewmap
+#' 
+#' @keywords internal
 summary_maps = function(viewmap, verbose = TRUE){
   
   simplex <- mapply(function(x,y) {
@@ -188,8 +203,9 @@ summary_maps = function(viewmap, verbose = TRUE){
 #'     models, _G3: Genes, Genomes, Genetics_. 
 #'     \doi{10.1534/g3.119.400378}
 #'
-#' @export plot_map_list
-#'
+#' @rdname viewmap
+#' 
+#' @keywords internal
 plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linkage group"){
   map.list <- viewmap$maps
   if(all(col  ==  "ggstyle"))
@@ -234,12 +250,16 @@ plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linka
 }
 
 
-#' Color pallet ggplot-like
+#' Color pallet ggplot-like - Adapted from MAPpoly
 #'
 #' @param void internal function to be documented
 #' @keywords internal
 #' @export
 #' @importFrom grDevices hcl col2rgb hsv rgb2hsv
+#' 
+#' @rdname viewmap
+#' 
+#' @keywords internal
 gg_color_hue <- function(n) {
   x <- rgb2hsv(col2rgb("steelblue"))[, 1]
   cols = seq(x[1], x[1] + 1, by = 1/n)
@@ -248,9 +268,12 @@ gg_color_hue <- function(n) {
   return(hsv(cols, x[2], x[3]))
 }
 
-#' plot a single linkage group with no phase
+#' plot a single linkage group with no phase - from MAPpoly
 #'
 #' @param void internal function to be documented
+#' 
+#' @rdname viewmap
+#' 
 #' @keywords internal
 plot_one_map <- function(x, i = 0, horiz = FALSE, col = "lightgray")
 {

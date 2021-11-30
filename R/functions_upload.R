@@ -1,5 +1,8 @@
 #' Upload example files
 #' 
+#' @rdname inputs
+#' 
+#' @keywords internal
 prepare_examples <- function(example, env.obj= NULL){
   if(example == "hex_map"){
     withProgress(message = 'Working...', value = 0, {
@@ -28,7 +31,9 @@ prepare_examples <- function(example, env.obj= NULL){
   }
 }
 
-#' Read input custom format files
+#' Converts map information in custom format files to viewmap object
+#' 
+#' @rdname inputs
 #' 
 #' @param dosages TSV or TSV.GZ file with both parents dosage information.
 #' It should contain four columns: 1) character vector with chromosomes ID; 
@@ -42,6 +47,7 @@ prepare_examples <- function(example, env.obj= NULL){
 #' @import dplyr
 #' @import vroom
 #' 
+#' @keywords internal
 prepare_map_custom_files <- function(dosages, phases, genetic_map){
   ds <- vroom(dosages)
   ph <- vroom(phases)
@@ -83,8 +89,11 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
             class = "viewmap")
 }
 
-#' convert list of mappoly.map object into viewpoly_map object
+#' Converts list of mappoly.map object into viewmap object
 #' 
+#' @rdname inputs
+#' 
+#' @keywords internal
 prepare_MAPpoly <- function(mappoly_list){
   temp <- load(mappoly_list$datapath)
   mappoly_list <- get(temp)
@@ -99,6 +108,11 @@ prepare_MAPpoly <- function(mappoly_list){
             class = "viewmap")
 }
 
+#' Converts polymapR ouputs to viewmap object
+#' 
+#' @rdname inputs
+#' 
+#' @keywords internal
 prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
   data <- import_data_from_polymapR(polymapR.dataset, 
                                     ploidy, 
@@ -115,7 +129,9 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
   structure(viewmap, class = "viewmap")
 }
 
-#' take all information needed from qtlpoly objects
+#' Covnerts QTLpoly outputs to viewqtl object
+#' 
+#' @rdname inputs
 #' 
 #' @param data object of class "qtlpoly.data"
 #' @param remim.mod object of class "qtlpoly.model" "qtlpoly.remim".
@@ -126,6 +142,7 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
 #' 
 #' @import tidyr
 #' 
+#' @keywords internal
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
   withProgress(message = 'Working...', value = 0, {
     incProgress(0.1, detail = paste("Uploading QTLpoly data..."))
@@ -210,10 +227,11 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
                  software = "QTLpoly", class = "viewqtl"))
 }
 
-#' Prepare diaQTL output files
+#' Converts diaQTL output to viewqtl object
 #' 
+#' @rdname inputs
 #' 
-#' 
+#' @keywords internal
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
   withProgress(message = 'Working...', value = 0, {
     incProgress(0.1, detail = paste("Uploading diaQTL data..."))
@@ -307,8 +325,11 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
             class = "viewqtl")
 }
 
-#' Upload polyqtlR outputs
+#' Converts polyqtlR outputs to viewqtl object
 #' 
+#' @rdname inputs
+#' 
+#' @keywords internal
 prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_phenotypes){
   withProgress(message = 'Working...', value = 0, {
     incProgress(0.1, detail = paste("Uploading polyqtlR data..."))
@@ -366,10 +387,14 @@ prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_pheno
             class = "viewqtl")
 }
 
+#' Converts QTL information in custom files to viewqtl object
+#' 
+#' @rdname inputs
 #' 
 #' @import vroom
 #' @import abind
 #' 
+#' @keywords internal
 prepare_qtl_custom_files <- function(selected_mks, qtl_info, blups, beta.hat,
                                      profile, effects, probs){
   qtls <- list()

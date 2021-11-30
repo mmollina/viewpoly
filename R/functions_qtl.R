@@ -7,6 +7,9 @@
 #' @import tidyr
 #' @importFrom plotly TeX
 #' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 
                          lgs.id = NULL, by_range = TRUE, range.min = NULL, 
                          range.max = NULL, plot=TRUE, software = NULL) {
@@ -161,6 +164,9 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
 
 #' Only the plot part of plot_profile function
 #' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 only_plot_profile <- function(pl.in){
   
   vlines <- split(pl.in$lines$x, pl.in$lines$LG)
@@ -180,8 +186,11 @@ only_plot_profile <- function(pl.in){
   return(pl)
 }
 
-#' Adapted function from QTLpoly
+#' Get effects information
 #' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 data_effects <- function(qtl_info, effects, pheno.col = NULL, 
                          p1 = "P1", p2 = "P2", df.info=NULL, 
                          lgs = NULL, groups = NULL, position = NULL, 
@@ -220,13 +229,14 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     }
     
     plots2 <- all.additive <- list()
-    count <- 1
+    count <-  count.p <- 1
     for(p in pheno.col) {
       effects.sub <- effects %>% filter(pheno == unique(qtl_info$pheno)[p]) %>% 
         filter(qtl.id %in% group.idx[[p]]) 
       nqtl <- length(unique(effects.sub$qtl.id))
       if(nqtl > 0) {
         plots1 <- list()
+        count.q <- 1
         for(q in group.idx[[p]]) {
           data <- effects.sub %>% filter(qtl.id == q)
           if(ploidy == 4) {
@@ -250,13 +260,17 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
             data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
           }
+          print(sub)
+          print(count.p)
+          print(count.q)
           data$Parent <- factor(data$Parent, levels=unique(data$Parent))
           if(design == "bar"){
             plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
               geom_bar(stat="identity") +
               {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
               scale_fill_gradient2(low = "red", high = "blue", guide = "none") +
-              labs(title=unique(qtl_info$pheno)[p], subtitle=paste("QTL", q, "\n")) +
+              labs(title=unique(qtl_info$pheno)[p], subtitle=paste("LG:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",1), 
+                                                                   "Pos:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",2))) +
               facet_wrap(. ~ Parent, scales="free_x", ncol = 2, strip.position="bottom") +
               theme_minimal() +
               theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
@@ -276,7 +290,8 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             plot = ggplot(data= plot.data,aes(x= x, y= y, fill= z)) + 
               geom_tile() + scale_fill_gradient2(name="") + 
               labs(title = paste("Trait:", unique(qtl_info$pheno)[p]),
-                   subtitle = paste("QTL:", q)) +
+                   subtitle = paste("LG:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",1), 
+                                    "Pos:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",2))) +
               theme_bw() + xlab("") + ylab("") +
               theme(text = element_text(size=13),axis.text.x = element_text(angle = 90,vjust=0.5,hjust=1)) +
               coord_fixed(ratio=1)
@@ -291,9 +306,11 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             all.additive <- rbind(all.additive, additive.effects)
             plots1 <- NULL
           }
+          count.q <- count.q + 1
         }
         plots2[[p]] <- plots1
       }
+      count.p <- count.p + 1
     }
     if(design != "circle"){
       p <- unlist(plots2, recursive = F)
@@ -301,7 +318,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       if(length(nulls) > 0)  p <- p[-nulls]
       return(p)
     } else {
-      all.additive$unique.id <- paste0(all.additive$pheno, "/QTL:", all.additive$qtl_id)
+      all.additive$unique.id <- paste0(all.additive$pheno, "/LG:", all.additive$LG, "/Pos:", all.additive$Pos)
       breaks <- seq(round(min(all.additive$Estimates),2), round(max(all.additive$Estimates),2),max(all.additive$Estimates)/2)
       
       lgs <- unique(all.additive$LG)
@@ -355,6 +372,11 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
   }
 }
 
+#' Plot effects data
+#' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 plot_effects <- function(data_effects.obj, software, 
                          design = c("bar", "circle", "digenic")){
   if(software == "polyqtlR"){
@@ -378,6 +400,9 @@ plot_effects <- function(data_effects.obj, software,
 #' @import dplyr
 #' @import tidyr
 #' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos) {
   pheno.names <- unique(as.character(qtl_info$pheno))
   results <- vector("list", length(pheno.names))
@@ -422,8 +447,11 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
   return(results)
 }
 
-#' Addapted from MAPpoly
+#' Adapted from MAPpoly
 #' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 calc_homologprob  <- function(probs, selected_mks){
   
   input.genoprobs <- probs
@@ -497,7 +525,10 @@ calc_homologprob  <- function(probs, selected_mks){
 #' 
 #' @param ... unused arguments
 #' @importFrom plotly ggplotly
-#' @export
+#' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL, 
                                   ind = NULL, use.plotly = TRUE, 
                                   verbose = TRUE,  ...){
@@ -563,6 +594,11 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
   return(p)
 }
 
+#' Plot selected haplotypes
+#' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
 select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
   lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
   lgs <- gsub("LG:", "", lgs)
