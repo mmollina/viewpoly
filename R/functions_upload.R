@@ -8,9 +8,10 @@ prepare_examples <- function(example, env.obj= NULL){
     withProgress(message = 'Working...', value = 0, {
       incProgress(0.5, detail = paste("Uploading BT example map data..."))
       load(system.file("ext/viewmap_hexa.RData", package = "viewpoly"))
+      load(system.file("ext/viewqtl_hexa.RData", package = "viewpoly"))
     })
     structure(list(map = viewmap_hexa,
-                qtl = NULL,
+                qtl = viewqtl_hexa,
                 fasta= system.file("ext/Trifida.Chr01.fa.gz", package="viewpoly"),
                 gff3 = system.file("ext/Trifida.Chr01.gff3.gz", package = "viewpoly")),
               class = "viewpoly")
@@ -95,8 +96,10 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 #' 
 #' @keywords internal
 prepare_MAPpoly <- function(mappoly_list){
-  temp <- load(mappoly_list$datapath)
-  mappoly_list <- get(temp)
+  if(!is(mappoly_list[[1]], "mappoly.map")){
+    temp <- load(mappoly_list$datapath)
+    mappoly_list <- get(temp)
+  }
   prep <- lapply(mappoly_list, prepare_map)
   
   structure(list(d.p1 = lapply(prep, "[[", 5),
@@ -113,23 +116,30 @@ prepare_MAPpoly <- function(mappoly_list){
 #' @rdname inputs
 #' 
 #' @keywords internal
-prepare_polymapR <- function(polymapR.dataset, polymapR.map){ ## Require update
-  data <- import_data_from_polymapR(polymapR.dataset, 
-                                    ploidy, 
+prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy){ ## Require update
+  temp <- load(polymapR.dataset$datapath)
+  polymapR.dataset <- get(temp)
+  
+  temp <- load(polymapR.map$datapath)
+  polymapR.map <- get(temp)
+  
+  data <- import_data_from_polymapR(input.data = polymapR.dataset, 
+                                    ploidy = ploidy, 
                                     parent1 = "P1", 
                                     parent2 = "P2",
-                                    input.type = c("discrete", "probabilistic"),
+                                    input.type = input.type,
                                     prob.thres = 0.95,
                                     pardose = NULL, 
                                     offspring = NULL,
                                     filter.non.conforming = TRUE,
                                     verbose = FALSE)
-  map_seq <- import_phased_maplist_from_polymapR(data, polymapR.map)
-  viewmap <- prepare_MAPpoly(map_seq)
+  
+  map_seq <- import_phased_maplist_from_polymapR(polymapR.map, data)
+  viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
   structure(viewmap, class = "viewmap")
 }
 
-#' Covnerts QTLpoly outputs to viewqtl object
+#' Converts QTLpoly outputs to viewqtl object
 #' 
 #' @rdname inputs
 #' 

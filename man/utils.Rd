@@ -2,6 +2,13 @@
 % Please edit documentation in R/utils_helpers.R
 \name{import_data_from_polymapR}
 \alias{import_data_from_polymapR}
+\alias{filter_non_conforming_classes}
+\alias{ph_matrix_to_list}
+\alias{is.prob.data}
+\alias{mf_h}
+\alias{mrk_chisq_test}
+\alias{dist_prob_to_class}
+\alias{segreg_poly}
 \alias{import_phased_maplist_from_polymapR}
 \alias{prepare_map}
 \alias{imf_h}
@@ -24,6 +31,20 @@ import_data_from_polymapR(
   filter.non.conforming = TRUE,
   verbose = TRUE
 )
+
+filter_non_conforming_classes(input.data, prob.thres = NULL)
+
+ph_matrix_to_list(M)
+
+is.prob.data(x)
+
+mf_h(d)
+
+mrk_chisq_test(x, ploidy)
+
+dist_prob_to_class(geno, prob.thres = 0.9)
+
+segreg_poly(ploidy, d.p1, d.p2)
 
 import_phased_maplist_from_polymapR(maplist, mappoly.data, ploidy = NULL)
 
@@ -60,8 +81,8 @@ list.depth(obj, objdepth = 0)
 
 \item{input.type}{Indicates whether the input is discrete ("disc") or probabilistic ("prob")}
 
-\item{prob.thres}{threshold probability to assign a dosage to offspring. If the probability 
-is smaller than \code{thresh.parent.geno}, the data point is converted to 'NA'.}
+\item{prob.thres}{probability threshold to select the genotype. 
+Values below this genotype are assumed as missing data}
 
 \item{pardose}{matrix of dimensions (n.mrk x 3) containing the name of the markers in the first column, and the 
 dosage of parents 1 and 2 in columns 2 and 3. (see polymapR vignette)}
@@ -77,13 +98,23 @@ expected genotypes under no double reduction. Since markers were already filtere
 \item{verbose}{if \code{TRUE} (default), the current progress is shown; if
 \code{FALSE}, no output is produced}
 
+\item{M}{matrix whose columns represent homologous chromosomes and
+the rows represent markers}
+
+\item{x}{an object of class \code{mappoly.map}}
+
+\item{geno}{the probabilistic genotypes contained in the object
+\code{'mappoly.data'}}
+
+\item{d.p1}{the dosage in parent P}
+
+\item{d.p2}{the dosage in parent Q}
+
 \item{maplist}{a list of phased maps obtained using function 
 \code{create_phased_maplist} from package \code{polymapR}}
 
 \item{mappoly.data}{a dataset used to obtain \code{maplist}, 
 converted into class \code{mappoly.data}}
-
-\item{x}{an object of class \code{mappoly.map}}
 
 \item{sorted}{logical. if \code{TRUE}, the LOD Scores are displayed
 in a decreasing order}
@@ -93,6 +124,15 @@ in a decreasing order}
 \item{void}{internal function to be documented}
 }
 \value{
+a list of linkage phase configurations
+
+a matrix containing the doses of each genotype and
+    marker. Markers are disposed in rows and individuals are 
+    disposed in columns. Missing data are represented by NAs
+
+a vector containing the expected segregation frequency for
+    all possible genotypic classes.
+
 a numeric vector containing the LOD Scores
 
 a matrix whose columns represent homologous chromosomes and
@@ -100,6 +140,13 @@ a matrix whose columns represent homologous chromosomes and
 }
 \description{
 Function to import datasets from polymapR. Function from MAPpoly.
+
+This function converts linkage phase configurations from matrix
+form to list
+
+Computes the polysomic segregation frequency given a ploidy level
+and the dosage of the locus in both parents. It does not consider
+double reduction.
 
 Function to import phased map lists from polymapR. Function from MAPpoly.
 
@@ -123,6 +170,17 @@ Bourke PM et al: (2019) PolymapR — linkage analysis and genetic map
     models, _G3: Genes, Genomes, Genetics_. 
     \doi{10.1534/g3.119.400378}
 
+Mollinari, M., and Garcia, A.  A. F. (2019) Linkage
+    analysis and haplotype phasing in experimental autopolyploid
+    populations with high ploidy level using hidden Markov
+    models, _G3: Genes, Genomes, Genetics_. 
+    \doi{10.1534/g3.119.400378}
+    
+    Serang O, Mollinari M, Garcia AAF (2012) Efficient Exact 
+    Maximum a Posteriori Computation for Bayesian SNP 
+    Genotyping in Polyploids. _PLoS ONE_ 7(2): 
+    e30906.
+
 Bourke PM et al: (2019) PolymapR — linkage analysis and genetic map 
     construction from F1 populations of outcrossing polyploids. 
     _Bioinformatics_ 34:3496–3502.
@@ -136,6 +194,8 @@ Bourke PM et al: (2019) PolymapR — linkage analysis and genetic map
 }
 \author{
 Marcelo Mollinari \email{mmollin@ncsu.edu}
+
+Marcelo Mollinari, \email{mmollin@ncsu.edu}
 
 Marcelo Mollinari \email{mmollin@ncsu.edu}
 }

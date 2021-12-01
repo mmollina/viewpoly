@@ -253,8 +253,7 @@ plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linka
 #' Color pallet ggplot-like - Adapted from MAPpoly
 #'
 #' @param void internal function to be documented
-#' @keywords internal
-#' @export
+#' 
 #' @importFrom grDevices hcl col2rgb hsv rgb2hsv
 #' 
 #' @rdname viewmap

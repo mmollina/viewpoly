@@ -75,11 +75,11 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
             tabPanel("About",
                      includeMarkdown(system.file("ext", "about.Rmd", package = "viewpoly"))
             ),
-            tabPanel("Upload", value = "upload",
+            tabPanel("Input data", value = "upload",
                      mod_upload_ui("upload_ui_1")),
             tabPanel("QTL", value = "qtl",
                      mod_qtl_view_ui("qtl_view_ui_1")),
-            tabPanel("Genome Browser", value = "genes",
+            tabPanel("Genome", value = "genes",
                      mod_genes_view_ui("genes_view_ui_1")),
             tabPanel("Map", value = "map",
                      mod_map_view_ui("map_view_ui_1"))

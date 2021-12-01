@@ -35,9 +35,9 @@ knitr::opts_chunk$set(eval = TRUE)
 
 # Inputs
 
-# VIEW QTL
+# View QTL
 
 # Genome Browser
 
-# VIEW Map
+# View Map
 
