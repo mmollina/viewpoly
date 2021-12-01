@@ -195,6 +195,234 @@ import_data_from_polymapR <- function(input.data,
   mappoly.data
 }
 
+#' Filter non-conforming classes in F1, non double reduced population.
+#' Function from MAPpoly.
+#'
+#' @param void internal function to be documented
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+filter_non_conforming_classes <- function(input.data, prob.thres = NULL)
+{
+  if (!inherits(input.data, "mappoly.data")) {
+    stop(deparse(substitute(input.data)), " is not an object of class 'mappoly.data'")
+  }
+  ploidy <- input.data$ploidy
+  dp <- input.data$dosage.p1
+  dq <- input.data$dosage.p2
+  Ds <- array(NA, dim = c(ploidy+1, ploidy+1, ploidy+1))
+  for(i in 0:ploidy)
+    for(j in 0:ploidy)
+      Ds[i+1,j+1,] <- segreg_poly(ploidy = ploidy, d.p1 = i, d.p2 = j)
+  Dpop <- cbind(dp,dq)
+  #Gathering segregation probabilities given parental dosages
+  M <- t(apply(Dpop, 1, function(x) Ds[x[1]+1, x[2]+1,]))
+  M[M != 0] <- 1
+  dimnames(M) <- list(input.data$mrk.names, 0:ploidy)
+  ##if no prior probabilities
+  if(!is.prob.data(input.data)){
+    for(i in 1:nrow(M)){
+      id0 <- !as.numeric(input.data$geno.dose[i,])%in%(which(M[i,] == 1)-1)
+      if(any(id0))
+        input.data$geno.dose[i,id0] <- (ploidy+1)     
+    }
+    return(input.data)
+  }
+  ## 1 represents conforming classes/ 0 represents non-conforming classes
+  dp <- rep(dp, input.data$n.ind)
+  dq <- rep(dq, input.data$n.ind)
+  M <- M[rep(seq_len(nrow(M)), input.data$n.ind),]
+  R <- input.data$geno[,-c(1:2)] - input.data$geno[,-c(1:2)]*M
+  id1 <- apply(R, 1, function(x) abs(sum(x))) > 0.3 # if the sum of the excluded classes is greater than 0.3, use segreg_poly
+  N <- matrix(NA, sum(id1), input.data$ploidy+1)
+  ct <- 1
+  for(i in which(id1)){
+    N[ct,] <- Ds[dp[i]+1, dq[i]+1, ]
+    ct <- ct+1
+  }
+  input.data$geno[id1,-c(1:2)] <- N
+  # if the sum of the excluded classes is greater than zero
+  # and smaller than 0.3, assign zero to those classes and normalize the vector
+  input.data$geno[,-c(1:2)][R > 0] <- 0
+  input.data$geno[,-c(1:2)] <- sweep(input.data$geno[,-c(1:2)], 1, rowSums(input.data$geno[,-c(1:2)]), FUN = "/")
+  if(is.null(prob.thres))
+    prob.thres <- input.data$prob.thres
+  geno.dose <- dist_prob_to_class(geno = input.data$geno, prob.thres = prob.thres)
+  if(geno.dose$flag)
+  {
+    input.data$geno <- geno.dose$geno
+    input.data$geno.dose <- geno.dose$geno.dose
+  } else {
+    input.data$geno.dose <- geno.dose$geno.dose
+  }
+  input.data$geno.dose[is.na(input.data$geno.dose)] <- ploidy + 1
+  input.data$n.ind <- ncol(input.data$geno.dose)
+  input.data$ind.names <- colnames(input.data$geno.dose)
+  return(input.data)
+}
+
+#' Linkage phase format conversion: matrix to list. Function from MAPpoly.
+#' 
+#' This function converts linkage phase configurations from matrix
+#' form to list
+#'
+#' @param M matrix whose columns represent homologous chromosomes and
+#'     the rows represent markers
+#' 
+#' @return a list of linkage phase configurations
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+ph_matrix_to_list <- function(M) {
+  w <- lapply(split(M, seq(NROW(M))), function(x, M) which(x  ==  1))
+  w[sapply(w, function(x) length(x)  ==  0)] <- 0
+  w
+}
+
+#' Is it a probability dataset? Function from MAPpoly.
+#'
+#' @param void internal function to be documented
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+is.prob.data <- function(x){
+  exists('geno', where = x)
+}
+
+#' Map functions. From MAPpoly
+#'
+#' @param void internal function to be documented
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+mf_h <- function(d) 0.5 * (1 - exp(-d/50))
+
+#' Chi-square test. Function from MAPpoly.
+#'
+#' @param void internal function to be documented
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+mrk_chisq_test <- function(x, ploidy){
+  y <- x[-c(1:(ploidy+1))]
+  y[y == ploidy+1] <- NA
+  y <- table(y, useNA = "always")
+  names(y) <- c(names(y)[-length(y)], "NA") 
+  seg.exp <- x[0:(ploidy+1)]
+  seg.exp <- seg.exp[seg.exp != 0]
+  seg.obs <- seg.exp
+  seg.obs[names(y)[-length(y)]] <- y[-length(y)]
+  pval <- suppressWarnings(stats::chisq.test(x = seg.obs, p = seg.exp[names(seg.obs)])$p.value)
+  pval
+}
+
+#' Returns the class with the highest probability in 
+#' a genotype probability distribution. Function from MAPpoly.
+#'
+#' @param geno the probabilistic genotypes contained in the object
+#'     \code{'mappoly.data'}
+#' @param prob.thres probability threshold to select the genotype. 
+#'     Values below this genotype are assumed as missing data
+#' @return a matrix containing the doses of each genotype and
+#'     marker. Markers are disposed in rows and individuals are 
+#'     disposed in columns. Missing data are represented by NAs
+#'     
+#' @importFrom tidyr "%>%"
+#' @importFrom reshape2 melt dcast
+#' @importFrom dplyr group_by filter arrange
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+dist_prob_to_class <- function(geno, prob.thres = 0.9) {
+  a <- reshape2::melt(geno, id.vars = c("mrk", "ind"))
+  mrk <- ind <- value <- variable <- NULL # Setting the variables to NULL first
+  a$variable <- as.numeric(levels(a$variable))[a$variable]
+  b <- a %>%
+    dplyr::group_by(mrk, ind) %>%
+    dplyr::filter(value > prob.thres) %>%
+    dplyr::arrange(mrk, ind, variable)
+  z <- reshape2::dcast(data = b[,1:3], formula = mrk ~ ind, value.var = "variable")
+  rownames(z) <- z[,"mrk"]
+  z <- data.matrix(frame = z[,-1])
+  n <- setdiff(unique(geno$mrk), rownames(z))
+  if(length(n) > 0)
+  {
+    ploidy <- matrix(NA, nrow = length(n), ncol = ncol(z), dimnames = list(n, colnames(z)))
+    z <- rbind(z,ploidy)
+  }
+  rm.ind <- setdiff(unique(geno$ind), colnames(z))
+  flag <- FALSE
+  if(length(rm.ind) > 0){
+    flag <- TRUE
+    warning("Inividual(s) ", paste(rm.ind, collapse = " "), 
+            "\n  did not meet the 'prob.thres' criteria for any of\n  the markers and was (were) removed.")
+    geno <- geno %>% dplyr::filter(ind %in% colnames(z))
+  }
+  z <- z[as.character(unique(geno$mrk)), as.character(unique(geno$ind))]
+  list(geno.dose = z, geno = geno, flag = flag)
+}
+
+#' Polysomic segregation frequency - Function from MAPpoly
+#'
+#' Computes the polysomic segregation frequency given a ploidy level
+#' and the dosage of the locus in both parents. It does not consider
+#' double reduction.
+#'
+#' @param ploidy the ploidy level
+#'
+#' @param d.p1 the dosage in parent P
+#'
+#' @param d.p2 the dosage in parent Q
+#'
+#' @return a vector containing the expected segregation frequency for
+#'     all possible genotypic classes.
+#'
+#'
+#' @author Marcelo Mollinari, \email{mmollin@ncsu.edu}
+#'
+#' @references
+#'     Mollinari, M., and Garcia, A.  A. F. (2019) Linkage
+#'     analysis and haplotype phasing in experimental autopolyploid
+#'     populations with high ploidy level using hidden Markov
+#'     models, _G3: Genes, Genomes, Genetics_. 
+#'     \doi{10.1534/g3.119.400378}
+#'     
+#'     Serang O, Mollinari M, Garcia AAF (2012) Efficient Exact 
+#'     Maximum a Posteriori Computation for Bayesian SNP 
+#'     Genotyping in Polyploids. _PLoS ONE_ 7(2): 
+#'     e30906.
+#'     
+#'
+#' @importFrom stats dhyper
+#' 
+#' @rdname utils
+#' 
+#' @keywords internal
+segreg_poly <- function(ploidy, d.p1, d.p2) {
+  if (ploidy%%2 != 0)
+    stop("m must be an even number")
+  p.dose <- numeric((ploidy + 1))
+  p.names <- character((ploidy + 1))
+  seg.p1 <- dhyper(x = c(0:(ploidy + 1)), m = d.p1, n = (ploidy - d.p1), k = ploidy/2)
+  seg.p2 <- dhyper(x = c(0:(ploidy + 1)), m = d.p2, n = (ploidy - d.p2), k = ploidy/2)
+  M <- tcrossprod(seg.p1, seg.p2)
+  for (i in 1:nrow(M)) {
+    for (j in 1:ncol(M)) {
+      p.dose[i + j - 1] <- p.dose[i + j - 1] + M[i, j]
+    }
+  }
+  p.dose <- p.dose[!is.na(p.dose)]
+  for (i in 0:ploidy) p.names[i + 1] <- paste(paste(rep("A", i), collapse = ""), paste(rep("a", (ploidy - i)), collapse = ""), sep = "")
+  names(p.dose) <- p.names
+  return(p.dose)
+}
+
 #' Import phased map list from polymapR
 #'
 #' Function to import phased map lists from polymapR. Function from MAPpoly.
@@ -261,7 +489,7 @@ import_phased_maplist_from_polymapR <- function(maplist,
                                             ph.thresh = NULL),
                                 maps = maps),
                            class = "mappoly.map")
-    MAPs[[i]] <- loglike_hmm(MAPs[[i]], mappoly.data)
+    #MAPs[[i]] <- loglike_hmm(MAPs[[i]], mappoly.data)
   }
   MAPs
 }
@@ -288,7 +516,7 @@ prepare_map <- function(input.map, config = "best"){
   map <- data.frame(mk.names = input.map$info$mrk.names,
                     l.dist = cumsum(imf_h(c(0, input.map$maps[[i.lpc]]$seq.rf))),
                     g.chr = input.map$info$chrom,
-                    g.dist = input.map$info$genome.pos,
+                    g.dist = if(!is.null(input.map$info$seq.alt)) input.map$info$seq.alt else NA ,
                     alt = if(!is.null(input.map$info$seq.alt)) input.map$info$seq.alt else NA , # get this info from VCF if it is inputted
                     ref = if(!is.null(input.map$info$seq.ref)) input.map$info$seq.ref else NA)
   ## 

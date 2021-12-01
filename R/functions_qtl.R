@@ -258,11 +258,22 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
           }
           if(ploidy == 6) {
             data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
+            #data <- data[1:298,]
             data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
+            data$Alleles <- gsub("a", paste0(p1,".1_"), data$Alleles)
+            data$Alleles <- gsub("b", paste0(p1,".2_"), data$Alleles)
+            data$Alleles <- gsub("c", paste0(p1,".3_"), data$Alleles)
+            data$Alleles <- gsub("d", paste0(p1,".4_"), data$Alleles)
+            data$Alleles <- gsub("e", paste0(p1,".5_"), data$Alleles)
+            data$Alleles <- gsub("f", paste0(p1,".6_"), data$Alleles)
+            data$Alleles <- gsub("g", paste0(p2,".1_"), data$Alleles)
+            data$Alleles <- gsub("h", paste0(p2,".2_"), data$Alleles)
+            data$Alleles <- gsub("i", paste0(p2,".3_"), data$Alleles)
+            data$Alleles <- gsub("j", paste0(p2,".4_"), data$Alleles)
+            data$Alleles <- gsub("k", paste0(p2,".5_"), data$Alleles)
+            data$Alleles <- gsub("l", paste0(p2,".6_"), data$Alleles)
+            data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
           }
-          print(sub)
-          print(count.p)
-          print(count.q)
           data$Parent <- factor(data$Parent, levels=unique(data$Parent))
           if(design == "bar"){
             plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
@@ -276,6 +287,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
               theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
             plots1[[q]] <- plot
           } else if(design == "digenic"){
+            if(ploidy == 6) data <- data[1:42,]
             temp <- do.call(rbind, strsplit(data$Alleles, "_"))
             data$x <- temp[,1]
             data$y <- temp[,2]
@@ -495,7 +507,21 @@ calc_homologprob  <- function(probs, selected_mks){
     df.res$homolog <- gsub("g", paste0("P2.3_"), df.res$homolog)
     df.res$homolog <- gsub("h", paste0("P2.4_"), df.res$homolog)
     df.res$homolog = substring(df.res$homolog,1, nchar(df.res$homolog)-1)
-  } # add 6 here
+  } else if(ploidy == 6){
+    df.res$homolog <- gsub("a", paste0("P1.1_"), df.res$homolog)
+    df.res$homolog <- gsub("b", paste0("P1.2_"), df.res$homolog)
+    df.res$homolog <- gsub("c", paste0("P1.3_"), df.res$homolog)
+    df.res$homolog <- gsub("d", paste0("P1.4_"), df.res$homolog)
+    df.res$homolog <- gsub("e", paste0("P1.5_"), df.res$homolog)
+    df.res$homolog <- gsub("f", paste0("P1.6_"), df.res$homolog)
+    df.res$homolog <- gsub("g", paste0("P2.1_"), df.res$homolog)
+    df.res$homolog <- gsub("h", paste0("P2.2_"), df.res$homolog)
+    df.res$homolog <- gsub("i", paste0("P2.3_"), df.res$homolog)
+    df.res$homolog <- gsub("j", paste0("P2.4_"), df.res$homolog)
+    df.res$homolog <- gsub("k", paste0("P2.5_"), df.res$homolog)
+    df.res$homolog <- gsub("l", paste0("P2.6_"), df.res$homolog)
+    df.res$homolog = substring(df.res$homolog,1, nchar(df.res$homolog)-1)
+  }
   
   structure(list(info = list(ploidy = ploidy, 
                              n.ind = length(ind.names)) , 
@@ -600,6 +626,7 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' @keywords internal
 select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
+  print(input.haplo)
   lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
   lgs <- gsub("LG:", "", lgs)
   selec.lg <- selected_mks %>% filter(LG %in% lgs)

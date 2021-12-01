@@ -17,7 +17,7 @@ prepare_map_custom_files(dosages, phases, genetic_map)
 
 prepare_MAPpoly(mappoly_list)
 
-prepare_polymapR(polymapR.dataset, polymapR.map)
+prepare_polymapR(polymapR.dataset, polymapR.map, input.type, ploidy)
 
 prepare_QTLpoly(data, remim.mod, est.effects, fitted.mod)
 
@@ -64,7 +64,7 @@ Converts list of mappoly.map object into viewmap object
 
 Converts polymapR ouputs to viewmap object
 
-Covnerts QTLpoly outputs to viewqtl object
+Converts QTLpoly outputs to viewqtl object
 
 Converts diaQTL output to viewqtl object
 

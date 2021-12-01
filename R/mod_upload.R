@@ -16,9 +16,8 @@ mod_upload_ui <- function(id){
                  actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
                  actionButton(ns("goQTL"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
              ),
-             tags$h2(tags$b("Upload data")), br(),
-             "Use this session to select the available datasets or to upload your data. 
-           Click `Next` to build graphics in the next sessions.", br(), br()
+             tags$h2(tags$b("Inputs")), br(),
+             "Use this session to select the available datasets or to upload your data", br(), br()
       ), br(),
       column(width = 12,
              fluidPage(
