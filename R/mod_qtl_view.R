@@ -247,11 +247,11 @@ mod_qtl_view_server <- function(input, output, session,
     }
     
     if(!is.null(dframe)){
-      if(input$effects_design == "digenic") {
+      if(input$effects_design == "digenic" | input$effects_design == "circle") {
         updatePickerInput(session, "haplo",
                           label = "Select haplotypes",
-                          choices = "Select `bar` or `circle` design to access this feature.",
-                          selected= "Select `bar` or `circle` design to access this feature.")
+                          choices = "Select `bar` design to access this feature.",
+                          selected= "Select `bar` design to access this feature.")
       } else {
         haplo_choices <- paste0("Trait:", dframe$Trait, "_LG:", dframe$LG, "_Pos:", dframe$`Position (cM)`)
         alleles <- effects.data()[[1]]$data$Alleles[!grepl("_",effects.data()[[1]]$data$Alleles)]
@@ -270,7 +270,7 @@ mod_qtl_view_server <- function(input, output, session,
   
   output$haplotypes <- renderPlot({
     if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
-    if(all(input$haplo == "Select `bar` or `circle` design to access this feature.")) stop("Select `bar` or `circle` design to access this feature.")
+    if(all(input$haplo == "Select `bar` design to access this feature.")) stop("Select `bar` design to access this feature.")
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
   })
@@ -342,7 +342,7 @@ mod_qtl_view_server <- function(input, output, session,
   fn_download <- function()
   {
     p <- only_plot_profile(pl.in = qtl.data())
-    ggsave(p, file = fn_downloadname(), 
+    ggsave(p, filename = fn_downloadname(), 
            width = 12.7, height = 8, units = "in")    
   }
   
@@ -386,7 +386,7 @@ mod_qtl_view_server <- function(input, output, session,
     
     plots <- plot_effects(data, software = loadQTL()$software, design = input$effects_design)
     
-    ggsave(plots, file = fn_downloadname_effects(), height = plotHeight()/3, width = plotHeight(),units = "mm", bg = "white")    
+    ggsave(plots, filename = fn_downloadname_effects(), height = plotHeight()/3, width = plotHeight(),units = "mm", bg = "white")    
   }
   
   # download handler
@@ -416,7 +416,7 @@ mod_qtl_view_server <- function(input, output, session,
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     plots <- ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
     
-    ggsave(plots, file = fn_downloadname_haplo(), height = plotHeight()/2, width = plotHeight(),units = "mm", bg = "white")    
+    ggsave(plots, filename = fn_downloadname_haplo(), height = plotHeight()/2, width = plotHeight(),units = "mm", bg = "white")    
   }
   
   # download handler

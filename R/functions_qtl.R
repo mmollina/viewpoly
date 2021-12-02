@@ -210,14 +210,14 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     if(software == "QTLpoly"){
       ploidy <- max(nchar(effects$haplo))
     } else if(software == "diaQTL") {
-      get.size <- effects %>% filter(pheno == unique(qtl_info$pheno)[1] & qtl.id == 1)
+      get.size <-  filter(effects, pheno == unique(qtl_info$pheno)[1] & qtl.id == 1)
       if(nrow(get.size) == 64) ploidy = 4 else ploidy = 2
     } else if(software == "polyqtlR"){
       ploidy <- (dim(effects)[2] - 3)/2
     }
     
-    qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>%
-      filter(Pos %in% position) %>% filter(LG %in% lgs)
+    qtl_info.sub <- qtl_info %>% filter(.data$pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>%
+      filter(.data$Pos %in% position) %>% filter(.data$LG %in% lgs)
     
     total <- split(qtl_info, qtl_info$pheno)
     total <- lapply(total, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
@@ -237,14 +237,14 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     plots2 <- all.additive <- list()
     count <-  count.p <- 1
     for(p in pheno.col.n) {
-      effects.sub <- effects %>% filter(pheno == unique(qtl_info$pheno)[p]) %>% 
-        filter(qtl.id %in% group.idx[[p]]) 
+      effects.sub <- effects %>% filter(.data$pheno == unique(qtl_info$pheno)[p]) %>% 
+        filter(.data$qtl.id %in% group.idx[[p]]) 
       nqtl <- length(unique(effects.sub$qtl.id))
       if(nqtl > 0) {
         plots1 <- list()
         count.q <- 1
         for(q in group.idx[[p]]) {
-          data <- effects.sub %>% filter(qtl.id == q)
+          data <- effects.sub %>% filter(.data$qtl.id == q)
           if(ploidy == 4) {
             data <- data[1:36,]
             if(software == "diaQTL"){
@@ -348,7 +348,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     } else {
       all.additive <- lapply(all.additive, function(x) rbind(x, x[1,]))
       all.additive <- do.call(rbind, all.additive)
-      all.additive$unique.id <- paste0(all.additive$pheno, "/LG:", all.additive$LG, "/Pos:", all.additive$Pos)
+      all.additive$unique.id <- paste0(all.additive$pheno, "/ LG:", all.additive$LG, "/ Pos:", all.additive$Pos)
       breaks <- c(-1,0,1)
       lgs <- unique(all.additive$LG)
       p <- list()
@@ -454,14 +454,14 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
   
   for(p in phenos) { # select pheno
     nqtl <- length(pos[[pheno.names[p]]])
-    infos <- qtl_info %>% filter(pheno == pheno.names[p])
+    infos <- filter(qtl_info, pheno == pheno.names[p])
     infos <- infos[which(infos$Pos %in% pos[[pheno.names[p]]]),]
     markers <- which((round(selected_mks$pos,2) %in% infos$Pos) & (selected_mks$LG %in% infos$LG))
     Z <- probs[,markers,] # select by pos
-    u.hat <- blups %>% filter(pheno == pheno.names[p])
+    u.hat <- filter(blups, pheno == pheno.names[p])
     u.hat <- split(u.hat$u.hat, u.hat$qtl)
     
-    beta.hat.sub <- beta.hat %>% filter(pheno == pheno.names[p])
+    beta.hat.sub <- filter(beta.hat, pheno == pheno.names[p])
     beta.hat.v <- beta.hat.sub$beta.hat
     
     Zu <- vector("list", nqtl)
@@ -586,7 +586,7 @@ calc_homologprob  <- function(probs, selected_mks){
 #' @keywords internal
 plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL, 
                                   ind = NULL, use.plotly = TRUE, 
-                                  verbose = TRUE,  ...){
+                                  verbose = TRUE, ...){
   all.ind <- as.character(unique(x$homoprob$individual))
   #### Individual handling ####
   if(length(ind) > 1){
@@ -623,12 +623,14 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
       df.pr1 <- subset(df.pr1, individual  ==  ind)
     } else 
       df.pr1 <- subset(x$homoprob, individual  ==  ind)
-    p <- ggplot2::ggplot(df.pr1, ggplot2::aes(x = map.position, y = probability, fill = homolog, color  = homolog)) +
-      ggplot2::geom_density(stat = "identity", alpha = 0.7, position = "stack") + 
-      ggplot2::ggtitle(ind) + 
-      ggplot2::facet_grid(rows = ggplot2::vars(LG)) + 
-      ggplot2::ylab(label = "Homologs probabilty") +
-      ggplot2::xlab(label = "Map position")
+    p <- ggplot(df.pr1, aes(x = map.position, y = probability, fill = homolog, color  = homolog)) +
+      geom_density(stat = "identity", alpha = 0.7, position = "stack") + 
+      ggtitle(ind) + 
+      facet_grid(rows = vars(LG)) + 
+      ylab(label = "Homologs probabilty") +
+      xlab(label = "Map position") +
+      geom_vline(data = df.pr1, aes(xintercept = qtl), linetype="dashed") +
+      theme_minimal() 
   } else {
     ##subset linkage group
     if(is.null(lg)){
@@ -636,13 +638,14 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
       df.pr1 <- subset(x$homoprob, LG %in% lg)
     } else df.pr1 <- subset(x$homoprob, LG %in% lg)
     df.pr1 <- subset(df.pr1, individual  ==  ind)  
-    p <- ggplot2::ggplot(df.pr1, ggplot2::aes(x = map.position, y = probability, fill = homolog, color  = homolog)) +
-      ggplot2::geom_density(stat = "identity", alpha = 0.7) + 
-      ggplot2::ggtitle(paste(ind, "   LG", lg)) + 
-      ggplot2::facet_grid(rows = ggplot2::vars(homolog)) + 
-      ggplot2::theme_minimal() + 
-      ggplot2::ylab(label = "Homologs probabilty") +
-      ggplot2::xlab(label = "Map position")
+    p <- ggplot(df.pr1, aes(x = map.position, y = probability, fill = homolog, color  = homolog)) +
+      geom_density(stat = "identity", alpha = 0.7) + 
+      ggtitle(paste(ind, "   LG", lg)) + 
+      facet_grid(rows = vars(homolog)) + 
+      theme_minimal() + 
+      ylab(label = "Homologs probabilty") +
+      xlab(label = "Map position") +
+      geom_vline(data = df.pr1, aes(xintercept = qtl), linetype="dashed")
   }
   if(use.plotly)
     p <- plotly::ggplotly(p)
@@ -681,11 +684,15 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
   }
   like.intersect <- Reduce(intersect, like.ind.all)
   if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("Any individual contain all the selected homolog/s")
+  idx <- which(paste0(homo.dat$homoprob$map.position, "_", homo.dat$homoprob$LG) %in% paste0(pos, "_", lgs))
+  homo.dat$homoprob$qtl <- NA
+  homo.dat$homoprob$qtl[idx] <- homo.dat$homoprob$map.position[idx] # vertical lines
+  
   p <- list()
   for(i in 1:length(like.intersect)){
-    p[[i]] <- plot.mappoly.homoprob(homo.dat, 
+    p[[i]] <- plot.mappoly.homoprob(x = homo.dat, 
                                     lg = unique(as.numeric(lgs)), 
-                                    ind = as.character(like.intersect)[i], 
+                                    ind = as.character(like.intersect)[i],
                                     use.plotly = FALSE)
   }
   return(p)

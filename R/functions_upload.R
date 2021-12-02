@@ -380,7 +380,7 @@ prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_pheno
         # effects
         effects.t <- polyqtlReffects(IBD_list = polyqtlR_IBD, # input
                                      Phenotype.df = polyqtlR_phenotypes, # input
-                                     trait.ID = pheno,
+                                     trait.ID.c = pheno,
                                      linkage_group = j,
                                      LOD_data = polyqtlR_QTLscan_list[[i]])
         effects <- rbind(effects, effects.t)

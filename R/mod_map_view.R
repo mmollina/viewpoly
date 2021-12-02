@@ -330,7 +330,7 @@ mod_map_view_server <- function(input, output, session,
                        range.max = input$range[2], 
                        by_range=T, 
                        software = loadQTL()$software)
-    ggsave(pl, file = fn_downloadname(), 
+    ggsave(pl, filename = fn_downloadname(), 
            width = 12.7, height = 8, units = "in")    
   }
   

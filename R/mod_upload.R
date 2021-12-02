@@ -242,6 +242,7 @@ mod_upload_ui <- function(id){
 #' upload Server Functions
 #'
 #' @import vroom
+#' @importFrom httpuv stopAllServers
 #' 
 #' @noRd 
 mod_upload_server <- function(input, output, session, parent_session){
@@ -249,7 +250,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   #  Trying to fix server issue
   observeEvent(input$server_off, {
-    httpuv::stopAllServers()
+    stopAllServers()
   })
   
   # Check environment

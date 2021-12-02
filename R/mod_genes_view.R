@@ -98,6 +98,7 @@ mod_genes_view_ui <- function(id){
 #' @importFrom RColorBrewer brewer.pal 
 #' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
+#' @importFrom httpuv stopAllServers
 #'
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, 
@@ -109,7 +110,7 @@ mod_genes_view_server <- function(input, output, session,
   
   #  Trying to fix server issue
   observeEvent(input$server_off, {
-    httpuv::stopAllServers()
+    stopAllServers()
   })
   
   observe({
@@ -396,7 +397,7 @@ mod_genes_view_server <- function(input, output, session,
                        range.max = input$range[2], 
                        by_range=T, 
                        software = loadQTL()$software)
-    ggsave(pl, file = fn_downloadname(), 
+    ggsave(pl, filename = fn_downloadname(), 
            width = 12.7, height = 8, units = "in")    
   }
   
@@ -436,7 +437,7 @@ mod_genes_view_server <- function(input, output, session,
       labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
       theme_bw() + theme(legend.position = "none") 
     
-    ggsave(p, file = fn_downloadname_phi(), 
+    ggsave(p, filename = fn_downloadname_phi(), 
            width = 12.7, height = 8, units = "in")    
   }
   
