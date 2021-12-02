@@ -13,7 +13,7 @@ prepare_examples <- function(example, env.obj= NULL){
     structure(list(map = viewmap_hexa,
                 qtl = viewqtl_hexa,
                 fasta= system.file("ext/Trifida.Chr01.fa.gz", package="viewpoly"),
-                gff3 = system.file("ext/Trifida.Chr01.gff3.gz", package = "viewpoly")),
+                gff3 = system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")),
               class = "viewpoly")
     
   } else if(example == "tetra_map"){

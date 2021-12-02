@@ -69,7 +69,7 @@ mod_qtl_view_ui <- function(id){
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
                          div(style = "position:absolute;right:3em;",
                              radioButtons(ns("effects_design"), "Design", 
-                                          choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Digenic" = "digenic"), 
+                                          choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Alleles combination" = "digenic"), 
                                           selected = "bar", inline= T)
                          ), br(), br(), 
                          column(2,
@@ -214,9 +214,9 @@ mod_qtl_view_server <- function(input, output, session,
         size <- counts*350
       } else if(input$effects_design == "circle"){
         counts <- length(unique(dframe$LG))
-        counts <- ceiling(counts/3)
+        counts <- ceiling(counts/2)
         if(counts == 0) counts <- 1
-        size <- counts*350
+        size <- counts*500
       }
       size
     } else 
@@ -247,22 +247,30 @@ mod_qtl_view_server <- function(input, output, session,
     }
     
     if(!is.null(dframe)){
-      haplo_choices <- paste0("Trait:", dframe$Trait, "_LG:", dframe$LG, "_Pos:", dframe$`Position (cM)`)
-      alleles <- effects.data()[[1]]$data$Alleles[!grepl("_",effects.data()[[1]]$data$Alleles)]
-      alleles <- rep(alleles, length(haplo_choices))
-      haplo_choices <- rep(haplo_choices, each = length(alleles)/length(haplo_choices))
-      haplo_choices <- paste0(haplo_choices, "_homolog:", alleles)
-      haplo_choices <- as.list(haplo_choices)
-      names(haplo_choices) <- unlist(haplo_choices)
-      updatePickerInput(session, "haplo",
-                        label = "Select haplotypes",
-                        choices = haplo_choices,
-                        selected= haplo_choices[[1]])
+      if(input$effects_design == "digenic") {
+        updatePickerInput(session, "haplo",
+                          label = "Select haplotypes",
+                          choices = "Select `bar` or `circle` design to access this feature.",
+                          selected= "Select `bar` or `circle` design to access this feature.")
+      } else {
+        haplo_choices <- paste0("Trait:", dframe$Trait, "_LG:", dframe$LG, "_Pos:", dframe$`Position (cM)`)
+        alleles <- effects.data()[[1]]$data$Alleles[!grepl("_",effects.data()[[1]]$data$Alleles)]
+        alleles <- rep(alleles, length(haplo_choices))
+        haplo_choices <- rep(haplo_choices, each = length(alleles)/length(haplo_choices))
+        haplo_choices <- paste0(haplo_choices, "_homolog:", alleles)
+        haplo_choices <- as.list(haplo_choices)
+        names(haplo_choices) <- unlist(haplo_choices)
+        updatePickerInput(session, "haplo",
+                          label = "Select haplotypes",
+                          choices = haplo_choices,
+                          selected= haplo_choices[[1]])
+      }
     }
   })
   
   output$haplotypes <- renderPlot({
-    if(input$haplo == "Select QTL in the profile graphic to update") stop("Select QTL in the profile graphic to update")
+    if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
+    if(all(input$haplo == "Select `bar` or `circle` design to access this feature.")) stop("Select `bar` or `circle` design to access this feature.")
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
   })

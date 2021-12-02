@@ -190,15 +190,19 @@ only_plot_profile <- function(pl.in){
 #' 
 #' @rdname viewqtl
 #' 
+#' @importFrom tidyr `%>%`
+#' @importFrom dplyr filter
+#' @import ggplot2
+#' 
 #' @keywords internal
 data_effects <- function(qtl_info, effects, pheno.col = NULL, 
                          p1 = "P1", p2 = "P2", df.info=NULL, 
                          lgs = NULL, groups = NULL, position = NULL, 
                          software, design = c("bar", "circle", "digenic")) {
   if(is.null(pheno.col)) {
-    pheno.col <- 1:length(unique(qtl_info$pheno))
+    pheno.col.n <- 1:length(unique(qtl_info$pheno))
   } else {
-    pheno.col <- which(unique(qtl_info$pheno) %in% pheno.col)
+    pheno.col.n <- which(unique(qtl_info$pheno) %in% pheno.col)
   }
   
   if(software == "QTLpoly" | software == "diaQTL"){
@@ -212,7 +216,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       ploidy <- (dim(effects)[2] - 3)/2
     }
     
-    qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>%
+    qtl_info.sub <- qtl_info %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>%
       filter(Pos %in% position) %>% filter(LG %in% lgs)
     
     total <- split(qtl_info, qtl_info$pheno)
@@ -222,15 +226,17 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     sub <- split(qtl_info.sub, qtl_info.sub$pheno)
     sub <- lapply(sub, function(x) paste0(x[,1], "_", x[,2], "_", x[,5]))
     
+    sub <- sub[order(match(names(sub), pheno.col))]
+    
     group.idx <- list()
-    for(i in 1:length(pheno.col)){
+    for(i in 1:length(pheno.col.n)){
       idx <- match(names(sub)[i], names(total))
       group.idx[[idx]] <- match(sub[[i]], total[[idx]])
     }
     
     plots2 <- all.additive <- list()
     count <-  count.p <- 1
-    for(p in pheno.col) {
+    for(p in pheno.col.n) {
       effects.sub <- effects %>% filter(pheno == unique(qtl_info$pheno)[p]) %>% 
         filter(qtl.id %in% group.idx[[p]]) 
       nqtl <- length(unique(effects.sub$qtl.id))
@@ -255,8 +261,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
               data$Alleles <- gsub("h", paste0(p2,".4_"), data$Alleles)
               data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
             }
-          }
-          if(ploidy == 6) {
+          } else if(ploidy == 6) {
             data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
             #data <- data[1:298,]
             data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
@@ -276,15 +281,18 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
           }
           data$Parent <- factor(data$Parent, levels=unique(data$Parent))
           if(design == "bar"){
+            lim <- max(abs(data[which(data$Effects == "Additive"),]$Estimates))
             plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
-              geom_bar(stat="identity") +
+              geom_bar(stat="identity") + ylim(c(-lim, lim)) +
               {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
               scale_fill_gradient2(low = "red", high = "blue", guide = "none") +
               labs(title=unique(qtl_info$pheno)[p], subtitle=paste("LG:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",1), 
                                                                    "Pos:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",2))) +
               facet_wrap(. ~ Parent, scales="free_x", ncol = 2, strip.position="bottom") +
               theme_minimal() +
-              theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
+              theme(plot.title = element_text(hjust = 0.5), 
+                    plot.subtitle = element_text(hjust = 0.5), 
+                    axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
             plots1[[q]] <- plot
           } else if(design == "digenic"){
             if(ploidy == 6) data <- data[1:42,]
@@ -293,12 +301,18 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             data$y <- temp[,2]
             digenic.effects <- data[which(data$Effects == "Digenic"),]
             additive.effects <- data[which(data$Effects == "Additive"),]
-            plot.data <- data.frame(x= c(digenic.effects$x, digenic.effects$y),
-                                    y= c(digenic.effects$y, digenic.effects$x),
-                                    z= c(digenic.effects$Estimates, digenic.effects$Estimates+
-                                           additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
-                                           additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
-            
+            if(software == "QTLpoly") {
+              plot.data <- data.frame(x= c(digenic.effects$y),
+                                      y= c(digenic.effects$x),
+                                      z= c(additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
+                                             additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
+            } else {
+              plot.data <- data.frame(x= c(digenic.effects$x, digenic.effects$y),
+                                      y= c(digenic.effects$y, digenic.effects$x),
+                                      z= c(digenic.effects$Estimates, digenic.effects$Estimates+
+                                             additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
+                                             additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
+            }
             plot = ggplot(data= plot.data,aes(x= x, y= y, fill= z)) + 
               geom_tile() + scale_fill_gradient2(name="") + 
               labs(title = paste("Trait:", unique(qtl_info$pheno)[p]),
@@ -314,8 +328,10 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             additive.effects$qtl_id <- q
             additive.effects$LG <- qtl_info.sub$LG[count]
             additive.effects$Pos <- qtl_info.sub$Pos[count]
+            additive.effects$Estimates <- additive.effects$Estimates/max(abs(additive.effects$Estimates)) # normalize to be between -1 and 1
+            all.additive[[count]] <- additive.effects
+            names(all.additive)[count] <- unique(additive.effects$LG)
             count <- count + 1
-            all.additive <- rbind(all.additive, additive.effects)
             plots1 <- NULL
           }
           count.q <- count.q + 1
@@ -330,27 +346,27 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       if(length(nulls) > 0)  p <- p[-nulls]
       return(p)
     } else {
+      all.additive <- lapply(all.additive, function(x) rbind(x, x[1,]))
+      all.additive <- do.call(rbind, all.additive)
       all.additive$unique.id <- paste0(all.additive$pheno, "/LG:", all.additive$LG, "/Pos:", all.additive$Pos)
-      breaks <- seq(round(min(all.additive$Estimates),2), round(max(all.additive$Estimates),2),max(all.additive$Estimates)/2)
-      
+      breaks <- c(-1,0,1)
       lgs <- unique(all.additive$LG)
       p <- list()
       for(i in 1:length(lgs)){
-        p[[i]] <- ggplot(data=all.additive[which(all.additive$LG == lgs[i]),], 
-                         aes(x=Alleles, y=Estimates, group=unique.id, colour=unique.id)) +
-          geom_point() + 
-          geom_line() + 
-          coord_polar() +
-          ylim(min(all.additive$Estimates),max(all.additive$Estimates)) +
+        p[[i]] <- all.additive %>% filter(LG == lgs[i]) %>% 
+          ggplot(aes(x=Alleles, y=Estimates, group=unique.id, colour=unique.id, alpha = abs(Estimates))) +
+          geom_path(alpha =0.7, size = 1.5) +
+          #geom_polygon(fill = NA, size =1, alpha = abs(data_temp$Estimates))+
+          geom_point(size=5) +  
+          coord_radar() +
           labs(title = paste0("LG", lgs[i])) +
-          annotate(x= 0,y=breaks, label= round(breaks,2),geom="text") +
+          annotate(x= 0,y=c(-1.3,breaks), label= round(c(NA,breaks),2),geom="text") +
           theme_bw() + 
           theme(axis.title.y=element_blank(),
                 axis.text.y=element_blank(),
                 axis.ticks.y=element_blank(),
                 axis.title.x=element_blank(), 
-                legend.title = element_blank()) +
-          geom_hline(yintercept=breaks) 
+                legend.title = element_blank()) + guides(alpha = FALSE) 
       }
       return(p) 
     }
@@ -358,7 +374,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     if(design == "circle" | design == "digenic"){
       stop("Design option not available for: polyqtlR")
     } else {
-      effects.df <- effects %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col]) %>% 
+      effects.df <- effects %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>% 
         filter(LG %in% groups) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect") 
       
       effects.df <- effects.df %>% group_by(haplo, pheno) %>% mutate(x.axis = 1:n()) %>% ungroup() %>% as.data.frame()
@@ -367,13 +383,13 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       vlines <- sapply(vlines, function(x) x[1])
       
       p <- list()
-      for(i in 1:length(pheno.col)){
-        p[[i]] <- effects.df %>% filter(pheno == unique(qtl_info$pheno)[pheno.col][i]) %>%  
+      for(i in 1:length(pheno.col.n)){
+        p[[i]] <- effects.df %>% filter(pheno == unique(qtl_info$pheno)[pheno.col.n][i]) %>%  
           ggplot() +
           geom_path(aes(x=x.axis, y=haplo, col = effect), size = 5)  +
           scale_color_gradient2(low = "purple4", mid = "white",high = "seagreen") +
           {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8)} +
-          labs(y = "Haplotype", x = "Linkage group", title = unique(qtl_info$pheno)[pheno.col][i]) +
+          labs(y = "Haplotype", x = "Linkage group", title = unique(qtl_info$pheno)[pheno.col.n][i]) +
           annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust= 1, hjust= -0.1,geom="label") +
           coord_cartesian(ylim = c(1,8.5)) +
           theme_classic() + theme(axis.text.x=element_blank(),
@@ -382,6 +398,19 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       return(p)
     }
   }
+}
+
+#' Change ggplot coordinates to plot radar
+#' 
+#' @rdname viewqtl
+#' 
+#' @keywords internal
+coord_radar <- function (theta = "x", start = 0, direction = 1) {
+  theta <- match.arg(theta, c("x", "y"))
+  r <- if (theta == "x") "y" else "x"
+  ggproto("CordRadar", CoordPolar, theta = theta, r = r, start = start, 
+          direction = sign(direction),
+          is_linear = function(coord) TRUE)
 }
 
 #' Plot effects data
@@ -395,9 +424,9 @@ plot_effects <- function(data_effects.obj, software,
     p.t <- ggarrange(plotlist = data_effects.obj, common.legend = T, ncol = 1, legend = "right")
   } else {
     if(design == "circle"){
-      rows <- ceiling(length(data_effects.obj)/3)
+      rows <- ceiling(length(data_effects.obj)/2)
       if(rows == 0) rows <- 1
-      p.t <- ggarrange(plotlist = data_effects.obj, nrow = rows, ncol = 3)
+      p.t <- ggarrange(plotlist = data_effects.obj, nrow = rows, ncol = 2)
     } else {
       rows <- ceiling(length(data_effects.obj)/4)
       if(rows == 0) rows <- 1
@@ -626,7 +655,6 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' @keywords internal
 select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
-  print(input.haplo)
   lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
   lgs <- gsub("LG:", "", lgs)
   selec.lg <- selected_mks %>% filter(LG %in% lgs)
