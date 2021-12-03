@@ -134,6 +134,11 @@ mod_map_view_server <- function(input, output, session,
                         label = "Select phenotypes",
                         choices = pheno_choices,
                         selected=unlist(pheno_choices)[1])
+    } else {
+      updatePickerInput(session, "phenotypes",
+                        label = "Phenotype:",
+                        choices = "Upload QTL information to update",
+                        selected= "Upload QTL information to update")
     }
   })
   
@@ -142,7 +147,7 @@ mod_map_view_server <- function(input, output, session,
     if(!is.null(loadQTL())){
       data <- loadQTL()$qtl_info %>% filter(pheno %in% input$phenotypes & LG == input$group)
       
-      if(dim(data)[1] == 0) stop("No QTL available in this group")
+      if(dim(data)[1] == 0) return(p(" "))
       
       data <- data[order(data$Pos_lower, data$Pos_upper),]
       command <- paste0(round(data$Pos_lower,0), ":", round(data$Pos_upper, 0))
@@ -204,7 +209,7 @@ mod_map_view_server <- function(input, output, session,
         p(divs_lst, "QTL")
       }
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      return(p(" "))
   })
   
   output$interval <- renderUI({ 
@@ -239,31 +244,34 @@ mod_map_view_server <- function(input, output, session,
   
   # Plot map
   output$plot_map <- renderPlot({
-    maps <- lapply(loadMap()$maps, function(x) {
-      y <- x$l.dist
-      names(y) <- x$mk.names
-      y
-    })
-    draw_map_shiny(left.lim = input$range[1], 
-                   right.lim = input$range[2], 
-                   ch = input$group,
-                   d.p1 = loadMap()$d.p1,
-                   d.p2 = loadMap()$d.p2, 
-                   maps = maps, 
-                   ph.p1 = loadMap()$ph.p1, 
-                   ph.p2 = loadMap()$ph.p2,
-                   snp.names = input$op)
-    
-    max_updated = reactive({
-      map_summary(left.lim = input$range[1], right.lim = input$range[2], 
-                  ch = input$group, maps = maps, 
-                  d.p1 = loadMap()$d.p1, 
-                  d.p2 = loadMap()$d.p2)[[5]]
-    })
-    
-    observeEvent(max_updated, {
-      updateSliderInput(inputId = "range", max = round(max_updated(),2))
-    })
+    if(!is.null(loadMap()$ph.p1)) {
+      maps <- lapply(loadMap()$maps, function(x) {
+        y <- x$l.dist
+        names(y) <- x$mk.names
+        y
+      })
+      draw_map_shiny(left.lim = input$range[1], 
+                     right.lim = input$range[2], 
+                     ch = input$group,
+                     d.p1 = loadMap()$d.p1,
+                     d.p2 = loadMap()$d.p2, 
+                     maps = maps, 
+                     ph.p1 = loadMap()$ph.p1, 
+                     ph.p2 = loadMap()$ph.p2,
+                     snp.names = input$op)
+      
+      max_updated = reactive({
+        map_summary(left.lim = input$range[1], right.lim = input$range[2], 
+                    ch = input$group, maps = maps, 
+                    d.p1 = loadMap()$d.p1, 
+                    d.p2 = loadMap()$d.p2)[[5]]
+      })
+      
+      observeEvent(max_updated, {
+        updateSliderInput(inputId = "range", max = round(max_updated(),2))
+      })
+    } else 
+      stop("Upload map information in the upload session to access this feature.")
   })
   
   output$parents_haplo  <- DT::renderDataTable(server = FALSE, {
@@ -304,7 +312,10 @@ mod_map_view_server <- function(input, output, session,
   })
   
   output$map_summary <- renderPlot({
-    plot_map_list(loadMap())
+    if(!is.null(loadMap()$ph.p1)) {
+      plot_map_list(loadMap())
+    } else 
+      stop("Upload map information in the upload session to access this feature.")
   })
   
   ### Downloads

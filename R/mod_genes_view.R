@@ -132,6 +132,11 @@ mod_genes_view_server <- function(input, output, session,
                         label = "Select phenotypes",
                         choices = pheno_choices,
                         selected=unlist(pheno_choices)[1])
+    } else {
+      updatePickerInput(session, "phenotypes",
+                        label = "Phenotype:",
+                        choices = "Upload QTL information to update",
+                        selected= "Upload QTL information to update")
     }
   })
   
@@ -145,7 +150,7 @@ mod_genes_view_server <- function(input, output, session,
     if(!is.null(loadQTL())){
       data <- loadQTL()$qtl_info %>% filter(pheno %in% input$phenotypes & LG == input$group)
       
-      if(dim(data)[1] == 0) stop("No QTL available in this group")
+      if(dim(data)[1] == 0) return(p(" "))
       
       data <- data[order(data$Pos_lower, data$Pos_upper),]
       command <- paste0(round(data$Pos_lower,0), ":", round(data$Pos_upper, 0))
@@ -207,7 +212,7 @@ mod_genes_view_server <- function(input, output, session,
       }
       p(divs_lst, "QTL")
     } else {
-      stop("Upload the QTL information in upload session to access this feature.")
+      return(p(" "))
     }
   })
   
@@ -282,7 +287,9 @@ mod_genes_view_server <- function(input, output, session,
   
   # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
-    
+    if(!is.null(loadMap()))
+      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
+    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
     assembly <- assembly(
       paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
       bgzip = TRUE
@@ -324,6 +331,10 @@ mod_genes_view_server <- function(input, output, session,
   })
   
   output$genes_ano  <- DT::renderDataTable(server = FALSE, {
+    if(!is.null(loadMap()))
+      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")    
+    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
+    
     if(!is.null(button()$path.gff)) {
       group <- as.numeric(input$group)
       mks<- loadMap()$maps[[group]]
@@ -346,6 +357,11 @@ mod_genes_view_server <- function(input, output, session,
   })
   
   output$plot_pos <- renderPlotly({
+    if(!is.null(loadMap()))
+      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
+    
+    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
+    
     map.lg <- loadMap()$maps[[as.numeric(input$group)]]
     
     map.lg$high <- map.lg$g.dist

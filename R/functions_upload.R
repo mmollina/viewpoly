@@ -92,6 +92,8 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 
 #' Converts list of mappoly.map object into viewmap object
 #' 
+#' @param mappoly_list list with objects of class mappoly.map
+#' 
 #' @rdname inputs
 #' 
 #' @keywords internal
@@ -122,9 +124,6 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
   
   temp <- load(polymapR.map$datapath)
   polymapR.map <- get(temp)
-  print(polymapR.dataset)
-  print(ploidy)
-  print(input.type)
   data <- import_data_from_polymapR(input.data = polymapR.dataset, 
                                     ploidy = ploidy, 
                                     parent1 = "P1", 
@@ -138,6 +137,7 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
   
   map_seq <- import_phased_maplist_from_polymapR(polymapR.map, data)
   viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
+  viewmap$software <- "polymapR"
   structure(viewmap, class = "viewmap")
 }
 
@@ -241,6 +241,8 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 
 #' Converts diaQTL output to viewqtl object
 #' 
+#' @importFrom dplyr filter
+#' 
 #' @rdname inputs
 #' 
 #' @keywords internal
@@ -278,7 +280,7 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
     for(i in 1:length(fitQTL_list)){
       qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
       trait <- gsub("Trait: ","",fitQTL_list[[i]]$plots[[1]]$additive$labels$title)
-      qtl_temp <- qtl_info %>% filter(pheno == trait & marker %in% qtls.id)
+      qtl_temp <-  filter(qtl_info, pheno == trait & marker %in% qtls.id)
       qtl_info2 <- rbind(qtl_info2, qtl_temp)
       # profile
       profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
@@ -296,10 +298,10 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
                                    CI.upper = temp$CI.upper)
         
         # digenic effect
-        temp <- fitQTL_list[[i]]$plots[[j]]$digenic$data
+        temp <- data.frame(haplo = rownames(fitQTL_list[[i]]$effects$digenic), z = fitQTL_list[[i]]$effects$digenic[,j])
         if(!is.null(temp)){
           effects.di.t <- data.frame(pheno = trait, 
-                                     haplo = paste0(temp$x,"x",temp$y),
+                                     haplo = gsub("[+]", "x", temp$haplo),
                                      qtl.id = j,
                                      effect = as.numeric(temp$z), 
                                      type = "Digenic",

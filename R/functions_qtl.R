@@ -210,8 +210,8 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     if(software == "QTLpoly"){
       ploidy <- max(nchar(effects$haplo))
     } else if(software == "diaQTL") {
-      get.size <-  filter(effects, pheno == unique(qtl_info$pheno)[1] & qtl.id == 1)
-      if(nrow(get.size) == 64) ploidy = 4 else ploidy = 2
+      get.size <-  filter(effects, pheno == unique(qtl_info$pheno)[1] & qtl.id == 1 & !grepl("x",haplo)) # issue if parents name has x: fixme!
+      ploidy = nrow(get.size)/2
     } else if(software == "polyqtlR"){
       ploidy <- (dim(effects)[2] - 3)/2
     }
@@ -244,44 +244,50 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
         plots1 <- list()
         count.q <- 1
         for(q in group.idx[[p]]) {
-          data <- effects.sub %>% filter(.data$qtl.id == q)
+          data <- filter(effects.sub, qtl.id == q)
           if(ploidy == 4) {
-            data <- data[1:36,]
             if(software == "diaQTL"){
-              data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+              if(any(data$type == "Digenic")){
+                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+              } else  {
+                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4)), Effects=c(rep("Additive",8)))
+              }
             } else {
+              data <- data[1:36,]
               data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
-              data$Alleles <- gsub("a", paste0(p1,".1_"), data$Alleles)
-              data$Alleles <- gsub("b", paste0(p1,".2_"), data$Alleles)
-              data$Alleles <- gsub("c", paste0(p1,".3_"), data$Alleles)
-              data$Alleles <- gsub("d", paste0(p1,".4_"), data$Alleles)
-              data$Alleles <- gsub("e", paste0(p2,".1_"), data$Alleles)
-              data$Alleles <- gsub("f", paste0(p2,".2_"), data$Alleles)
-              data$Alleles <- gsub("g", paste0(p2,".3_"), data$Alleles)
-              data$Alleles <- gsub("h", paste0(p2,".4_"), data$Alleles)
+              data$Alleles <- gsub("a", paste0(p1,".1x"), data$Alleles)
+              data$Alleles <- gsub("b", paste0(p1,".2x"), data$Alleles)
+              data$Alleles <- gsub("c", paste0(p1,".3x"), data$Alleles)
+              data$Alleles <- gsub("d", paste0(p1,".4x"), data$Alleles)
+              data$Alleles <- gsub("e", paste0(p2,".1x"), data$Alleles)
+              data$Alleles <- gsub("f", paste0(p2,".2x"), data$Alleles)
+              data$Alleles <- gsub("g", paste0(p2,".3x"), data$Alleles)
+              data$Alleles <- gsub("h", paste0(p2,".4x"), data$Alleles)
               data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
             }
           } else if(ploidy == 6) {
             data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
             #data <- data[1:298,]
             data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
-            data$Alleles <- gsub("a", paste0(p1,".1_"), data$Alleles)
-            data$Alleles <- gsub("b", paste0(p1,".2_"), data$Alleles)
-            data$Alleles <- gsub("c", paste0(p1,".3_"), data$Alleles)
-            data$Alleles <- gsub("d", paste0(p1,".4_"), data$Alleles)
-            data$Alleles <- gsub("e", paste0(p1,".5_"), data$Alleles)
-            data$Alleles <- gsub("f", paste0(p1,".6_"), data$Alleles)
-            data$Alleles <- gsub("g", paste0(p2,".1_"), data$Alleles)
-            data$Alleles <- gsub("h", paste0(p2,".2_"), data$Alleles)
-            data$Alleles <- gsub("i", paste0(p2,".3_"), data$Alleles)
-            data$Alleles <- gsub("j", paste0(p2,".4_"), data$Alleles)
-            data$Alleles <- gsub("k", paste0(p2,".5_"), data$Alleles)
-            data$Alleles <- gsub("l", paste0(p2,".6_"), data$Alleles)
+            data$Alleles <- gsub("a", paste0(p1,".1x"), data$Alleles)
+            data$Alleles <- gsub("b", paste0(p1,".2x"), data$Alleles)
+            data$Alleles <- gsub("c", paste0(p1,".3x"), data$Alleles)
+            data$Alleles <- gsub("d", paste0(p1,".4x"), data$Alleles)
+            data$Alleles <- gsub("e", paste0(p1,".5x"), data$Alleles)
+            data$Alleles <- gsub("f", paste0(p1,".6x"), data$Alleles)
+            data$Alleles <- gsub("g", paste0(p2,".1x"), data$Alleles)
+            data$Alleles <- gsub("h", paste0(p2,".2x"), data$Alleles)
+            data$Alleles <- gsub("i", paste0(p2,".3x"), data$Alleles)
+            data$Alleles <- gsub("j", paste0(p2,".4x"), data$Alleles)
+            data$Alleles <- gsub("k", paste0(p2,".5x"), data$Alleles)
+            data$Alleles <- gsub("l", paste0(p2,".6x"), data$Alleles)
             data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
           }
           data$Parent <- factor(data$Parent, levels=unique(data$Parent))
           if(design == "bar"){
-            lim <- max(abs(data[which(data$Effects == "Additive"),]$Estimates))
+            if(software == "QTLpoly"){
+              lim <- max(abs(data[which(data$Effects == "Additive"),]$Estimates))
+            } else lim <- max(abs(c(data[which(data$Effects == "Additive"),]$CI.lower, data[which(data$Effects == "Additive"),]$CI.upper)))
             plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
               geom_bar(stat="identity") + ylim(c(-lim, lim)) +
               {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
@@ -295,33 +301,35 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                     axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
             plots1[[q]] <- plot
           } else if(design == "digenic"){
-            if(ploidy == 6) data <- data[1:42,]
-            temp <- do.call(rbind, strsplit(data$Alleles, "_"))
-            data$x <- temp[,1]
-            data$y <- temp[,2]
-            digenic.effects <- data[which(data$Effects == "Digenic"),]
-            additive.effects <- data[which(data$Effects == "Additive"),]
-            if(software == "QTLpoly") {
-              plot.data <- data.frame(x= c(digenic.effects$y),
-                                      y= c(digenic.effects$x),
-                                      z= c(additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
-                                             additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
-            } else {
-              plot.data <- data.frame(x= c(digenic.effects$x, digenic.effects$y),
-                                      y= c(digenic.effects$y, digenic.effects$x),
-                                      z= c(digenic.effects$Estimates, digenic.effects$Estimates+
-                                             additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
-                                             additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
-            }
-            plot = ggplot(data= plot.data,aes(x= x, y= y, fill= z)) + 
-              geom_tile() + scale_fill_gradient2(name="") + 
-              labs(title = paste("Trait:", unique(qtl_info$pheno)[p]),
-                   subtitle = paste("LG:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",1), 
-                                    "Pos:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",2))) +
-              theme_bw() + xlab("") + ylab("") +
-              theme(text = element_text(size=13),axis.text.x = element_text(angle = 90,vjust=0.5,hjust=1)) +
-              coord_fixed(ratio=1)
-            plots1[[q]] <- plot
+            if(!all(is.na(data[which(data$Effects == "Digenic"),]$Estimates))){
+              if(ploidy == 6) data <- data[1:42,]
+              temp <- do.call(rbind, strsplit(data$Alleles, "x"))
+              data$x <- temp[,1]
+              data$y <- temp[,2]
+              digenic.effects <- data[which(data$Effects == "Digenic"),]
+              additive.effects <- data[which(data$Effects == "Additive"),]
+              if(software == "QTLpoly") {
+                plot.data <- data.frame(x= c(digenic.effects$y),
+                                        y= c(digenic.effects$x),
+                                        z= c(additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
+                                               additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
+              } else {
+                plot.data <- data.frame(x= c(digenic.effects$x, digenic.effects$y),
+                                        y= c(digenic.effects$y, digenic.effects$x),
+                                        z= c(digenic.effects$Estimates, digenic.effects$Estimates+
+                                               additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
+                                               additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
+              }
+              plot = ggplot(data= plot.data,aes(x= x, y= y, fill= z)) + 
+                geom_tile() + scale_fill_gradient2(name="") + 
+                labs(title = paste("Trait:", unique(qtl_info$pheno)[p]),
+                     subtitle = paste("LG:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",1), 
+                                      "Pos:", sapply(strsplit(sub[[count.p]][count.q], "_"), "[",2))) +
+                theme_bw() + xlab("") + ylab("") +
+                theme(text = element_text(size=13),axis.text.x = element_text(angle = 90,vjust=0.5,hjust=1)) +
+                coord_fixed(ratio=1)
+              plots1[[q]] <- plot
+            } else plots1[[q]] <- NULL
           } else if(design == "circle"){
             additive.effects <- data[which(data$Effects == "Additive"),]
             additive.effects$pheno <- unique(qtl_info$pheno)[p]
@@ -342,6 +350,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     }
     if(design != "circle"){
       p <- unlist(plots2, recursive = F)
+      str(p, max.level = 1)
       nulls <- which(sapply(p, is.null))
       if(length(nulls) > 0)  p <- p[-nulls]
       return(p)

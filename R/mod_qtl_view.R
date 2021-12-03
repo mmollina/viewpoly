@@ -132,9 +132,13 @@ mod_qtl_view_server <- function(input, output, session,
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$d.p1))
-    names(group_choices) <- 1:length(loadMap()$d.p1)
-    
+    if(!is.null(loadMap())){
+      group_choices <- as.list(1:length(loadMap()$d.p1))
+      names(group_choices) <- 1:length(loadMap()$d.p1)
+    } else if(!is.null(loadQTL())){
+      group_choices <- as.list(1:length(unique(loadQTL()$selected_mks$LG)))
+      names(group_choices) <- 1:length(unique(loadQTL()$selected_mks$LG))
+    }
     updatePickerInput(session, "group",
                       label="Group",
                       choices = group_choices,
@@ -150,7 +154,12 @@ mod_qtl_view_server <- function(input, output, session,
                         label = "Phenotype:",
                         choices = pheno_choices,
                         selected=unlist(pheno_choices)[1])
-    } 
+    } else {
+      updatePickerInput(session, "phenotypes",
+                        label = "Phenotype:",
+                        choices = "Upload QTL information to update",
+                        selected= "Upload QTL information to update")
+    }
   })
   
   observeEvent(input$goGenes, {
@@ -229,7 +238,13 @@ mod_qtl_view_server <- function(input, output, session,
   
   observe({
     if(!is.null(loadQTL())){
-      if(!is.null(input$plot_brush)){
+      if(loadQTL()$software == "polyqtlR" | loadQTL()$software == "diaQTL") {
+        dframe <- NULL
+        updatePickerInput(session, "haplo",
+                          label = "Select haplotypes",
+                          choices = paste0("Feature not implemented for software: ", loadQTL()$software),
+                          selected= paste0("Feature not implemented for software: ", loadQTL()$software))
+      } else if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else {
         dframe <- NULL
@@ -263,12 +278,13 @@ mod_qtl_view_server <- function(input, output, session,
         updatePickerInput(session, "haplo",
                           label = "Select haplotypes",
                           choices = haplo_choices,
-                          selected= haplo_choices[[1]])
+                          selected= haplo_choices[1:2])
       }
     }
   })
   
   output$haplotypes <- renderPlot({
+    if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(paste0("Feature not implemented for software: ", loadQTL()$software))
     if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
     if(all(input$haplo == "Select `bar` design to access this feature.")) stop("Select `bar` design to access this feature.")
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
