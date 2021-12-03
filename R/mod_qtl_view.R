@@ -25,9 +25,9 @@ mod_qtl_view_ui <- function(id){
           tags$h2(tags$b("View QTL")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = FALSE,
+                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group"),
                             pickerInput(ns("group"),
-                                        label = h6("Select linkage groups"),
+                                        label = h6("Linkage group:"),
                                         choices = "This will be updated",
                                         selected = "This will be updated",
                                         options = list(
@@ -39,9 +39,9 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = FALSE,
+                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select phenotypes"),
                             pickerInput(ns("phenotypes"),
-                                        label = h6("Select phenotypes"),
+                                        label = h6("Phenotype:"),
                                         choices = "This will be updated",
                                         selected = "This will be updated",
                                         options = list(
@@ -136,7 +136,7 @@ mod_qtl_view_server <- function(input, output, session,
     names(group_choices) <- 1:length(loadMap()$d.p1)
     
     updatePickerInput(session, "group",
-                      label="Select linkage groups",
+                      label="Group",
                       choices = group_choices,
                       selected= group_choices[[1]])
     
@@ -147,7 +147,7 @@ mod_qtl_view_server <- function(input, output, session,
       names(pheno_choices) <- unique(loadQTL()$profile$pheno)
       
       updatePickerInput(session, "phenotypes",
-                        label = "Select phenotypes",
+                        label = "Phenotype:",
                         choices = pheno_choices,
                         selected=unlist(pheno_choices)[1])
     } 

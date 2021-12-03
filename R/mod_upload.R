@@ -21,7 +21,7 @@ mod_upload_ui <- function(id){
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = tags$h4(tags$b("Available datasets")),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="info", title = tags$h4(tags$b("Available datasets")),
                    radioButtons(ns("example_map"), width = 500, label = "Check one of the availables datasets:", 
                                 choices = "tetra_map",
                                 selected = "tetra_map"), br(),
@@ -45,6 +45,24 @@ mod_upload_ui <- function(id){
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_polymapR"), style = "jelly", color = "royal",  size = "sm", label = "submit polymapR", icon = icon("share-square")), 
                        ), br(), br(),
+                       prettyRadioButtons(
+                         inputId = ns("input.type"),
+                         label = "Data type:", 
+                         choices = c("discrete" = "discrete", "probabilistic" = "probabilistic"),
+                         selected = "discrete",
+                         inline = TRUE, 
+                         status = "info",
+                         fill = TRUE
+                       ), br(),
+                       prettyRadioButtons(
+                         inputId = ns("ploidy"),
+                         label = "Ploidy:", 
+                         choices = c(4, 6),
+                         selected = 4,
+                         inline = TRUE, 
+                         status = "info",
+                         fill = TRUE
+                       ), br(),
                        fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F)
                    ),
@@ -230,8 +248,16 @@ mod_upload_ui <- function(id){
       ),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Download VIEWpoly dataset")),
-                   downloadButton(ns("export_viewpoly"), "Download", icon = icon("upload")), 
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = tags$h4(tags$b("Download VIEWpoly dataset")),
+                   p("The uploaded data are converted to viewpoly format. It can be downloaded here:"), br(),
+                   actionBttn(
+                     inputId = ns("export_viewpoly"),
+                     label = "Download", 
+                     style = "gradient",
+                     color = "royal",
+                     icon = icon("download")
+                   )
+                   #downloadButton(ns("export_viewpoly"), , icon = icon("upload")), 
                )
              )
       )
@@ -396,7 +422,8 @@ mod_upload_server <- function(input, output, session, parent_session){
       return(list(mappoly_in = input$mappoly_in))
     } else if(values$upload_state_polymapR == "uploaded"){
       return(list(polymapR.dataset = input$polymapR.dataset,
-                  polymapR.map = input$polymapR.map))
+                  polymapR.map = input$polymapR.map, 
+                  input.type = input$input.type, ploidy = as.numeric(input$ploidy)))
     } else if(values$upload_state_map_custom == "uploaded"){
       return(list(dosages = input$dosages,
                   phases = input$phases,
@@ -460,6 +487,8 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadExample = reactive({
     if(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map) &
        is.null(input_map()$mappoly_in) &
+       is.null(input_map()$polymapR.dataset) &
+       is.null(input_map()$polymapR.map) &
        is.null(input_qtl()$selected_mks) & 
        is.null(input_qtl()$qtl_info) & 
        is.null(input_qtl()$blups) & 
@@ -499,6 +528,15 @@ mod_upload_server <- function(input, output, session, parent_session){
     if(!is.null(input_map()$mappoly_in))
       prepare_MAPpoly(input_map()$mappoly_in)
     else NULL
+  })
+  
+  loadMap_polymapR =  reactive({
+    if(!(is.null(input_map()$polymapR.dataset) & 
+         is.null(input_map()$polymapR.map))) {
+      req(input_map()$polymapR.dataset, input_map()$polymapR.map)
+      prepare_polymapR(input_map()$polymapR.dataset, input_map()$polymapR.map, 
+                       input$input.type, as.numeric(input$ploidy))
+    } else NULL
   })
   
   loadQTL_custom = reactive({
@@ -594,13 +632,16 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadMap = reactive({
     if(is.null(loadExample()) & 
        is.null(loadMap_custom()) & 
-       is.null(loadMap_mappoly())){
+       is.null(loadMap_mappoly()) &
+       is.null(loadMap_polymapR())){
       warning("Select one of the options in `upload` session")
       return(NULL)
     } else if(!is.null(loadMap_custom())){
       return(loadMap_custom())
     } else if(!is.null(loadMap_mappoly())){
       return(loadMap_mappoly())
+    } else if(!is.null(loadMap_polymapR())){
+      return(loadMap_polymapR())
     } else if(!is.null(loadExample())){
       return(loadExample()$map)
     }

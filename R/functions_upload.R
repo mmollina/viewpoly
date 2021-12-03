@@ -122,7 +122,9 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
   
   temp <- load(polymapR.map$datapath)
   polymapR.map <- get(temp)
-  
+  print(polymapR.dataset)
+  print(ploidy)
+  print(input.type)
   data <- import_data_from_polymapR(input.data = polymapR.dataset, 
                                     ploidy = ploidy, 
                                     parent1 = "P1", 

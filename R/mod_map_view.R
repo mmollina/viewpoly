@@ -31,9 +31,9 @@ mod_map_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = FALSE,  collapsed = FALSE,
+                        box(width = 12, solidHeader = TRUE,  status="info", title = h4("Select phenotypes"),
                             pickerInput(ns("phenotypes"),
-                                        label = h4("Phenotypes"),
+                                        label = h4("Phenotypes:"),
                                         choices = "This will be updated",
                                         selected = "This will be updated",
                                         options = list(
@@ -45,8 +45,8 @@ mod_map_view_ui <- function(id){
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = FALSE, collapsible = FALSE,  collapsed = FALSE,
-                            selectInput(inputId = ns("group"), label = p("Linkage group"), choices = 1:15, selected = 1),
+                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group"),
+                            selectInput(inputId = ns("group"), label = p("Linkage group:"), choices = 1:15, selected = 1),
                             checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
                         ), br(),
                  )
