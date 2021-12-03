@@ -245,6 +245,42 @@ mod_genes_view_server <- function(input, output, session,
     updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
   }) 
   
+  # cM x Mb
+  output$plot_pos <- renderPlotly({
+    print(loadMap())
+    if(!is.null(loadMap()))
+      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
+    
+    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
+    
+    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
+    
+    map.lg$high <- map.lg$g.dist
+    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
+    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
+    
+    map.lg$high <- as.factor(map.lg$high)
+    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
+                                                                                   "Genetic:", round(l.dist,2), "cM \n",
+                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
+      geom_point() + scale_color_manual(values=c('black','red')) + 
+      theme(legend.position = "none") + 
+      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
+      theme_bw()
+    
+    max_updated = reactive({
+      dist <- loadMap()$maps[[as.numeric(input$group)]]$l.dist
+      max.range <- max(dist)
+      max.range
+    })
+    
+    observeEvent(max_updated, {
+      updateSliderInput(inputId = "range", max = round(max_updated(),2))
+    })
+    
+    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
+  })
+  
   # Open JBrowser server 
   button <- eventReactive(input$create_server, {
     
@@ -288,7 +324,8 @@ mod_genes_view_server <- function(input, output, session,
   # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
     if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
+      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")
+    
     if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
     assembly <- assembly(
       paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
@@ -333,6 +370,7 @@ mod_genes_view_server <- function(input, output, session,
   output$genes_ano  <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadMap()))
       if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")    
+    
     if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
     
     if(!is.null(button()$path.gff)) {
@@ -354,40 +392,6 @@ mod_genes_view_server <- function(input, output, session,
                     class = "display")
     } else 
       stop("Upload annotation file (.gff3) in the upload session to access this feature.")
-  })
-  
-  output$plot_pos <- renderPlotly({
-    if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
-    
-    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
-    
-    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
-    
-    map.lg$high <- map.lg$g.dist
-    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
-    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
-    
-    map.lg$high <- as.factor(map.lg$high)
-    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
-                                                                                   "Genetic:", round(l.dist,2), "cM \n",
-                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
-      geom_point() + scale_color_manual(values=c('black','red')) + 
-      theme(legend.position = "none") + 
-      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
-      theme_bw()
-    
-    max_updated = reactive({
-      dist <- loadMap()$maps[[as.numeric(input$group)]]$l.dist
-      max.range <- max(dist)
-      max.range
-    })
-    
-    observeEvent(max_updated, {
-      updateSliderInput(inputId = "range", max = round(max_updated(),2))
-    })
-    
-    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
   })
   
   ## Downloads

@@ -516,7 +516,7 @@ prepare_map <- function(input.map, config = "best"){
   map <- data.frame(mk.names = input.map$info$mrk.names,
                     l.dist = cumsum(imf_h(c(0, input.map$maps[[i.lpc]]$seq.rf))),
                     g.chr = input.map$info$chrom,
-                    g.dist = if(!is.null(input.map$info$seq.alt)) input.map$info$seq.alt else NA ,
+                    g.dist = if(!is.null(input.map$info$genome.pos)) input.map$info$genome.pos else NA ,
                     alt = if(!is.null(input.map$info$seq.alt)) input.map$info$seq.alt else NA , # get this info from VCF if it is inputted
                     ref = if(!is.null(input.map$info$seq.ref)) input.map$info$seq.ref else NA)
   ## 

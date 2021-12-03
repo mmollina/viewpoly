@@ -84,16 +84,19 @@ mod_qtl_view_ui <- function(id){
                          )
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
-                         pickerInput(ns("haplo"),
-                                     label = h6("Select haplotypes"),
-                                     choices = "Select QTL in the profile graphic to update",
-                                     selected = "Select QTL in the profile graphic to update",
-                                     options = list(
-                                       size = 5,
-                                       `selected-text-format` = "count > 3",
-                                       `live-search`=TRUE
-                                     ), 
-                                     multiple = TRUE), br(),
+                         column(12,
+                                pickerInput(ns("haplo"),
+                                            label = h6("Select haplotypes"),
+                                            choices = "Select QTL in the profile graphic to update",
+                                            selected = "Select QTL in the profile graphic to update",
+                                            options = list(
+                                              size = 5,
+                                              `selected-text-format` = "count > 3",
+                                              `live-search`=TRUE
+                                            ), 
+                                            multiple = TRUE), br(),
+                                actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes", icon = icon("share-square")), 
+                                br(), hr()),
                          column(2,
                                 downloadBttn(ns('bn_download_haplo'), style = "gradient", color = "royal")
                          ),
@@ -102,7 +105,7 @@ mod_qtl_view_ui <- function(id){
                          ), br(),
                          column(12,
                                 hr(),
-                                plotOutput(ns("haplotypes"))
+                                uiOutput(ns("plot_haplo.ui"))
                          )
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
@@ -204,7 +207,10 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$effects <- renderPlot({
-    plot_effects(effects.data(), software = loadQTL()$software, design = input$effects_design)
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.5, detail = paste("building graphic..."))
+      plot_effects(effects.data(), software = loadQTL()$software, design = input$effects_design)
+    })
   })
   
   plotHeight <- reactive({
@@ -233,7 +239,10 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$plot.ui <- renderUI({
-    plotOutput(ns("effects"), height =  plotHeight())
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.5, detail = paste("building graphic..."))
+      plotOutput(ns("effects"), height =  plotHeight())
+    })
   })
   
   observe({
@@ -278,17 +287,36 @@ mod_qtl_view_server <- function(input, output, session,
         updatePickerInput(session, "haplo",
                           label = "Select haplotypes",
                           choices = haplo_choices,
-                          selected= haplo_choices[1:2])
+                          selected= haplo_choices[1:3])
       }
     }
   })
   
-  output$haplotypes <- renderPlot({
+  haplo_data <- eventReactive(input$haplo_submit, {
     if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(paste0("Feature not implemented for software: ", loadQTL()$software))
     if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
     if(all(input$haplo == "Select `bar` design to access this feature.")) stop("Select `bar` design to access this feature.")
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
-    ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
+    counts <- ceiling(length(p)/3)
+    if(counts == 0) counts <- 1
+    size <- counts*450
+    print(size)
+    list(p, size)
+  })
+  
+  output$haplotypes <- renderPlot({
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.3, detail = paste("building graphic..."))
+      nrow.lst <- ceiling(length(haplo_data()[[1]])/3)
+      if(nrow.lst == 0) nrow.lst <- 1
+      p.all <- ggarrange(plotlist = haplo_data()[[1]], ncol = 3, nrow = nrow.lst, common.legend = TRUE)
+    })
+    p.all
+  })
+  
+  output$plot_haplo.ui <- renderUI({
+    cat("treta")
+    plotOutput(ns("haplotypes"), height = haplo_data()[[2]])
   })
   
   output$info <- DT::renderDataTable(server = FALSE, {

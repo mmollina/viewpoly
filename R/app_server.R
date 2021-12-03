@@ -7,7 +7,7 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   # Upload size
-  options(shiny.maxRequestSize=500*1024^2)
+  options(shiny.maxRequestSize=5000*1024^2)
   
   ## Start modules
   datas <- callModule(mod_upload_server,

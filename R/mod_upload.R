@@ -250,14 +250,7 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = tags$h4(tags$b("Download VIEWpoly dataset")),
                    p("The uploaded data are converted to viewpoly format. It can be downloaded here:"), br(),
-                   actionBttn(
-                     inputId = ns("export_viewpoly"),
-                     label = "Download", 
-                     style = "gradient",
-                     color = "royal",
-                     icon = icon("download")
-                   )
-                   #downloadButton(ns("export_viewpoly"), , icon = icon("upload")), 
+                   downloadBttn(ns('export_viewpoly'), style = "gradient", color = "royal")
                )
              )
       )
@@ -673,7 +666,7 @@ mod_upload_server <- function(input, output, session, parent_session){
       paste0("viewpoly.RData")
     },
     content = function(file) {
-      
+    
       filetemp <- structure(list(loadMap(), loadQTL(), 
                                  loadJBrowse_fasta(), loadJBrowse_gff3(), 
                                  loadJBrowse_vcf, version = packageVersion("viewpoly")), class = "viewpoly")

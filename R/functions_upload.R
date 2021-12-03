@@ -11,9 +11,9 @@ prepare_examples <- function(example, env.obj= NULL){
       load(system.file("ext/viewqtl_hexa.RData", package = "viewpoly"))
     })
     structure(list(map = viewmap_hexa,
-                qtl = viewqtl_hexa,
-                fasta= system.file("ext/Trifida.Chr01.fa.gz", package="viewpoly"),
-                gff3 = system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")),
+                   qtl = viewqtl_hexa,
+                   fasta= system.file("ext/Trifida.Chr01.fa.gz", package="viewpoly"),
+                   gff3 = system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")),
               class = "viewpoly")
     
   } else if(example == "tetra_map"){
@@ -23,10 +23,10 @@ prepare_examples <- function(example, env.obj= NULL){
       load(system.file("ext/viewqtl_tetra.RData", package = "viewpoly"))
     })
     structure(list(map=viewmap_tetra, 
-                qtl=viewqtl_tetra, 
-                fasta= system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly"),
-                gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz", package="viewpoly")),
-           class = "viewpoly")
+                   qtl=viewqtl_tetra, 
+                   fasta= system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly"),
+                   gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz", package="viewpoly")),
+              class = "viewpoly")
   } else {
     return(env.obj)
   }
@@ -236,7 +236,8 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
                  profile = profile, 
                  effects = effects, 
                  probs = probs, 
-                 software = "QTLpoly", class = "viewqtl"))
+                 software = "QTLpoly"), 
+            class = "viewqtl")
 }
 
 #' Converts diaQTL output to viewqtl object
