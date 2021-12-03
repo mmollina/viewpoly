@@ -315,7 +315,6 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$plot_haplo.ui <- renderUI({
-    cat("treta")
     plotOutput(ns("haplotypes"), height = haplo_data()[[2]])
   })
   
