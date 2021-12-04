@@ -734,16 +734,19 @@ mod_upload_server <- function(input, output, session, parent_session){
     content = function(file) {
       withProgress(message = 'Working:', value = 0, {
         incProgress(0.1, detail = paste("Saving viewpoly object..."))
-        
-        assign(input$data.name, structure(list(loadMap(), loadQTL(), 
-                                               loadJBrowse_fasta(), loadJBrowse_gff3(), 
-                                               loadJBrowse_vcf(),
-                                               loadJBrowse_align(),
-                                               loadJBrowse_wig(),
-                                               version = packageVersion("viewpoly")), 
-                                          class = "viewpoly"))
+        obj <- structure(list(map = loadMap(), 
+                              qtl = loadQTL(), 
+                              fasta = loadJBrowse_fasta(), 
+                              gff3 = loadJBrowse_gff3(), 
+                              vcf = loadJBrowse_vcf(),
+                              align = loadJBrowse_align(),
+                              wig = loadJBrowse_wig(),
+                              version = packageVersion("viewpoly")), 
+                         class = "viewpoly")
+        print(input$data.name)
+        assign(input$data.name, obj)
         incProgress(0.5, detail = paste("Saving viewpoly object..."))
-        save(get(input$data.name), file = file)
+        save(list = input$data.name, file = file)
       })
     }
   )  

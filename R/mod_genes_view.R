@@ -343,7 +343,6 @@ mod_genes_view_server <- function(input, output, session,
   
   # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
-    print(reset())
     if(reset()) stop("The server is off, you can now submit new files in the upload tab.")
     
     if(!is.null(loadMap()))
