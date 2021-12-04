@@ -29,6 +29,8 @@ app_server <- function( input, output, session ) {
              loadJBrowse_fasta = datas$loadJBrowse_fasta, 
              loadJBrowse_gff3 = datas$loadJBrowse_gff3, 
              loadJBrowse_vcf = datas$loadJBrowse_vcf, 
+             loadJBrowse_align = datas$loadJBrowse_align, 
+             loadJBrowse_wig = datas$loadJBrowse_wig, 
              loadExample = datas$loadExample,
              parent_session=session)
   

@@ -300,7 +300,6 @@ mod_qtl_view_server <- function(input, output, session,
     counts <- ceiling(length(p)/3)
     if(counts == 0) counts <- 1
     size <- counts*450
-    print(size)
     list(p, size)
   })
   

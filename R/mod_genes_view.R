@@ -80,10 +80,18 @@ mod_genes_view_ui <- function(id){
                    plotlyOutput(ns("plot_pos"))
             )
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
-            actionButton(ns("create_server"), "Open JBrowseR",icon("sync")), br(),
-            JBrowseROutput(ns("browserOutput"))
-        ),br(),
+        box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
+            column(10,
+                   column(5,
+                          actionButton(ns("create_server"), "Open JBrowseR",icon("power-off"))
+                   ), 
+                   column(5,
+                          actionButton(ns("reset_server"), "Reset JBrowseR",icon("sync"))
+                   )
+            ),
+            column(12, hr(),
+                   JBrowseROutput(ns("browserOutput"))
+            ), br()),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Genes table"),
             DT::dataTableOutput(ns("genes_ano"))
         )
@@ -103,7 +111,7 @@ mod_genes_view_ui <- function(id){
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, 
                                   loadMap, loadQTL,
-                                  loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, 
+                                  loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, loadJBrowse_align, loadJBrowse_wig, 
                                   loadExample,
                                   parent_session){
   ns <- session$ns
@@ -247,7 +255,6 @@ mod_genes_view_server <- function(input, output, session,
   
   # cM x Mb
   output$plot_pos <- renderPlotly({
-    print(loadMap())
     if(!is.null(loadMap()))
       if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
     
@@ -285,23 +292,24 @@ mod_genes_view_server <- function(input, output, session,
   button <- eventReactive(input$create_server, {
     
     if(!is.null(loadJBrowse_fasta())){
-      server_dir <- tempdir()
-      
-      path.fa <- paste0(server_dir, "/", loadJBrowse_fasta()$name[1])
-      path.fai <- paste0(server_dir, "/", loadJBrowse_fasta()$name[2])
-      path.gzi <- paste0(server_dir, "/", loadJBrowse_fasta()$name[3])
-      
-      file.rename(loadJBrowse_fasta()$datapath[1], path.fa)
-      file.rename(loadJBrowse_fasta()$datapath[2], path.fai)
-      file.rename(loadJBrowse_fasta()$datapath[3], path.gzi)
-    } 
+      path.fa <- loadJBrowse_fasta()
+    } else path.fa <- NULL
     
     if(!is.null(loadJBrowse_gff3())){
-      path.gff <- paste0(server_dir, "/", loadJBrowse_gff3()$name[1])
-      path.tbi <- paste0(server_dir, "/", loadJBrowse_gff3()$name[2])
-      file.rename(loadJBrowse_gff3()$datapath[1], path.gff)
-      file.rename(loadJBrowse_gff3()$datapath[2], path.tbi)
-    }
+      path.gff <- loadJBrowse_gff3()
+    } else path.gff <- NULL
+    
+    if(!is.null(loadJBrowse_vcf())){
+      path.vcf <- loadJBrowse_vcf()
+    } else path.vcf <- NULL
+    
+    if(!is.null(loadJBrowse_align())){
+      path.align <- loadJBrowse_align()
+    } else path.align <- NULL
+    
+    if(!is.null(loadJBrowse_wig())){
+      path.wig <- loadJBrowse_wig()
+    } else path.wig <- NULL
     
     if(is.null(loadJBrowse_fasta()) & !is.null(loadExample())){
       path.fa <- loadExample()$fasta
@@ -309,20 +317,35 @@ mod_genes_view_server <- function(input, output, session,
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
-    } else {
+    } else if(is.null(loadJBrowse_fasta())){
       stop("Upload the genome information in upload session to access this feature.")
     }
     
-    if(exists("data_server"))
-      data_server$stop_server()
-    
     data_server <- serve_data(dirname(path.fa), port = 5000)
     
-    list(path.fa = path.fa, path.gff = path.gff, data_server = data_server)
+    list(path.fa = path.fa, 
+         path.gff = path.gff, 
+         path.vcf = path.vcf, 
+         path.align = path.align,
+         path.wig = path.wig,
+         data_server = data_server)
+  })
+  
+  # Reset server
+  reset <- reactive({
+    if(input$reset_server) { 
+      button()$data_server$stop_server()
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
   })
   
   # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
+    print(reset())
+    if(reset()) stop("The server is off, you can now submit new files in the upload tab.")
+    
     if(!is.null(loadMap()))
       if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")
     
@@ -333,13 +356,36 @@ mod_genes_view_server <- function(input, output, session,
     )
     
     ## create configuration for a JB2 GFF FeatureTrack
-    annotations_track <- track_feature(
-      paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
-      assembly
-    )
+    if(!is.null(button()$path.gff)){
+      annotations_track <- track_feature(
+        paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
+        assembly
+      )
+    } else annotations_track <- NULL
+    
+    if(!is.null(button()$path.vcf)){
+      vcf_track <- track_variant(
+        paste0("http://127.0.0.1:5000/", basename(button()$path.vcf)), 
+        assembly
+      )
+    } else vcf_track <- NULL
+    
+    if(!is.null(button()$path.align)){
+      align_track <- track_alignments(
+        paste0("http://127.0.0.1:5000/", basename(button()$path.align)), 
+        assembly
+      )
+    } else align_track <- NULL
+    
+    if(!is.null(button()$path.wig)){
+      wiggle_track <- track_wiggle(
+        paste0("http://127.0.0.1:5000/", basename(button()$path.wig)), 
+        assembly
+      )
+    } else wiggle_track <- NULL
     
     ## create the tracks array to pass to browser
-    tracks <- tracks(annotations_track)
+    tracks <- tracks(annotations_track, vcf_track, align_track, wiggle_track)
     
     ## select default window
     group <- as.numeric(input$group)

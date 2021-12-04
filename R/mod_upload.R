@@ -224,32 +224,41 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload Genome Browser files")),
-                   div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("submit_genome"), style = "jelly", color = "royal",  size = "sm", label = "submit", icon = icon("share-square")),
-                       actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
-                   ), br(), br(), 
-                   tags$h5(tags$b("Upload genome information")),
-                   p("Here you must upload the genome FASTA file compressed with bgzip, and the index files .fai and .gzi"),
-                   box(
-                     width = NULL, background = "red",
-                     "Warning! The uploaded .fasta and .gff genome version should be the same one used to build the genetic map"
-                   ),
-                   fileInput(ns("fasta"), label = h6("File: genome_v2.fasta"), multiple = T),
-                   tags$h5(tags$b("Upload .gff3 file with genes information")),
-                   fileInput(ns("gff3"), label = h6("File: genome_v2.gff3"), multiple = T),
-                   tags$h5(tags$b("Upload VCF file with genes information")),
-                   box(
-                     width = NULL, background = "red",
-                     "Warning! The uploaded VCF file should be the same one used to build the genetic map"
-                   ),
-                   fileInput(ns("vcf"), label = h6("File: markers.vcf"), multiple = T),
+                   column(6,
+                          tags$h5(tags$b("Upload genome information")),
+                          box(
+                            width = NULL, background = "red",
+                            "Warning! The uploaded .fasta, .gff3, .vcf, .bam, .cram, .wig genome version must be the same one used to build the genetic map"
+                          )
+                   ), 
+                   column(6,
+                          div(style = "position:absolute;right:1em;",
+                              actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(),br(),
+                              actionBttn(ns("submit_genome"), style = "jelly", color = "royal",  size = "sm", label = "submit", icon = icon("share-square")), br(),br(),
+                          ), 
+                   ), br(), br(),
+                   column(12,
+                          br(), 
+                          tags$h5(tags$b("Upload .fasta/.fasta.gz and .fasta.fai/.fasta.gz.fai,.fasta.gz.gzi file with assembly information")),
+                          fileInput(ns("fasta"), label = h6("Files: genome_v2.fasta.gz, genome_v2.fasta.gz.fai, genome_v2.fasta.gz.gzi"), multiple = T),
+                          tags$h5(tags$b("Upload .gff3/.gff3.gz and .gff3.tbi/.gff3.gz.tbi file with genes information")),
+                          fileInput(ns("gff3"), label = h6("Files: genome_v2.gff3.gz, genome_v2.gff3.gz.tbi"), multiple = T),
+                          tags$h5(tags$b("Upload VCF file with variants information")),
+                          fileInput(ns("vcf"), label = h6("File: markers.vcf"), multiple = F),
+                          tags$h5(tags$b("Upload .bam and .bam.bai or .cram and .cram.crai file with alignment information")),
+                          fileInput(ns("align"), label = h6("File: all_ind.bam, all_ind.bam.bai"), multiple = T),
+                          tags$h5(tags$b("Upload .wig file with bigWig information")),
+                          fileInput(ns("wig"), label = h6("File: data.wig"), multiple = F)
+                   )
                )
              )
       ),
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = tags$h4(tags$b("Download VIEWpoly dataset")),
-                   p("The uploaded data are converted to viewpoly format. It can be downloaded here:"), br(),
+                   p("The uploaded data are converted to viewpoly format. It can be downloaded here."), br(),
+                   textInput(ns("data.name"), label = p("Define the dataset name. Do not use spaces between words."), value = "dataset_name"), br(),
+                   
                    downloadBttn(ns('export_viewpoly'), style = "gradient", color = "royal")
                )
              )
@@ -465,15 +474,20 @@ mod_upload_server <- function(input, output, session, parent_session){
   })
   
   input_genome  <- reactive({
-    if (is.null(values$upload_state_genome)) {
-      return(NULL)
-    } else if (values$upload_state_genome == 'reset') {
-      return(NULL)
-    } else if(values$upload_state_genome == "uploaded"){
-      return(list(fasta = input$fasta,
-                  gff3 = input$gff3,
-                  vcf = input$vcf))
-    }
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading fasta path..."))
+      if (is.null(values$upload_state_genome)) {
+        return(NULL)
+      } else if (values$upload_state_genome == 'reset') {
+        return(NULL)
+      } else if(values$upload_state_genome == "uploaded"){
+        return(list(fasta = input$fasta,
+                    gff3 = input$gff3,
+                    vcf = input$vcf,
+                    align = input$align,
+                    wig = input$wig))
+      }
+    })
   })
   
   # Wait system for the uploads
@@ -503,7 +517,9 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(input_qtl()$polyqtlR_phenotypes) &
        is.null(input_genome()$fasta) &
        is.null(input_genome()$gff3) &
-       is.null(input_genome()$vcf))
+       is.null(input_genome()$vcf) &
+       is.null(input_genome()$align) & 
+       is.null(input_genome()$wig))
     prepare_examples(input$example_map, env.obj = get(input$example_map))
     else NULL
   })
@@ -604,22 +620,72 @@ mod_upload_server <- function(input, output, session, parent_session){
     } else NULL
   })
   
+  temp_dir <- reactive(tempdir())
+  
   loadJBrowse_fasta = reactive({
-    if(!is.null(input_genome()$fasta))
-      input_genome()$fasta$datapath
-    else NULL
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading fasta path..."))
+      if(!is.null(input_genome()$fasta)){
+        # keep fasta name
+        for(i in 1:length(input_genome()$fasta$datapath)){
+          file.rename(input_genome()$fasta$datapath[i], 
+                      file.path(temp_dir(), input_genome()$fasta$name[i]))
+        }
+        file.path(temp_dir(), input_genome()$fasta$name[1]) 
+      } else NULL
+    })
   })
   
   loadJBrowse_gff3 = reactive({
-    if(!is.null(input_genome()$gff3))
-      input_genome()$gff3$datapath
-    else NULL
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading gff3 path..."))
+      if(!is.null(input_genome()$gff3)){
+        for(i in 1:length(input_genome()$gff3$datapath)){
+          file.rename(input_genome()$gff3$datapath[i], 
+                      file.path(temp_dir(), input_genome()$gff3$name[i]))
+        }
+        file.path(temp_dir(), input_genome()$gff3$name[1]) 
+      } else NULL
+    })
   })
   
   loadJBrowse_vcf = reactive({
-    if(!is.null(input_genome()$vcf))
-      input_genome()$vcf$datapath
-    else NULL
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading VCF path..."))
+      if(!is.null(input_genome()$vcf)) {
+        for(i in 1:length(input_genome()$vcf$datapath)){
+          file.rename(input_genome()$vcf$datapath[i], 
+                      file.path(temp_dir(), input_genome()$vcf$name[i]))
+        }
+        file.path(temp_dir(), input_genome()$vcf$name[1]) 
+      } else NULL
+    })
+  })
+  
+  loadJBrowse_align = reactive({
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading BAM or CRAM alignment data path..."))
+      if(!is.null(input_genome()$align)) {
+        for(i in 1:length(input_genome()$align$datapath)){
+          file.rename(input_genome()$align$datapath[i], 
+                      file.path(temp_dir(), input_genome()$align$name[i]))
+        }
+        file.path(temp_dir(), input_genome()$align$name[1]) 
+      } else NULL
+    })
+  })
+  
+  loadJBrowse_wig = reactive({
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading bigWig data path..."))
+      if(!is.null(input_genome()$wig)) {
+        for(i in 1:length(input_genome()$wig$datapath)){
+          file.rename(input_genome()$wig$datapath[i], 
+                      file.path(temp_dir(), input_genome()$wig$name[i]))
+        }
+        file.path(temp_dir(), input_genome()$wig$name[1]) 
+      } else NULL
+    })
   })
   
   loadMap = reactive({
@@ -666,11 +732,19 @@ mod_upload_server <- function(input, output, session, parent_session){
       paste0("viewpoly.RData")
     },
     content = function(file) {
-    
-      filetemp <- structure(list(loadMap(), loadQTL(), 
-                                 loadJBrowse_fasta(), loadJBrowse_gff3(), 
-                                 loadJBrowse_vcf, version = packageVersion("viewpoly")), class = "viewpoly")
-      save(filetemp, file = file)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.1, detail = paste("Saving viewpoly object..."))
+        
+        assign(input$data.name, structure(list(loadMap(), loadQTL(), 
+                                               loadJBrowse_fasta(), loadJBrowse_gff3(), 
+                                               loadJBrowse_vcf(),
+                                               loadJBrowse_align(),
+                                               loadJBrowse_wig(),
+                                               version = packageVersion("viewpoly")), 
+                                          class = "viewpoly"))
+        incProgress(0.5, detail = paste("Saving viewpoly object..."))
+        save(get(input$data.name), file = file)
+      })
     }
   )  
   
@@ -679,6 +753,8 @@ mod_upload_server <- function(input, output, session, parent_session){
               loadJBrowse_fasta = reactive(loadJBrowse_fasta()), 
               loadJBrowse_gff3 = reactive(loadJBrowse_gff3()), 
               loadJBrowse_vcf = reactive(loadJBrowse_vcf()),
+              loadJBrowse_align = reactive(loadJBrowse_align()),
+              loadJBrowse_wig = reactive(loadJBrowse_wig()),
               loadExample = reactive(loadExample())
   ))
 }

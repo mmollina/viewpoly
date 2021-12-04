@@ -5,7 +5,7 @@
 #' @keywords internal
 prepare_examples <- function(example, env.obj= NULL){
   if(example == "hex_map"){
-    withProgress(message = 'Working...', value = 0, {
+    withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Uploading BT example map data..."))
       load(system.file("ext/viewmap_hexa.RData", package = "viewpoly"))
       load(system.file("ext/viewqtl_hexa.RData", package = "viewpoly"))
@@ -17,7 +17,7 @@ prepare_examples <- function(example, env.obj= NULL){
               class = "viewpoly")
     
   } else if(example == "tetra_map"){
-    withProgress(message = 'Working...', value = 0, {
+    withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
       load(system.file("ext/viewmap_tetra.RData", package = "viewpoly"))
       load(system.file("ext/viewqtl_tetra.RData", package = "viewpoly"))
@@ -50,37 +50,41 @@ prepare_examples <- function(example, env.obj= NULL){
 #' 
 #' @keywords internal
 prepare_map_custom_files <- function(dosages, phases, genetic_map){
-  ds <- vroom(dosages)
-  ph <- vroom(phases)
-  map <- vroom(genetic_map)
-  
-  parent1 <- unique(ds$parent)[1]
-  parent2 <- unique(ds$parent)[2]
-  d.p1 <- ds %>% filter(parent == parent1) %>% select(chr, marker, dosages) 
-  d.p1 <- split(d.p1$dosages, d.p1$chr)
-  
-  d.p2 <- ds %>% filter(parent == parent2) %>% select(chr, marker, dosages) 
-  d.p2 <- split(d.p2$dosages, d.p2$chr)
-  
-  maps <- split(map$dist, map$chr)
-  maps.names <- split(map$marker, map$chr)
-  for(i in 1:length(maps)){
-    names(maps[[i]]) <- maps.names[[i]]  
-  }
-  names(maps) <- NULL
-  
-  ploidy <- (dim(ph)[2] - 2)/2
-  
-  ph.p1 <- select(ph, 3:(ploidy +2))
-  rownames(ph.p1) <- ph$marker
-  ph.p1 <- split(ph.p1, ph$chr)
-  ph.p1 <- lapply(ph.p1, as.matrix)
-  
-  ph.p2 <- select(ph, (ploidy +3):dim(ph)[2])
-  rownames(ph.p2) <- ph$marker
-  ph.p2 <- split(ph.p2, ph$chr)
-  ph.p2 <- lapply(ph.p2, as.matrix)
-  
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading custom map data..."))
+    ds <- vroom(dosages)
+    ph <- vroom(phases)
+    map <- vroom(genetic_map)
+    
+    parent1 <- unique(ds$parent)[1]
+    parent2 <- unique(ds$parent)[2]
+    d.p1 <- ds %>% filter(parent == parent1) %>% select(chr, marker, dosages) 
+    d.p1 <- split(d.p1$dosages, d.p1$chr)
+    
+    d.p2 <- ds %>% filter(parent == parent2) %>% select(chr, marker, dosages) 
+    d.p2 <- split(d.p2$dosages, d.p2$chr)
+    
+    maps <- split(map$dist, map$chr)
+    maps.names <- split(map$marker, map$chr)
+    for(i in 1:length(maps)){
+      names(maps[[i]]) <- maps.names[[i]]  
+    }
+    names(maps) <- NULL
+    incProgress(0.3, detail = paste("Uploading custom map data..."))
+    
+    ploidy <- (dim(ph)[2] - 2)/2
+    
+    ph.p1 <- select(ph, 3:(ploidy +2))
+    rownames(ph.p1) <- ph$marker
+    ph.p1 <- split(ph.p1, ph$chr)
+    ph.p1 <- lapply(ph.p1, as.matrix)
+    
+    ph.p2 <- select(ph, (ploidy +3):dim(ph)[2])
+    rownames(ph.p2) <- ph$marker
+    ph.p2 <- split(ph.p2, ph$chr)
+    ph.p2 <- lapply(ph.p2, as.matrix)
+    incProgress(0.6, detail = paste("Uploading custom map data..."))
+  })
   structure(list(d.p1 = d.p1, 
                  d.p2 = d.p2,
                  ph.p1 = ph.p1,
@@ -98,12 +102,15 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 #' 
 #' @keywords internal
 prepare_MAPpoly <- function(mappoly_list){
-  if(!is(mappoly_list[[1]], "mappoly.map")){
-    temp <- load(mappoly_list$datapath)
-    mappoly_list <- get(temp)
-  }
-  prep <- lapply(mappoly_list, prepare_map)
-  
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading mappoly data..."))
+    if(!is(mappoly_list[[1]], "mappoly.map")){
+      temp <- load(mappoly_list$datapath)
+      mappoly_list <- get(temp)
+    }
+    prep <- lapply(mappoly_list, prepare_map)
+    incProgress(0.8, detail = paste("Uploading mappoly data..."))
+  })
   structure(list(d.p1 = lapply(prep, "[[", 5),
                  d.p2 = lapply(prep, "[[", 6),
                  ph.p1 = lapply(prep, "[[", 3),
@@ -118,26 +125,34 @@ prepare_MAPpoly <- function(mappoly_list){
 #' @rdname inputs
 #' 
 #' @keywords internal
-prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy){ ## Require update
-  temp <- load(polymapR.dataset$datapath)
-  polymapR.dataset <- get(temp)
-  
-  temp <- load(polymapR.map$datapath)
-  polymapR.map <- get(temp)
-  data <- import_data_from_polymapR(input.data = polymapR.dataset, 
-                                    ploidy = ploidy, 
-                                    parent1 = "P1", 
-                                    parent2 = "P2",
-                                    input.type = input.type,
-                                    prob.thres = 0.95,
-                                    pardose = NULL, 
-                                    offspring = NULL,
-                                    filter.non.conforming = TRUE,
-                                    verbose = FALSE)
-  
-  map_seq <- import_phased_maplist_from_polymapR(polymapR.map, data)
-  viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
-  viewmap$software <- "polymapR"
+prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy){ 
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading polymapR data..."))
+    temp <- load(polymapR.dataset$datapath)
+    polymapR.dataset <- get(temp)
+    
+    temp <- load(polymapR.map$datapath)
+    polymapR.map <- get(temp)
+    incProgress(0.3, detail = paste("Uploading polymapR data..."))
+    data <- import_data_from_polymapR(input.data = polymapR.dataset, 
+                                      ploidy = ploidy, 
+                                      parent1 = "P1", 
+                                      parent2 = "P2",
+                                      input.type = input.type,
+                                      prob.thres = 0.95,
+                                      pardose = NULL, 
+                                      offspring = NULL,
+                                      filter.non.conforming = TRUE,
+                                      verbose = FALSE)
+    incProgress(0.6, detail = paste("Uploading polymapR data..."))
+    
+    map_seq <- import_phased_maplist_from_polymapR(polymapR.map, data)
+    incProgress(0.8, detail = paste("Uploading polymapR data..."))
+    
+    viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
+    viewmap$software <- "polymapR"
+    incProgress(0.9, detail = paste("Uploading polymapR data..."))
+  })
   structure(viewmap, class = "viewmap")
 }
 
@@ -156,7 +171,7 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
 #' 
 #' @keywords internal
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
-  withProgress(message = 'Working...', value = 0, {
+  withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading QTLpoly data..."))
     temp <- load(data$datapath)
     data <- get(temp)
@@ -248,7 +263,7 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 #' 
 #' @keywords internal
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
-  withProgress(message = 'Working...', value = 0, {
+  withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading diaQTL data..."))
     
     temp <- load(scan1_list$datapath)
@@ -346,7 +361,7 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
 #' 
 #' @keywords internal
 prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_phenotypes){
-  withProgress(message = 'Working...', value = 0, {
+  withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading polyqtlR data..."))
     temp <- load(polyqtlR_QTLscan_list$datapath)
     polyqtlR_QTLscan_list <- get(temp)
@@ -412,22 +427,26 @@ prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_pheno
 #' @keywords internal
 prepare_qtl_custom_files <- function(selected_mks, qtl_info, blups, beta.hat,
                                      profile, effects, probs){
-  qtls <- list()
-  qtls$selected_mks <- as.data.frame(vroom(selected_mks))
-  qtls$qtl_info <- as.data.frame(vroom(qtl_info))
-  qtls$blups <- as.data.frame(vroom(blups))
-  qtls$beta.hat <- as.data.frame(vroom(beta.hat))
-  qtls$profile <- as.data.frame(vroom(profile))
-  qtls$profile[,2] <- as.numeric(qtls$profile[,2])
-  qtls$effects <- as.data.frame(vroom(effects))
-  
-  probs.t <- vroom(probs)
-  ind <- probs.t$ind
-  probs.t <- as.data.frame(probs.t[,-1])
-  probs.df <- split(probs.t, ind)
-  qtls$probs <- abind(probs.df, along = 3)
-  qtls$software <- "custom"
-  
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading custom QTL data..."))
+    qtls <- list()
+    qtls$selected_mks <- as.data.frame(vroom(selected_mks))
+    qtls$qtl_info <- as.data.frame(vroom(qtl_info))
+    qtls$blups <- as.data.frame(vroom(blups))
+    qtls$beta.hat <- as.data.frame(vroom(beta.hat))
+    qtls$profile <- as.data.frame(vroom(profile))
+    qtls$profile[,2] <- as.numeric(qtls$profile[,2])
+    qtls$effects <- as.data.frame(vroom(effects))
+    incProgress(0.3, detail = paste("Uploading custom QTL data..."))
+    
+    probs.t <- vroom(probs)
+    ind <- probs.t$ind
+    probs.t <- as.data.frame(probs.t[,-1])
+    probs.df <- split(probs.t, ind)
+    qtls$probs <- abind(probs.df, along = 3)
+    qtls$software <- "custom"
+    incProgress(0.8, detail = paste("Uploading custom QTL data..."))
+  })
   structure(qtls, class = "viewqtl")
 }
 
