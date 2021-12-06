@@ -409,20 +409,30 @@ mod_genes_view_server <- function(input, output, session,
     
     tracks_set <- c(annotations_track, vcf_track, align_track, wiggle_track)
     
-    default_session <- default_session(
-      assembly,
-      if(any(!is.null(tracks_set))) tracks_set[which(!is.null(tracks_set))]
-    )
-    
     theme <- JBrowseR::theme("#6c81c0", "#22284c")
-    JBrowseR(
-      "View",
-      assembly = assembly,
-      tracks = tracks,
-      location = paste0(unique(mks$g.chr),":", mks.range.1,"..",mks.range.2), 
-      defaultSession = default_session,
-      theme = theme
-    )
+    print(tracks_set)
+    if(any(!is.null(tracks_set))){
+      default_session <- default_session(
+        assembly,
+        tracks_set[which(!is.null(tracks_set))]
+      )
+      
+      JBrowseR(
+        "View",
+        assembly = assembly,
+        tracks = tracks,
+        location = paste0(unique(mks$g.chr),":", mks.range.1,"..",mks.range.2), 
+        defaultSession = default_session,
+        theme = theme
+      )
+    } else {
+      JBrowseR(
+        "View",
+        assembly = assembly,
+        location = paste0(unique(mks$g.chr),":", mks.range.1,"..",mks.range.2), 
+        theme = theme
+      )
+    }
   })
   
   output$genes_ano  <- DT::renderDataTable(server = FALSE, {

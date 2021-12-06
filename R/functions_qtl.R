@@ -278,9 +278,9 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                 data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
               }
             } else if(ploidy == 6) {
-              data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
-              #data <- data[1:298,]
-              data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,15),rep(p2,15),rep(p1,20),rep(p2,20)), Effects=c(rep("Additive",12),rep("Digenic",30),rep("Trigenic",40)))
+              #data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
+              data <- data[1:78,]
+              data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,33),rep(p2,33)), Effects=c(rep("Additive",12),rep("Digenic",66)))
               data$Alleles <- gsub("a", paste0(p1,".1x"), data$Alleles)
               data$Alleles <- gsub("b", paste0(p1,".2x"), data$Alleles)
               data$Alleles <- gsub("c", paste0(p1,".3x"), data$Alleles)
@@ -314,7 +314,6 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
               plots1[[q]] <- plot
             } else if(design == "digenic"){
               if(!all(is.na(data[which(data$Effects == "Digenic"),]$Estimates))){
-                if(ploidy == 6) data <- data[1:42,]
                 temp <- do.call(rbind, strsplit(data$Alleles, "x"))
                 data$x <- temp[,1]
                 data$y <- temp[,2]

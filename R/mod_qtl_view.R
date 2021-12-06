@@ -90,7 +90,7 @@ mod_qtl_view_ui <- function(id){
                                             choices = "Select QTL in the profile graphic to update",
                                             selected = "Select QTL in the profile graphic to update",
                                             options = list(
-                                              size = 5,
+                                              size = 15,
                                               `selected-text-format` = "count > 3",
                                               `live-search`=TRUE
                                             ), 
