@@ -3,7 +3,7 @@
 #' @rdname inputs
 #' 
 #' @keywords internal
-prepare_examples <- function(example, env.obj= NULL){
+prepare_examples <- function(example){
   if(example == "hex_map"){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Uploading BT example map data..."))
@@ -27,10 +27,15 @@ prepare_examples <- function(example, env.obj= NULL){
                    fasta= system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly"),
                    gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz", package="viewpoly")),
               class = "viewpoly")
-  } else {
-    return(env.obj)
   }
 }
+
+#' Prepare environment viewpoly datasets
+#' 
+#' @rdname inputs
+#' 
+#' @keywords internal
+
 
 #' Converts map information in custom format files to viewmap object
 #' 

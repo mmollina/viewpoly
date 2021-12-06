@@ -21,22 +21,34 @@ mod_upload_ui <- function(id){
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="info", title = tags$h4(tags$b("Available datasets")),
-                   radioButtons(ns("example_map"), width = 500, label = "Check one of the availables datasets:", 
-                                choices = "tetra_map",
-                                selected = "tetra_map"), br(),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="info", title = tags$h4(tags$b("Upload VIEWpoly dataset")),
+                   column(8,
+                          radioButtons(ns("viewpoly_env"), width = 500, label = "Check one of the availables datasets:", 
+                                       choices = "There is no VIEWpoly object in your R environment. Load VIEWpoly object or convert other formats below.",
+                                       selected =  "There is no VIEWpoly object in your R environment. Load VIEWpoly object or convert other formats below."), br(),
+                   ),
+                   column(4,
+                          div(style = "position:absolute;right:1em;",
+                              actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(), br(),
+                              actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square"))
+                          )
+                   ), 
+                   column(12,
+                          br(), br(), hr(),
+                          p("Upload VIEWpoly RData file here:"), 
+                          fileInput(ns("viewpoly_input"), label = h6("File: dataset_name.RData"), multiple = F)
+                   )
                )
              )
-      ), br(),
+      ), 
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload VIEWpoly dataset")),
-                   div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(), br(),
-                       actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square"))
-                   ), br(), br(), 
-                   p("VIEWpoly identify the viewpoly objects in your R environment, or you can upload it here:"), br(),
-                   fileInput(ns("viewpoly_input"), label = h6("File: dataset_name.RData"), multiple = F)
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Available exemple datasets")),
+                   radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals and the genome."), 
+                                choices = c("Potato genetic map - Atlantic x B1829-5" = "tetra_map",
+                                            "Sweetpotato genetic map - Beauregard x Tanzania (BT)" = "hex_map"),
+                                selected = "tetra_map"), br(),
+                   
                )
              )
       ), br(),
@@ -296,14 +308,19 @@ mod_upload_server <- function(input, output, session, parent_session){
   # Check environment
   observe({
     Objs <- Filter(function(x) inherits(get(x), 'viewpoly' ), ls(envir = .GlobalEnv) )
-    dataset_choices <- as.list(c("tetra_map","hex_map", Objs))
-    names(dataset_choices) <- c("Potato genetic map - Atlantic x B1829-5",
-                                "Sweetpotato genetic map - Beauregard x Tanzania (BT)",
-                                Objs)
-    updateRadioButtons(session, "example_map",
-                       label="Check one of the availables datasets:",
-                       choices = dataset_choices,
-                       selected= dataset_choices[[1]])
+    if(length(Objs) > 0){
+      dataset_choices <- as.list(Objs)
+      names(dataset_choices) <- Objs
+      updateRadioButtons(session, "viewpoly_env",
+                         label="Check one of the availables datasets:",
+                         choices = dataset_choices,
+                         selected= character(0))
+    } else {
+      updateRadioButtons(session, "viewpoly_env",
+                         label="Check one of the availables datasets:",
+                         choices = "There is no viewpoly object in your R environment. Load view viewpoly object or convert formats below",
+                         selected= "There is no viewpoly object in your R environment. Load view viewpoly object or convert formats below")
+    }
   })
   
   # Format examples
@@ -538,8 +555,9 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(input_genome()$vcf) &
        is.null(input_genome()$align) & 
        is.null(input_genome()$wig) &
-       is.null(input$viewpoly_input))
-    prepare_examples(input$example_map, env.obj = get(input$example_map))
+       is.null(input$viewpoly_input) &
+       is.null(input$viewpoly_env))
+    prepare_examples(input$example_map)
     else NULL
   })
   
@@ -551,8 +569,13 @@ mod_upload_server <- function(input, output, session, parent_session){
       } else if (values$upload_state_viewpoly == 'reset') {
         return(NULL)
       } else if(values$upload_state_viewpoly == "uploaded"){
-        temp <- load(input$viewpoly_input$datapath)
-        viewpoly.obj <- get(temp)
+        if(!is.null(input$viewpoly_input)){
+          temp <- load(input$viewpoly_input$datapath)
+          viewpoly.obj <- get(temp)
+        } else if(!is.null(input$viewpoly_env)) {
+          viewpoly.obj = get(input$viewpoly_env)
+        }
+        str(viewpoly.obj, max.level = 1)
         return(viewpoly.obj)
       } 
     })
