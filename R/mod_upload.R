@@ -575,7 +575,6 @@ mod_upload_server <- function(input, output, session, parent_session){
         } else if(!is.null(input$viewpoly_env)) {
           viewpoly.obj = get(input$viewpoly_env)
         }
-        str(viewpoly.obj, max.level = 1)
         return(viewpoly.obj)
       } 
     })

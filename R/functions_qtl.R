@@ -710,7 +710,7 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
     like.ind.all <- list()
     for(i in 1:length(pos)){
       homoprob_temp <- homo.dat$homoprob %>% 
-        filter(map.position %in% pos[i]) %>% filter(LG %in% lgs[i])
+        filter(round(map.position,2) %in% round(as.numeric(pos[i]),2)) %>% filter(LG %in% lgs[i])
       homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
       homoprob_temp <- homoprob_temp %>% 
         group_by(map.position, LG, individual) %>% 
@@ -721,7 +721,7 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
     }
     like.intersect <- Reduce(intersect, like.ind.all)
     if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("Any individual contain all the selected homolog/s")
-    idx <- which(paste0(homo.dat$homoprob$map.position, "_", homo.dat$homoprob$LG) %in% paste0(pos, "_", lgs))
+    idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% paste0(round(as.numeric(pos),2), "_", lgs))
     homo.dat$homoprob$qtl <- NA
     homo.dat$homoprob$qtl[idx] <- homo.dat$homoprob$map.position[idx] # vertical lines
     incProgress(0.5, detail = paste("building graphic..."))

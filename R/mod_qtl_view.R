@@ -89,10 +89,13 @@ mod_qtl_view_ui <- function(id){
                                             label = h6("Select haplotypes"),
                                             choices = "Select QTL in the profile graphic to update",
                                             selected = "Select QTL in the profile graphic to update",
-                                            options = list(
+                                            options = pickerOptions(
                                               size = 15,
                                               `selected-text-format` = "count > 3",
-                                              `live-search`=TRUE
+                                              `live-search`=TRUE,
+                                              actionsBox = TRUE,
+                                              dropupAuto = FALSE,
+                                              dropdownAlignRight = TRUE
                                             ), 
                                             multiple = TRUE), br(),
                                 actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes", icon = icon("share-square")), 

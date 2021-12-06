@@ -410,7 +410,6 @@ mod_genes_view_server <- function(input, output, session,
     tracks_set <- c(annotations_track, vcf_track, align_track, wiggle_track)
     
     theme <- JBrowseR::theme("#6c81c0", "#22284c")
-    print(tracks_set)
     if(any(!is.null(tracks_set))){
       default_session <- default_session(
         assembly,
