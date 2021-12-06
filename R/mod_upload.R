@@ -30,6 +30,18 @@ mod_upload_ui <- function(id){
       ), br(),
       column(width = 12,
              fluidPage(
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload VIEWpoly dataset")),
+                   div(style = "position:absolute;right:1em;",
+                       actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(), br(),
+                       actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square"))
+                   ), br(), br(), 
+                   p("VIEWpoly identify the viewpoly objects in your R environment, or you can upload it here:"), br(),
+                   fileInput(ns("viewpoly_input"), label = h6("File: dataset_name.RData"), multiple = F)
+               )
+             )
+      ), br(),
+      column(width = 12,
+             fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload View Map files")),
                    div(style = "position:absolute;right:1em;",
                        actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
@@ -256,7 +268,7 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = tags$h4(tags$b("Download VIEWpoly dataset")),
-                   p("The uploaded data are converted to viewpoly format. It can be downloaded here."), br(),
+                   p("The uploaded data are converted to the viewpoly format. It keeps the map and the QTL information."), br(),
                    textInput(ns("data.name"), label = p("Define the dataset name. Do not use spaces between words."), value = "dataset_name"), br(),
                    
                    downloadBttn(ns('export_viewpoly'), style = "gradient", color = "royal")
@@ -352,6 +364,10 @@ mod_upload_server <- function(input, output, session, parent_session){
     upload_state_genome = 0
   )
   
+  observeEvent(input$reset_viewpoly, {
+    values$upload_state_viewpoly <- 'reset'
+  })
+  
   observeEvent(input$reset_map, {
     values$upload_state_map <- 'reset'
     values$upload_state_mappoly = 0
@@ -369,6 +385,10 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   observeEvent(input$reset_genome, {
     values$upload_state_genome <- 'reset'
+  })
+  
+  observeEvent(input$submit_viewpoly, {
+    values$upload_state_viewpoly <- 'uploaded'
   })
   
   observeEvent(input$submit_mappoly, {
@@ -391,12 +411,10 @@ mod_upload_server <- function(input, output, session, parent_session){
     values$upload_state_qtl = 0
   })
   
-  
   observeEvent(input$submit_diaQTL, {
     values$upload_state_diaQTL <- 'uploaded'
     values$upload_state_qtl = 0
   })
-  
   
   observeEvent(input$submit_polyqtlR, {
     values$upload_state_polyqtlR <- 'uploaded'
@@ -519,9 +537,25 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(input_genome()$gff3) &
        is.null(input_genome()$vcf) &
        is.null(input_genome()$align) & 
-       is.null(input_genome()$wig))
+       is.null(input_genome()$wig) &
+       is.null(input$viewpoly_input))
     prepare_examples(input$example_map, env.obj = get(input$example_map))
     else NULL
+  })
+  
+  loadViewpoly = reactive({
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading viewpoly file..."))
+      if (is.null(values$upload_state_viewpoly)) {
+        return(NULL)
+      } else if (values$upload_state_viewpoly == 'reset') {
+        return(NULL)
+      } else if(values$upload_state_viewpoly == "uploaded"){
+        temp <- load(input$viewpoly_input$datapath)
+        viewpoly.obj <- get(temp)
+        return(viewpoly.obj)
+      } 
+    })
   })
   
   loadMap_custom = reactive({
@@ -625,13 +659,15 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadJBrowse_fasta = reactive({
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.1, detail = paste("Uploading fasta path..."))
-      if(!is.null(input_genome()$fasta)){
+      if(!is.null(input_genome()$fasta) & !is.null(loadMap())){
         # keep fasta name
         for(i in 1:length(input_genome()$fasta$datapath)){
           file.rename(input_genome()$fasta$datapath[i], 
                       file.path(temp_dir(), input_genome()$fasta$name[i]))
         }
         file.path(temp_dir(), input_genome()$fasta$name[1]) 
+      } else if(!is.null(input_genome()$fasta)) {
+        warning("Load map data first to use this feature.")
       } else NULL
     })
   })
@@ -692,9 +728,12 @@ mod_upload_server <- function(input, output, session, parent_session){
     if(is.null(loadExample()) & 
        is.null(loadMap_custom()) & 
        is.null(loadMap_mappoly()) &
-       is.null(loadMap_polymapR())){
+       is.null(loadMap_polymapR()) &
+       is.null(loadViewpoly())){
       warning("Select one of the options in `upload` session")
       return(NULL)
+    } else if(!is.null(loadViewpoly())){
+      return(loadViewpoly()$map)
     } else if(!is.null(loadMap_custom())){
       return(loadMap_custom())
     } else if(!is.null(loadMap_mappoly())){
@@ -711,9 +750,12 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(loadQTL_custom()) & 
        is.null(loadQTL_qtlpoly()) & 
        is.null(loadQTL_diaQTL()) &
-       is.null(loadQTL_polyqtlR())){
+       is.null(loadQTL_polyqtlR()) &
+       is.null(loadViewpoly())){
       warning("Select one of the options in `upload` session")
       return(NULL)
+    } else if(!is.null(loadViewpoly())){
+      return(loadViewpoly()$qtl)
     } else if(!is.null(loadQTL_custom())){
       return(loadQTL_custom())
     } else if(!is.null(loadQTL_qtlpoly())){
@@ -736,14 +778,13 @@ mod_upload_server <- function(input, output, session, parent_session){
         incProgress(0.1, detail = paste("Saving viewpoly object..."))
         obj <- structure(list(map = loadMap(), 
                               qtl = loadQTL(), 
-                              fasta = loadJBrowse_fasta(), 
-                              gff3 = loadJBrowse_gff3(), 
-                              vcf = loadJBrowse_vcf(),
-                              align = loadJBrowse_align(),
-                              wig = loadJBrowse_wig(),
+                              fasta = NULL, # It would save only the temporary path
+                              gff3 = NULL, 
+                              vcf = NULL,
+                              align = NULL,
+                              wig = NULL,
                               version = packageVersion("viewpoly")), 
                          class = "viewpoly")
-        print(input$data.name)
         assign(input$data.name, obj)
         incProgress(0.5, detail = paste("Saving viewpoly object..."))
         save(list = input$data.name, file = file)

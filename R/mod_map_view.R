@@ -117,8 +117,16 @@ mod_map_view_server <- function(input, output, session,
   ns <- session$ns
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$d.p1))
-    names(group_choices) <- 1:length(loadMap()$d.p1)
+    if(!is.null(loadMap())){
+      group_choices <- as.list(1:length(loadMap()$d.p1))
+      names(group_choices) <- 1:length(loadMap()$d.p1)
+    } else if(!is.null(loadQTL())){
+      group_choices <- as.list(1:length(unique(loadQTL()$selected_mks$LG)))
+      names(group_choices) <- 1:length(unique(loadQTL()$selected_mks$LG))
+    } else {
+      group_choices <- as.list("Upload map or QTL data in `upload` session.")
+      names(group_choices) <-  "Upload map or QTL data in `upload` session."
+    }
     
     updateSelectInput(session, "group",
                       label="Linkage group",

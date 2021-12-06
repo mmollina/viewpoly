@@ -81,15 +81,18 @@ mod_genes_view_ui <- function(id){
             )
         ), br(),
         box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
-            column(10,
-                   column(5,
+            column(12,
+                   column(6,
                           actionButton(ns("create_server"), "Open JBrowseR",icon("power-off"))
-                   ), 
-                   column(5,
-                          actionButton(ns("reset_server"), "Reset JBrowseR",icon("sync"))
+                   ),
+                   column(6,
+                          div(style = "position:absolute;right:1em;", 
+                              p("Local server:"),
+                              switchInput(ns("reset_server"), value = TRUE)
+                          )
                    )
             ),
-            column(12, hr(),
+            column(12, br(), hr(),
                    JBrowseROutput(ns("browserOutput"))
             ), br()),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Genes table"),
@@ -123,8 +126,16 @@ mod_genes_view_server <- function(input, output, session,
   
   observe({
     # Dynamic linkage group number
-    group_choices <- as.list(1:length(loadMap()$d.p1))
-    names(group_choices) <- 1:length(loadMap()$d.p1)
+    if(!is.null(loadMap())){
+      group_choices <- as.list(1:length(loadMap()$d.p1))
+      names(group_choices) <- 1:length(loadMap()$d.p1)
+    } else if(!is.null(loadQTL())){
+      group_choices <- as.list(1:length(unique(loadQTL()$selected_mks$LG)))
+      names(group_choices) <- 1:length(unique(loadQTL()$selected_mks$LG))
+    } else {
+      group_choices <- as.list("Upload map or QTL data in `upload` session.")
+      names(group_choices) <-  "Upload map or QTL data in `upload` session."
+    }
     
     updateSelectInput(session, "group",
                       label="Linkage group",
@@ -333,7 +344,7 @@ mod_genes_view_server <- function(input, output, session,
   
   # Reset server
   reset <- reactive({
-    if(input$reset_server) { 
+    if(!input$reset_server) { 
       button()$data_server$stop_server()
       return(TRUE)
     } else {
@@ -396,9 +407,11 @@ mod_genes_view_server <- function(input, output, session,
     
     if(mks.range.1 > mks.range.2) stop("Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`")
     
+    tracks_set <- c(annotations_track, vcf_track, align_track, wiggle_track)
+    
     default_session <- default_session(
       assembly,
-      c(annotations_track)
+      if(any(!is.null(tracks_set))) tracks_set[which(!is.null(tracks_set))]
     )
     
     theme <- JBrowseR::theme("#6c81c0", "#22284c")

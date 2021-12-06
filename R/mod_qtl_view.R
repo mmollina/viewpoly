@@ -141,6 +141,9 @@ mod_qtl_view_server <- function(input, output, session,
     } else if(!is.null(loadQTL())){
       group_choices <- as.list(1:length(unique(loadQTL()$selected_mks$LG)))
       names(group_choices) <- 1:length(unique(loadQTL()$selected_mks$LG))
+    } else {
+      group_choices <- as.list("Upload map or QTL data in `upload` session.")
+      names(group_choices) <-  "Upload map or QTL data in `upload` session."
     }
     updatePickerInput(session, "group",
                       label="Group",
