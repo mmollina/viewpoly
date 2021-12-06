@@ -4,6 +4,7 @@
 \alias{plot_profile}
 \alias{only_plot_profile}
 \alias{data_effects}
+\alias{coord_radar}
 \alias{plot_effects}
 \alias{breeding_values}
 \alias{calc_homologprob}
@@ -40,6 +41,8 @@ data_effects(
   design = c("bar", "circle", "digenic")
 )
 
+coord_radar(theta = "x", start = 0, direction = 1)
+
 plot_effects(
   data_effects.obj,
   software,
@@ -50,15 +53,7 @@ breeding_values(qtl_info, probs, selected_mks, blups, beta.hat, pos)
 
 calc_homologprob(probs, selected_mks)
 
-\method{plot}{mappoly.homoprob}(
-  x,
-  stack = FALSE,
-  lg = NULL,
-  ind = NULL,
-  use.plotly = TRUE,
-  verbose = TRUE,
-  ...
-)
+\method{plot}{mappoly.homoprob}(x, stack = FALSE, lg = NULL, ind = NULL, verbose = TRUE, ...)
 
 select_haplo(input.haplo, probs, selected_mks, effects.data)
 }
@@ -77,12 +72,12 @@ position of the individuals in the dataset or it's name.
 If \code{NULL} (default), the function plots the first 
 individual}
 
-\item{use.plotly}{if \code{TRUE} (default), it uses plotly interactive graphic}
-
 \item{verbose}{if \code{TRUE} (default), the current progress is shown; if
 \code{FALSE}, no output is produced}
 
 \item{...}{unused arguments}
+
+\item{use.plotly}{if \code{TRUE} (default), it uses plotly interactive graphic}
 }
 \description{
 Plots profiled logarithm of score-based \emph{P}-values (LOP) from individual or combined traits.

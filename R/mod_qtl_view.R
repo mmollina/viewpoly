@@ -18,7 +18,7 @@ mod_qtl_view_ui <- function(id){
         fluidRow(
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
+                     actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
                      actionButton(ns("goGenes"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
@@ -135,6 +135,10 @@ mod_qtl_view_server <- function(input, output, session,
                                 loadMap, loadQTL,
                                 parent_session){
   ns <- session$ns
+  
+  observeEvent(input$exit, {
+    stopApp()
+  })
   
   observe({
     # Dynamic linkage group number

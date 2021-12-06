@@ -6,10 +6,10 @@
 #'
 #' @importFrom shinyjs inlineCSS
 #' @importFrom plotly plotlyOutput
+#' @importFrom shiny NS tagList  
 #' 
 #' @noRd 
 #'
-#' @importFrom shiny NS tagList 
 mod_map_view_ui <- function(id){
   ns <- NS(id)
   tagList(
@@ -24,7 +24,7 @@ mod_map_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),
+                     actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"),
                  )
           ),
           tags$h2(tags$b("View Map")), br(), hr(),
@@ -115,6 +115,13 @@ mod_map_view_server <- function(input, output, session,
                                 loadMap, loadQTL,
                                 parent_session){
   ns <- session$ns
+  
+  pheno <- LG <- NULL
+  
+  observeEvent(input$exit, {
+    stopApp()
+  })
+  
   observe({
     # Dynamic linkage group number
     if(!is.null(loadMap())){
@@ -241,15 +248,6 @@ mod_map_view_server <- function(input, output, session,
       stop("Upload the QTL information in upload session to access this feature.")
   })
   
-  # Reactive to change page with click
-  s <- reactive({
-    event_data("plotly_click", source = "qtl_profile")
-  })
-  
-  observeEvent(s(), {
-    updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
-  })
-  
   # Plot map
   output$plot_map <- renderPlot({
     if(!is.null(loadMap()$ph.p1)) {
@@ -295,11 +293,11 @@ mod_map_view_server <- function(input, output, session,
       p.haplo <- cbind(p1,p2)
       
       DT::datatable(p.haplo, extensions = 'Buttons', 
-                    options = list(
-                      dom = 'Bfrtlp',
-                      buttons = c('copy', 'csv', 'excel', 'pdf')
-                    ),
-                    class = "display")
+                options = list(
+                  dom = 'Bfrtlp',
+                  buttons = c('copy', 'csv', 'excel', 'pdf')
+                ),
+                class = "display")
     } else 
       stop("Upload map information in the upload session to access this feature.")
   })
@@ -310,11 +308,11 @@ mod_map_view_server <- function(input, output, session,
       summary <- summary_maps(loadMap())
       
       DT::datatable(summary, extensions = 'Buttons', 
-                    options = list(
-                      dom = 'Bfrtlp',
-                      buttons = c('copy', 'csv', 'excel', 'pdf')
-                    ),
-                    class = "display")
+                options = list(
+                  dom = 'Bfrtlp',
+                  buttons = c('copy', 'csv', 'excel', 'pdf')
+                ),
+                class = "display")
     } else 
       stop("Upload map information in the upload session to access this feature.")
   })
@@ -364,6 +362,7 @@ mod_map_view_server <- function(input, output, session,
   
   # Map file
   fn_downloadname_map <- reactive({
+    png <- tiff <- jpeg <- pdf <- dev.off <- NULL
     seed <- sample(1:1000,1)
     if(input$fformat_map=="png") filename <- paste0("map","_",seed,".png")
     if(input$fformat_map=="tiff") filename <- paste0("map","_",seed,".tif")
@@ -415,6 +414,7 @@ mod_map_view_server <- function(input, output, session,
   
   # Summary map
   fn_downloadname_summary <- reactive({
+    png <- tiff <- jpeg <- pdf <- dev.off <- NULL
     seed <- sample(1:1000,1)
     if(input$fformat_summary=="png") filename <- paste0("map","_",seed,".png")
     if(input$fformat_summary=="tiff") filename <- paste0("map","_",seed,".tif")
@@ -426,6 +426,8 @@ mod_map_view_server <- function(input, output, session,
   # download profile 
   fn_download_summary <- function()
   {
+    png <- tiff <- jpeg <- pdf <- dev.off <- NULL
+    
     maps <- lapply(loadMap()$maps, function(x) {
       y <- x$l.dist
       names(y) <- x$mk.names

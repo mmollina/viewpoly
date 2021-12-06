@@ -13,7 +13,7 @@ mod_upload_ui <- function(id){
     fluidRow(
       column(width = 12,
              div(style = "position:absolute;right:1em;", 
-                 actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
+                 actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
                  actionButton(ns("goQTL"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
              ),
              tags$h2(tags$b("Inputs")), br(),
@@ -21,34 +21,11 @@ mod_upload_ui <- function(id){
       ), br(),
       column(width = 12,
              fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="info", title = tags$h4(tags$b("Upload VIEWpoly dataset")),
-                   column(8,
-                          radioButtons(ns("viewpoly_env"), width = 500, label = "Check one of the availables datasets:", 
-                                       choices = "There is no VIEWpoly object in your R environment. Load VIEWpoly object or convert other formats below.",
-                                       selected =  "There is no VIEWpoly object in your R environment. Load VIEWpoly object or convert other formats below."), br(),
-                   ),
-                   column(4,
-                          div(style = "position:absolute;right:1em;",
-                              actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(), br(),
-                              actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square"))
-                          )
-                   ), 
-                   column(12,
-                          br(), br(), hr(),
-                          p("Upload VIEWpoly RData file here:"), 
-                          fileInput(ns("viewpoly_input"), label = h6("File: dataset_name.RData"), multiple = F)
-                   )
-               )
-             )
-      ), 
-      column(width = 12,
-             fluidPage(
-               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Available exemple datasets")),
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = tags$h4(tags$b("Available example datasets")),
                    radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals and the genome."), 
                                 choices = c("Potato genetic map - Atlantic x B1829-5" = "tetra_map",
                                             "Sweetpotato genetic map - Beauregard x Tanzania (BT)" = "hex_map"),
                                 selected = "tetra_map"), br(),
-                   
                )
              )
       ), br(),
@@ -286,6 +263,28 @@ mod_upload_ui <- function(id){
                    downloadBttn(ns('export_viewpoly'), style = "gradient", color = "royal")
                )
              )
+      ),
+      column(width = 12,
+             fluidPage(
+               box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="info", title = tags$h4(tags$b("Upload VIEWpoly dataset")),
+                   column(8,
+                          radioButtons(ns("viewpoly_env"), width = 500, label = "Check one of the availables datasets:", 
+                                       choices = "There is no VIEWpoly object in your R environment. Load VIEWpoly object or convert other formats below.",
+                                       selected =  "There is no VIEWpoly object in your R environment. Load VIEWpoly object or convert other formats below."), br(),
+                   ),
+                   column(4,
+                          div(style = "position:absolute;right:1em;",
+                              actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(), br(),
+                              actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square"))
+                          )
+                   ), 
+                   column(12,
+                          br(), br(), hr(),
+                          p("Upload VIEWpoly RData file here:"), 
+                          fileInput(ns("viewpoly_input"), label = h6("File: dataset_name.RData"), multiple = F)
+                   )
+               )
+             )
       )
     )
   )
@@ -294,15 +293,14 @@ mod_upload_ui <- function(id){
 #' upload Server Functions
 #'
 #' @import vroom
-#' @importFrom httpuv stopAllServers
+#' @importFrom utils packageVersion
 #' 
 #' @noRd 
 mod_upload_server <- function(input, output, session, parent_session){
   ns <- session$ns
   
-  #  Trying to fix server issue
-  observeEvent(input$server_off, {
-    stopAllServers()
+  observeEvent(input$exit, {
+    stopApp()
   })
   
   # Check environment
@@ -319,7 +317,7 @@ mod_upload_server <- function(input, output, session, parent_session){
       updateRadioButtons(session, "viewpoly_env",
                          label="Check one of the availables datasets:",
                          choices = "There is no viewpoly object in your R environment. Load view viewpoly object or convert formats below",
-                         selected= "There is no viewpoly object in your R environment. Load view viewpoly object or convert formats below")
+                         selected= character(0))
     }
   })
   

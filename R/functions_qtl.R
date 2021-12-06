@@ -6,6 +6,7 @@
 #' @import dplyr
 #' @import tidyr
 #' @importFrom plotly TeX
+#' @importFrom utils tail
 #' 
 #' @rdname viewqtl
 #' 
@@ -15,8 +16,9 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
                          range.max = NULL, plot=TRUE, software = NULL) {
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("building graphic..."))
+    pheno <- LG <- `Position (cM)` <- Trait <- INT <- . <- NULL
     
-    lgs.size <- selected_mks %>% group_by(LG) %>% group_map(~ tail(.x, 1)) %>% do.call(rbind, .) 
+    lgs.size <- selected_mks %>% group_by(.data$LG) %>% group_map(~ tail(.x, 1)) %>% do.call(rbind, .) 
     lgs.size <- lgs.size$pos
     lines <- points <- thre <- map <- data.frame()
     y.dat <- trait.names <- c()
@@ -173,6 +175,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
 only_plot_profile <- function(pl.in){
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.3, detail = paste("building graphic..."))
+    x <- x.int <- y.dat <- SIG <- Trait <- qtl <- NULL
     
     vlines <- split(pl.in$lines$x, pl.in$lines$LG)
     vlines <- sapply(vlines, function(x) x[1])
@@ -207,6 +210,9 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                          lgs = NULL, groups = NULL, position = NULL, 
                          software, design = c("bar", "circle", "digenic")) {
   
+  CI.lower <- CI.upper <- x <- y <- z <- Estimates <- LG <- unique.id <- NULL
+  x.axis <- haplo <- effect <- qtl.id <- Alleles <- NULL
+  
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("building graphic..."))
     
@@ -221,7 +227,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       if(software == "QTLpoly"){
         ploidy <- max(nchar(effects$haplo))
       } else if(software == "diaQTL") {
-        get.size <-  filter(effects, pheno == unique(qtl_info$pheno)[1] & qtl.id == 1 & !grepl("x",haplo)) # issue if parents name has x: fixme!
+        get.size <-  filter(effects, .data$pheno == unique(qtl_info$pheno)[1] & .data$qtl.id == 1 & !grepl("x",.data$haplo)) # issue if parents name has x: fixme!
         ploidy = nrow(get.size)/2
       } else if(software == "polyqtlR"){
         ploidy <- (dim(effects)[2] - 3)/2
@@ -397,17 +403,17 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       if(design == "circle" | design == "digenic"){
         stop("Design option not available for: polyqtlR")
       } else {
-        effects.df <- effects %>% filter(pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>% 
-          filter(LG %in% groups) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect") 
+        effects.df <- effects %>% filter(.data$pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>% 
+          filter(.data$LG %in% groups) %>% pivot_longer(cols = 4:ncol(.data), names_to = "haplo", values_to = "effect") 
         
-        effects.df <- effects.df %>% group_by(haplo, pheno) %>% mutate(x.axis = 1:n()) %>% ungroup() %>% as.data.frame()
+        effects.df <- effects.df %>% group_by(.data$haplo, .data$pheno) %>% mutate(x.axis = 1:n()) %>% ungroup() %>% as.data.frame()
         
         vlines <- split(effects.df$x.axis, effects.df$LG)
         vlines <- sapply(vlines, function(x) x[1])
         
         p <- list()
         for(i in 1:length(pheno.col.n)){
-          p[[i]] <- effects.df %>% filter(pheno == unique(qtl_info$pheno)[pheno.col.n][i]) %>%  
+          p[[i]] <- effects.df %>% filter(.data$pheno == unique(qtl_info$pheno)[pheno.col.n][i]) %>%  
             ggplot() +
             geom_path(aes(x=x.axis, y=haplo, col = effect), size = 5)  +
             scale_color_gradient2(low = "purple4", mid = "white",high = "seagreen") +
@@ -485,14 +491,14 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
     incProgress(0.3, detail = paste("building graphic..."))
     for(p in phenos) { # select pheno
       nqtl <- length(pos[[pheno.names[p]]])
-      infos <- filter(qtl_info, pheno == pheno.names[p])
+      infos <- filter(qtl_info, .data$pheno == pheno.names[p])
       infos <- infos[which(infos$Pos %in% pos[[pheno.names[p]]]),]
       markers <- which((round(selected_mks$pos,2) %in% infos$Pos) & (selected_mks$LG %in% infos$LG))
       Z <- probs[,markers,] # select by pos
-      u.hat <- filter(blups, pheno == pheno.names[p])
+      u.hat <- filter(blups, .data$pheno == pheno.names[p])
       u.hat <- split(u.hat$u.hat, u.hat$qtl)
       
-      beta.hat.sub <- filter(beta.hat, pheno == pheno.names[p])
+      beta.hat.sub <- filter(beta.hat, .data$pheno == pheno.names[p])
       beta.hat.v <- beta.hat.sub$beta.hat
       
       Zu <- vector("list", nqtl)
@@ -525,6 +531,8 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
 #' 
 #' @rdname viewqtl
 #' 
+#' @importFrom reshape2 melt
+#' 
 #' @keywords internal
 calc_homologprob  <- function(probs, selected_mks){
   input.genoprobs <- probs
@@ -550,7 +558,7 @@ calc_homologprob  <- function(probs, selected_mks){
     dimnames(hom.prob) <- list(letters[1:(2*ploidy)], mrk.names, ind.names)
     for(i in letters[1:(2*ploidy)])
       hom.prob[i,,] <- apply(input.genoprobs[[j]][grep(stt.names, pattern = i),,], c(2,3), function(x) round(sum(x, na.rm = TRUE),4))
-    df.hom <- reshape2::melt(hom.prob)
+    df.hom <- melt(hom.prob)
     map <- data.frame(map.position = pos[[j]], marker = mrk.names)
     colnames(df.hom) <- c("homolog", "marker", "individual", "probability")
     df.hom <- merge(df.hom, map, sort = FALSE)
@@ -617,6 +625,8 @@ calc_homologprob  <- function(probs, selected_mks){
 plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL, 
                                   ind = NULL, 
                                   verbose = TRUE, ...){
+  
+  qtl <- NULL
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("building graphic..."))
     all.ind <- as.character(unique(x$homoprob$individual))
@@ -693,6 +703,7 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' @keywords internal
 select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
+  LG <- map.position <- individual <- probability <- NULL
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("building graphic..."))
     lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])

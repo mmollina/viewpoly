@@ -4,6 +4,7 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @import shinydashboard
+#' @importFrom htmltools includeMarkdown
 #' @importFrom shiny NS tagList 
 #' @noRd
 app_ui <- function(request) {

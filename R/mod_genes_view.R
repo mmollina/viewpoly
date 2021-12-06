@@ -23,7 +23,7 @@ mod_genes_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("server_off"), "Exit",icon("times-circle"), class = "btn btn-danger"),  br(), br(),
+                     actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"),  br(), br(),
                      actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
@@ -109,7 +109,6 @@ mod_genes_view_ui <- function(id){
 #' @importFrom RColorBrewer brewer.pal 
 #' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS
-#' @importFrom httpuv stopAllServers
 #'
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, 
@@ -119,9 +118,11 @@ mod_genes_view_server <- function(input, output, session,
                                   parent_session){
   ns <- session$ns
   
-  #  Trying to fix server issue
-  observeEvent(input$server_off, {
-    stopAllServers()
+  pheno <- LG <- l.dist <- g.dist <- high <- mk.names <- track_variant <- track_alignments <- track_wiggle <- NULL
+  start <- end <- NULL
+  
+  observeEvent(input$exit, {
+    stopApp()
   })
   
   observe({
@@ -167,7 +168,7 @@ mod_genes_view_server <- function(input, output, session,
   # Plot QTL bar
   qtl.int <- reactive({
     if(!is.null(loadQTL())){
-      data <- loadQTL()$qtl_info %>% filter(pheno %in% input$phenotypes & LG == input$group)
+      data <- loadQTL()$qtl_info %>% filter(.data$pheno %in% input$phenotypes & .data$LG == input$group)
       
       if(dim(data)[1] == 0) return(p(" "))
       
@@ -254,15 +255,6 @@ mod_genes_view_server <- function(input, output, session,
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })
-  
-  # Reactive to change page with click
-  s <- reactive({
-    event_data("plotly_click", source = "qtl_profile")
-  })
-  
-  observeEvent(s(), {
-    updateNavbarPage(session = parent_session, inputId = "viewpoly", selected = "qtl")
-  }) 
   
   # cM x Mb
   output$plot_pos <- renderPlotly({
@@ -510,6 +502,7 @@ mod_genes_view_server <- function(input, output, session,
   # download  
   fn_download_phi <- function()
   {
+    l.dist <- g.dist <- high <- mk.names <- NULL
     map.lg <- loadMap()$maps[[as.numeric(input$group)]]
     
     map.lg$high <- map.lg$g.dist

@@ -88,7 +88,7 @@ import_data_from_polymapR <- function(input.data,
       offspring <- unique(grep(pattern = offspring, dat[,"SampleName"], value = TRUE))
     }
     d1 <- input.data[,c("MarkerName", "SampleName", "geno")]
-    geno.dose <- reshape2::acast(d1, MarkerName ~ SampleName, value.var = "geno")
+    geno.dose <- acast(d1, MarkerName ~ SampleName, value.var = "geno")
     ## get marker names ----------------------
     mrk.names <- rownames(geno.dose)
     ## get number of individuals -------------
@@ -122,9 +122,9 @@ import_data_from_polymapR <- function(input.data,
     ## get genotypic info --------------------
     MarkerName <- SampleName <- NULL
     geno <- dat %>%
-      dplyr::filter(SampleName %in% offspring)  %>%
-      dplyr::filter(MarkerName %in% mrk.names) %>%
-      dplyr::arrange(SampleName, MarkerName)
+      filter(SampleName %in% offspring)  %>%
+      filter(MarkerName %in% mrk.names) %>%
+      arrange(SampleName, MarkerName)
     
     colnames(geno) <- c("mrk", "ind", as.character(0:ploidy))
     ind.names <- unique(geno$ind)
@@ -307,6 +307,7 @@ mf_h <- function(d) 0.5 * (1 - exp(-d/50))
 #' 
 #' @rdname utils
 #' 
+#' @importFrom stats chisq.test
 #' @keywords internal
 mrk_chisq_test <- function(x, ploidy){
   y <- x[-c(1:(ploidy+1))]
@@ -317,7 +318,7 @@ mrk_chisq_test <- function(x, ploidy){
   seg.exp <- seg.exp[seg.exp != 0]
   seg.obs <- seg.exp
   seg.obs[names(y)[-length(y)]] <- y[-length(y)]
-  pval <- suppressWarnings(stats::chisq.test(x = seg.obs, p = seg.exp[names(seg.obs)])$p.value)
+  pval <- suppressWarnings(chisq.test(x = seg.obs, p = seg.exp[names(seg.obs)])$p.value)
   pval
 }
 
@@ -332,7 +333,7 @@ mrk_chisq_test <- function(x, ploidy){
 #'     marker. Markers are disposed in rows and individuals are 
 #'     disposed in columns. Missing data are represented by NAs
 #'     
-#' @importFrom tidyr "%>%"
+#' @importFrom tidyr `%>%`
 #' @importFrom reshape2 melt dcast
 #' @importFrom dplyr group_by filter arrange
 #' 
@@ -340,14 +341,14 @@ mrk_chisq_test <- function(x, ploidy){
 #' 
 #' @keywords internal
 dist_prob_to_class <- function(geno, prob.thres = 0.9) {
-  a <- reshape2::melt(geno, id.vars = c("mrk", "ind"))
+  a <- melt(geno, id.vars = c("mrk", "ind"))
   mrk <- ind <- value <- variable <- NULL # Setting the variables to NULL first
   a$variable <- as.numeric(levels(a$variable))[a$variable]
   b <- a %>%
-    dplyr::group_by(mrk, ind) %>%
-    dplyr::filter(value > prob.thres) %>%
-    dplyr::arrange(mrk, ind, variable)
-  z <- reshape2::dcast(data = b[,1:3], formula = mrk ~ ind, value.var = "variable")
+    group_by(mrk, ind) %>%
+    filter(value > prob.thres) %>%
+    arrange(mrk, ind, variable)
+  z <- dcast(data = b[,1:3], formula = mrk ~ ind, value.var = "variable")
   rownames(z) <- z[,"mrk"]
   z <- data.matrix(frame = z[,-1])
   n <- setdiff(unique(geno$mrk), rownames(z))
@@ -362,7 +363,7 @@ dist_prob_to_class <- function(geno, prob.thres = 0.9) {
     flag <- TRUE
     warning("Inividual(s) ", paste(rm.ind, collapse = " "), 
             "\n  did not meet the 'prob.thres' criteria for any of\n  the markers and was (were) removed.")
-    geno <- geno %>% dplyr::filter(ind %in% colnames(z))
+    geno <- geno %>% filter(ind %in% colnames(z))
   }
   z <- z[as.character(unique(geno$mrk)), as.character(unique(geno$ind))]
   list(geno.dose = z, geno = geno, flag = flag)
@@ -621,6 +622,7 @@ find_polyqtlR_Peak <- function(LOD_data, linkage_group) {
 
 #' Addapted from polyqtlR
 #' 
+#' @importFrom stats setNames
 #' @rdname utils
 #' 
 #' @keywords internal

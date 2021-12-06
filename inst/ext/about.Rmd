@@ -22,7 +22,7 @@ devtools::install_github("mmollina/viewpoly")
 viewpoly::run_app()
 ```
 
-The `Upload` tab has options for diverse types of inputs. You can upload directly outputs from:
+The `Input data` tab has options for diverse types of inputs. You can upload directly outputs from:
 
 * [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html)
 * [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html)
@@ -34,14 +34,24 @@ The `Upload` tab has options for diverse types of inputs. You can upload directl
 To associate the genetic maps and QTL with genomic information, it is also required:
 
 * FASTA reference genome
+
+It is optional to upload also: 
+
 * GFF3 annotation file
+* BAM or CRAM alignment file
+* VCF file
+* bigWig file
 
-### Tutorial video
+### Documentation
 
-testing
+Access the [tutorial](). 
+
+We present the app main features in the video bellow:
 
 <iframe width="600" height="315"
 src="https://www.youtube.com/embed/PTDgP3BDPIU?start=170&end=495">
 </iframe> 
+
+## How to cite
 
 

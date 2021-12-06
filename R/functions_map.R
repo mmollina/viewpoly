@@ -4,17 +4,20 @@
 #' 
 #' @rdname viewmap
 #' 
+#' @importFrom RColorBrewer brewer.pal
+#' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
                          maps, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
 {
+  par <- lines <- points <- axis <- mtext <- text <- NULL
   ch <- as.numeric(ch)
   ploidy <- dim(ph.p1[[1]])[2]
   # if(is.character(ch))
   #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
-  var.col <- RColorBrewer::brewer.pal(n = 4, name = "Set1")
+  var.col <- brewer.pal(n = 4, name = "Set1")
   names(var.col) <- c("A", "T", "C", "G")
-  d.col<-c(NA, RColorBrewer::brewer.pal(n = ploidy, name = "Dark2"))
+  d.col<-c(NA, brewer.pal(n = ploidy, name = "Dark2"))
   names(d.col) <- 0:ploidy
   d.col[1]<-NA
   x <- maps[[ch]]
@@ -207,6 +210,7 @@ summary_maps = function(viewmap, verbose = TRUE){
 #' 
 #' @keywords internal
 plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linkage group"){
+  axis <- NULL
   map.list <- viewmap$maps
   if(all(col  ==  "ggstyle"))
     col  <- gg_color_hue(length(map.list))
@@ -276,6 +280,7 @@ gg_color_hue <- function(n) {
 #' @keywords internal
 plot_one_map <- function(x, i = 0, horiz = FALSE, col = "lightgray")
 {
+  rect <- tail <- lines <- NULL
   if(horiz)
   {
     rect(xleft = x[1], ybottom = i-0.25, 

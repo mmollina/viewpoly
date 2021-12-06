@@ -11,7 +11,7 @@
 \alias{prepare_qtl_custom_files}
 \title{Upload example files}
 \usage{
-prepare_examples(example, env.obj = NULL)
+prepare_examples(example)
 
 prepare_map_custom_files(dosages, phases, genetic_map)
 
@@ -46,6 +46,8 @@ It should contain four columns: 1) character vector with chromosomes ID;
 3 to (ploidy number)*2 columns with each parents haplotypes.}
 
 \item{genetic_map}{TSV or TSV.GZ file with the genetic map information}
+
+\item{mappoly_list}{list with objects of class mappoly.map}
 
 \item{data}{object of class "qtlpoly.data"}
 

@@ -4,6 +4,7 @@
 #' 
 #' @keywords internal
 prepare_examples <- function(example){
+  viewmap_hexa <- viewqtl_hexa <- viewmap_tetra <- viewqtl_tetra <- NULL
   if(example == "hex_map"){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Uploading BT example map data..."))
@@ -30,13 +31,6 @@ prepare_examples <- function(example){
   }
 }
 
-#' Prepare environment viewpoly datasets
-#' 
-#' @rdname inputs
-#' 
-#' @keywords internal
-
-
 #' Converts map information in custom format files to viewmap object
 #' 
 #' @rdname inputs
@@ -55,6 +49,7 @@ prepare_examples <- function(example){
 #' 
 #' @keywords internal
 prepare_map_custom_files <- function(dosages, phases, genetic_map){
+  parent <- chr <- marker <- NULL
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading custom map data..."))
     ds <- vroom(dosages)
@@ -107,6 +102,7 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 #' 
 #' @keywords internal
 prepare_MAPpoly <- function(mappoly_list){
+  is <- NULL
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading mappoly data..."))
     if(!is(mappoly_list[[1]], "mappoly.map")){
@@ -176,6 +172,7 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
 #' 
 #' @keywords internal
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
+  is <- NULL
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading QTLpoly data..."))
     temp <- load(data$datapath)
@@ -268,6 +265,7 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 #' 
 #' @keywords internal
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
+  marker <- pheno <- NULL
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("Uploading diaQTL data..."))
     
