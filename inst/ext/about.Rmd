@@ -16,7 +16,7 @@ output: html_document
 
 ### Quick Start
 
-You can run `ViewPoly` locally installing the package and accessing the graphical interface through a web browser:
+You can run `VIEWpoly` locally installing the package and accessing the graphical interface through a web browser:
 
 ```{r}
 # install.packages("devtools")

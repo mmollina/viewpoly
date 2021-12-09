@@ -11,6 +11,14 @@
 
 ### Quick Start
 
+You can run `VIEWpoly` locally installing the package and accessing the graphical interface through a web browser:
+
+```{r}
+# install.packages("devtools")
+devtools::install_github("mmollina/viewpoly")
+viewpoly::run_app()
+```
+
 The `Input data` tab has options for diverse types of inputs. You can upload directly outputs from:
 
 * [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html)
@@ -20,7 +28,7 @@ The `Input data` tab has options for diverse types of inputs. You can upload dir
 * [diaQTL](https://github.com/jendelman/diaQTL)
 * CSV, TSV or TSV.GZ standard formats
 
-To associate the genetic maps and QTL with genomic information, it is also required:
+To relate the genetic maps and QTL analysis with genomic information, it is also required:
 
 * FASTA reference genome
 
