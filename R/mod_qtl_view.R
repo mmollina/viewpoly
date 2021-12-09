@@ -85,10 +85,12 @@ mod_qtl_view_ui <- function(id){
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
                          column(12,
+                                actionBttn(ns("haplo_update"), style = "jelly", color = "royal",  size = "sm", label = "update available haplotypes", icon = icon("refresh")), 
+                                br(), br(),
                                 pickerInput(ns("haplo"),
                                             label = h6("Select haplotypes"),
-                                            choices = "Select QTL in the profile graphic to update",
-                                            selected = "Select QTL in the profile graphic to update",
+                                            choices = "Click on `update available haplotype` to update",
+                                            selected = "Click on `update available haplotype` to update",
                                             options = pickerOptions(
                                               size = 15,
                                               `selected-text-format` = "count > 3",
@@ -255,7 +257,7 @@ mod_qtl_view_server <- function(input, output, session,
     })
   })
   
-  observeEvent(output$plot.ui,{
+  observeEvent(input$haplo_update,{
     if(!is.null(loadQTL())){
       if(loadQTL()$software == "polyqtlR" | loadQTL()$software == "diaQTL") {
         dframe <- NULL
@@ -304,6 +306,7 @@ mod_qtl_view_server <- function(input, output, session,
   
   haplo_data <- eventReactive(input$haplo_submit, {
     if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(paste0("Feature not implemented for software: ", loadQTL()$software))
+    if(all(input$haplo == "Click on `update available haplotype` to update")) stop("Click on `update available haplotype` to update")
     if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
     if(all(input$haplo == "Select `bar` design to access this feature.")) stop("Select `bar` design to access this feature.")
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())

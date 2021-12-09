@@ -532,9 +532,10 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
 #' @rdname viewqtl
 #' 
 #' @importFrom reshape2 melt
+#' @importFrom dplyr filter
 #' 
 #' @keywords internal
-calc_homologprob  <- function(probs, selected_mks){
+calc_homologprob  <- function(probs, selected_mks, selected_lgs){
   input.genoprobs <- probs
   each.split <- vector()
   sizes <- table(selected_mks$LG)
@@ -545,7 +546,11 @@ calc_homologprob  <- function(probs, selected_mks){
     probs.b <- probs.b[,-c(1:sizes[i]),]
   }
   
-  pos <- split(selected_mks$pos, selected_mks$LG)
+  lgs <- as.numeric(unique(selected_lgs))
+  input.genoprobs <- input.genoprobs[sort(lgs)]
+  selected_mks_lg <-  filter(selected_mks, .data$LG %in% lgs)
+  
+  pos <- split(selected_mks_lg$pos, selected_mks_lg$LG)
   df.res <- NULL
   for(j in 1:length(input.genoprobs)){
     stt.names <- dimnames(input.genoprobs[[j]])[[1]] ## state names
@@ -708,25 +713,24 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
     incProgress(0.1, detail = paste("building graphic..."))
     lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
     lgs <- gsub("LG:", "", lgs)
-    selec.lg <- selected_mks %>% filter(LG %in% lgs)
-    homo.dat <- calc_homologprob(probs = probs, selected_mks = selec.lg)
+    homo.dat <- calc_homologprob(probs = probs, selected_mks = selected_mks, selected_lgs = lgs)
     pos <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("Pos", x)])
     pos <- gsub("Pos:", "", pos)
     homo <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("homolog", x)])
     homo <- gsub("homolog:", "", homo)
     alleles <- effects.data[[1]]$data$Alleles[!grepl("_",effects.data[[1]]$data$Alleles)]
     alleles <- rep(alleles, length(homo))
-    idx <- match(homo, alleles)
     incProgress(0.3, detail = paste("building graphic..."))
     like.ind.all <- list()
     for(i in 1:length(pos)){
+      idx <- match(homo[i], sort(unique(alleles)))
       homoprob_temp <- homo.dat$homoprob %>% 
         filter(round(map.position,2) %in% round(as.numeric(pos[i]),2)) %>% filter(LG %in% lgs[i])
       homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
       homoprob_temp <- homoprob_temp %>% 
         group_by(map.position, LG, individual) %>% 
         summarise(best = which(probability > 0.5))
-      like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx[i])]
+      like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx)]
       if(length(like.ind) ==0) like.ind <- NA
       like.ind.all[[i]] <-  like.ind
     }
