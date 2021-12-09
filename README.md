@@ -43,9 +43,6 @@ It is optional to upload also:
 
 Access the [tutorial](). 
 
-We present the app main features in the video bellow:
+We also presented the app main features in [this video](https://www.youtube.com/embed/yqWX86uT5jM)
 
-<iframe width="600" height="315"
-src="https://www.youtube.com/embed/yqWX86uT5jM">
-</iframe> 
 
