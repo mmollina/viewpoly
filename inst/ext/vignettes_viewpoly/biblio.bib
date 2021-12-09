@@ -17,21 +17,6 @@
   Pages                    = {},
   Volume                   = {},
 }
-@Article{Preedy2016,
-  Title                    = {A rapid marker ordering approach for high-density genetic linkage maps in experimental autotetraploid populations using multidimensional scaling},
-  Author                   = {Preedy, K. F.
-and Hackett, C. A.},
-  Journal                  = {Theor. Appl. Genet.},
-  Year                     = {2016},
-  Number                   = {11},
-  Pages                    = {2117--2132},
-  Volume                   = {129},
-
-  Abstract                 = {The paper proposes and validates a robust method for rapid construction of high-density linkage maps suitable for autotetraploid species. },
-  Doi                      = {10.1007/s00122-016-2761-8},
-  ISSN                     = {1432-2242},
-  Url                      = {http://dx.doi.org/10.1007/s00122-016-2761-8}
-}
 @Article{Pereira2019,
   Title                    = {Multiple QTL mapping in autopolyploids: a random-effect model approach with application in a hexaploid sweetpotato full-sib population},
   Author                   = {Pereira, Guilherme da Silva and Dorcus C. Gemenet and Marcelo Mollinari and Bode Olukolu and Federico Diaz and Veronica Mosquera and Wolfgang Gruneberg and Awais Khan and Craig Yencho and and Zhao-Bang Zeng},
@@ -42,3 +27,52 @@ and Hackett, C. A.},
   Volume                   = {},
   Url                      = {https://doi.org/10.1101/62295}
 }
+@article{Bourke2018,
+    author = {Bourke, Peter M and van Geest, Geert and Voorrips, Roeland E and Jansen, Johannes and Kranenburg, Twan and Shahin, Arwa and Visser, Richard G F and Arens, Paul and Smulders, Marinus J M and Maliepaard, Chris},
+    title = "{polymapR—linkage analysis and genetic map construction from F1 populations of outcrossing polyploids}",
+    journal = {Bioinformatics},
+    volume = {34},
+    number = {20},
+    pages = {3496-3502},
+    year = {2018},
+    month = {05},
+    abstract = "{Polyploid species carry more than two copies of each chromosome, a condition found in many of the world’s most important crops. Genetic mapping in polyploids is more complex than in diploid species, resulting in a lack of available software tools. These are needed if we are to realize all the opportunities offered by modern genotyping platforms for genetic research and breeding in polyploid crops.polymapR is an R package for genetic linkage analysis and integrated genetic map construction from bi-parental populations of outcrossing autopolyploids. It can currently analyse triploid, tetraploid and hexaploid marker datasets and is applicable to various crops including potato, leek, alfalfa, blueberry, chrysanthemum, sweet potato or kiwifruit. It can detect, estimate and correct for preferential chromosome pairing, and has been tested on high-density marker datasets from potato, rose and chrysanthemum, generating high-density integrated linkage maps in all of these crops.polymapR is freely available under the general public license from the Comprehensive R Archive Network (CRAN) at http://cran.r-project.org/package=polymapR.Supplementary data are available at Bioinformatics online.}",
+    issn = {1367-4803},
+    doi = {10.1093/bioinformatics/bty371},
+    url = {https://doi.org/10.1093/bioinformatics/bty371},
+    eprint = {https://academic.oup.com/bioinformatics/article-pdf/34/20/3496/27465604/bty371.pdf},
+}
+@article{Amadeu2021,
+    author = {Amadeu, Rodrigo R and Muñoz, Patricio R and Zheng, Chaozhi and Endelman, Jeffrey B},
+    title = "{QTL mapping in outbred tetraploid (and diploid) diallel populations}",
+    journal = {Genetics},
+    volume = {219},
+    number = {3},
+    year = {2021},
+    month = {08},
+    abstract = "{Over the last decade, multiparental populations have become a mainstay of genetics research in diploid species. Our goal was to extend this paradigm to autotetraploids by developing software for quantitative trait locus (QTL) mapping in connected F1 populations derived from a set of shared parents. For QTL discovery, phenotypes are regressed on the dosage of parental haplotypes to estimate additive effects. Statistical properties of the model were explored by simulating half-diallel diploid and tetraploid populations with different population sizes and numbers of parents. Across scenarios, the number of progeny per parental haplotype (pph) largely determined the statistical power for QTL detection and accuracy of the estimated haplotype effects. Multiallelic QTL with heritability 0.2 were detected with 90\\% probability at 25 pph and genome-wide significance level 0.05, and the additive haplotype effects were estimated with over 90\\% accuracy. Following QTL discovery, the software enables a comparison of models with multiple QTL and nonadditive effects. To illustrate, we analyzed potato tuber shape in a half-diallel population with three tetraploid parents. A well-known QTL on chromosome 10 was detected, for which the inclusion of digenic dominance lowered the Deviance Information Criterion (DIC) by 17 points compared to the additive model. The final model also contained a minor QTL on chromosome 1, but higher-order dominance and epistatic effects were excluded based on the DIC. In terms of practical impacts, the software is already being used to select offspring based on the effect and dosage of particular haplotypes in breeding programs.}",
+    issn = {1943-2631},
+    doi = {10.1093/genetics/iyab124},
+    url = {https://doi.org/10.1093/genetics/iyab124},
+    note = {iyab124},
+    eprint = {https://academic.oup.com/genetics/article-pdf/219/3/iyab124/41280039/iyab124.pdf},
+}
+@article{Bourke2021,
+    author = {Bourke, Peter M and Voorrips, Roeland E and Hackett, Christine A and van Geest, Geert and Willemsen, Johan H and Arens, Paul and Smulders, Marinus J M and Visser, Richard G F and Maliepaard, Chris},
+    title = "{Detecting quantitative trait loci and exploring chromosomal pairing in autopolyploids using polyqtlR}",
+    journal = {Bioinformatics},
+    volume = {37},
+    number = {21},
+    pages = {3822-3829},
+    year = {2021},
+    month = {08},
+    abstract = "{The investigation of quantitative trait loci (QTL) is an essential component in our understanding of how organisms vary phenotypically. However, many important crop species are polyploid (carrying more than two copies of each chromosome), requiring specialized tools for such analyses. Moreover, deciphering meiotic processes at higher ploidy levels is not straightforward, but is necessary to understand the reproductive dynamics of these species, or uncover potential barriers to their genetic improvement.Here, we present polyqtlR, a novel software tool to facilitate such analyses in (auto)polyploid crops. It performs QTL interval mapping in F1 populations of outcrossing polyploids of any ploidy level using identity-by-descent probabilities. The allelic composition of discovered QTL can be explored, enabling favourable alleles to be identified and tracked in the population. Visualization tools within the package facilitate this process, and options to include genetic co-factors and experimental factors are included. Detailed information on polyploid meiosis including prediction of multivalent pairing structures, detection of preferential chromosomal pairing and location of double reduction events can be performed.polyqtlR is freely available from the Comprehensive R Archive Network (CRAN) at http://cran.r-project.org/package=polyqtlR.Supplementary data are available at Bioinformatics online.}",
+    issn = {1367-4803},
+    doi = {10.1093/bioinformatics/btab574},
+    url = {https://doi.org/10.1093/bioinformatics/btab574},
+    eprint = {https://academic.oup.com/bioinformatics/article-pdf/37/21/3822/41091712/btab574.pdf},
+}
+
+
+
+

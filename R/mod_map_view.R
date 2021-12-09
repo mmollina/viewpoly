@@ -27,7 +27,7 @@ mod_map_view_ui <- function(id){
                      actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"),
                  )
           ),
-          tags$h2(tags$b("View Map")), br(), hr(),
+          tags$h2(tags$b("VIEWmap")), br(), hr(),
           
           column(6,
                  column(6,
