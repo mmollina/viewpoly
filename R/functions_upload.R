@@ -168,7 +168,8 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
 #' 
 #' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
 #' 
-#' @import tidyr
+#' @importFrom tidyr pivot_longer
+#' @import dplyr
 #' 
 #' @keywords internal
 prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){

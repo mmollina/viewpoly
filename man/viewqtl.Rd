@@ -51,7 +51,7 @@ plot_effects(
 
 breeding_values(qtl_info, probs, selected_mks, blups, beta.hat, pos)
 
-calc_homologprob(probs, selected_mks)
+calc_homologprob(probs, selected_mks, selected_lgs)
 
 \method{plot}{mappoly.homoprob}(x, stack = FALSE, lg = NULL, ind = NULL, verbose = TRUE, ...)
 
