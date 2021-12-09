@@ -25,9 +25,9 @@ mod_qtl_view_ui <- function(id){
           tags$h2(tags$b("View QTL")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group/s"),
                             pickerInput(ns("group"),
-                                        label = h6("Linkage group:"),
+                                        label = h6("Linkage group/s:"),
                                         choices = "This will be updated",
                                         selected = "This will be updated",
                                         options = list(
@@ -39,9 +39,9 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select phenotypes"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select phenotype/s"),
                             pickerInput(ns("phenotypes"),
-                                        label = h6("Phenotype:"),
+                                        label = h6("Phenotype/s:"),
                                         choices = "This will be updated",
                                         selected = "This will be updated",
                                         options = list(
@@ -85,10 +85,12 @@ mod_qtl_view_ui <- function(id){
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
                          column(12,
+                                actionBttn(ns("haplo_update"), style = "jelly", color = "royal",  size = "sm", label = "update available haplotypes", icon = icon("refresh")), 
+                                br(), br(),
                                 pickerInput(ns("haplo"),
                                             label = h6("Select haplotypes"),
-                                            choices = "Select QTL in the profile graphic to update",
-                                            selected = "Select QTL in the profile graphic to update",
+                                            choices = "Click on `update available haplotype` to update",
+                                            selected = "Click on `update available haplotype` to update",
                                             options = pickerOptions(
                                               size = 15,
                                               `selected-text-format` = "count > 3",
@@ -153,7 +155,7 @@ mod_qtl_view_server <- function(input, output, session,
       names(group_choices) <-  "Upload map or QTL data in `upload` session."
     }
     updatePickerInput(session, "group",
-                      label="Group",
+                      label="Linkage group/s:",
                       choices = group_choices,
                       selected= group_choices[[1]])
     
@@ -164,12 +166,12 @@ mod_qtl_view_server <- function(input, output, session,
       names(pheno_choices) <- unique(loadQTL()$profile$pheno)
       
       updatePickerInput(session, "phenotypes",
-                        label = "Phenotype:",
+                        label = "Phenotype/s:",
                         choices = pheno_choices,
                         selected=unlist(pheno_choices)[1])
     } else {
       updatePickerInput(session, "phenotypes",
-                        label = "Phenotype:",
+                        label = "Phenotype/s:",
                         choices = "Upload QTL information to update",
                         selected= "Upload QTL information to update")
     }
@@ -255,7 +257,7 @@ mod_qtl_view_server <- function(input, output, session,
     })
   })
   
-  observe({
+  observeEvent(input$haplo_update,{
     if(!is.null(loadQTL())){
       if(loadQTL()$software == "polyqtlR" | loadQTL()$software == "diaQTL") {
         dframe <- NULL
@@ -304,6 +306,7 @@ mod_qtl_view_server <- function(input, output, session,
   
   haplo_data <- eventReactive(input$haplo_submit, {
     if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(paste0("Feature not implemented for software: ", loadQTL()$software))
+    if(all(input$haplo == "Click on `update available haplotype` to update")) stop("Click on `update available haplotype` to update")
     if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
     if(all(input$haplo == "Select `bar` design to access this feature.")) stop("Select `bar` design to access this feature.")
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
