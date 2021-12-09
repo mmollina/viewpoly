@@ -211,7 +211,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                          software, design = c("bar", "circle", "digenic")) {
   
   CI.lower <- CI.upper <- x <- y <- z <- Estimates <- LG <- unique.id <- NULL
-  x.axis <- haplo <- effect <- qtl.id <- Alleles <- NULL
+  x.axis <- haplo <- effect <- qtl.id <- Alleles <- . <- NULL
   
   withProgress(message = 'Working:', value = 0, {
     incProgress(0.1, detail = paste("building graphic..."))
@@ -404,7 +404,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
         stop("Design option not available for: polyqtlR")
       } else {
         effects.df <- effects %>% filter(.data$pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>% 
-          filter(.data$LG %in% groups) %>% pivot_longer(cols = 4:ncol(.data), names_to = "haplo", values_to = "effect") 
+          filter(.data$LG %in% groups) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect") 
         
         effects.df <- effects.df %>% group_by(.data$haplo, .data$pheno) %>% mutate(x.axis = 1:n()) %>% ungroup() %>% as.data.frame()
         

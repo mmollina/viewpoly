@@ -16,7 +16,7 @@ mod_upload_ui <- function(id){
                  actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
                  actionButton(ns("goQTL"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
              ),
-             tags$h2(tags$b("Inputs")), br(),
+             tags$h2(tags$b("Input data")), br(),
              "Use this module to select an example dataset or to upload yours.", br(), br()
       ), br(),
       column(width = 12,
@@ -73,7 +73,7 @@ mod_upload_ui <- function(id){
                        p("The `polymapR.map` that you should upload is the result of polymapR `create_phased_maplist` function."),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F)
                    ),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload map informations standard format (.csv, .tsv or .tsv.gz)")),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload linkage map files with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_map_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit map custom", icon = icon("share-square")), 
                        ), br(), br(),
@@ -201,7 +201,7 @@ mod_upload_ui <- function(id){
                                  "save(QTLscan_list, file = \"polyqtlR_QTLscan_list.RData\")")
                        
                    ),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL informations standard format (.csv, .tsv or .tsv.gz)")),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL analysis results with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_qtl_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit QTL custom", icon = icon("share-square")), 
                        ), br(), br(),

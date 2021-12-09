@@ -27,7 +27,7 @@ mod_genes_view_ui <- function(id){
                      actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
-          tags$h2(tags$b("View Genome Browser")), br(), hr(),
+          tags$h2(tags$b("VIEWgenome")), br(), hr(),
           
           column(6,
                  column(6,
@@ -95,7 +95,7 @@ mod_genes_view_ui <- function(id){
             column(12, br(), hr(),
                    JBrowseROutput(ns("browserOutput"))
             ), br()),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Genes table"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Annotation table"),
             DT::dataTableOutput(ns("genes_ano"))
         )
       )
