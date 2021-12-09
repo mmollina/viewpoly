@@ -305,9 +305,9 @@ mf_h <- function(d) 0.5 * (1 - exp(-d/50))
 #'
 #' @param void internal function to be documented
 #' 
+#' @importFrom stats chisq.test
 #' @rdname utils
 #' 
-#' @importFrom stats chisq.test
 #' @keywords internal
 mrk_chisq_test <- function(x, ploidy){
   y <- x[-c(1:(ploidy+1))]
@@ -333,9 +333,8 @@ mrk_chisq_test <- function(x, ploidy){
 #'     marker. Markers are disposed in rows and individuals are 
 #'     disposed in columns. Missing data are represented by NAs
 #'     
-#' @importFrom tidyr `%>%`
 #' @importFrom reshape2 melt dcast
-#' @importFrom dplyr group_by filter arrange
+#' @importFrom dplyr group_by filter arrange `%>%`
 #' 
 #' @rdname utils
 #' 
@@ -399,9 +398,7 @@ dist_prob_to_class <- function(geno, prob.thres = 0.9) {
 #'     Genotyping in Polyploids. _PLoS ONE_ 7(2): 
 #'     e30906.
 #'     
-#'
 #' @importFrom stats dhyper
-#' 
 #' @rdname utils
 #' 
 #' @keywords internal

@@ -107,8 +107,8 @@ mod_map_view_ui <- function(id){
 
 #' map_view Server Functions
 #'
-#' @importFrom RColorBrewer brewer.pal
 #' @importFrom plotly ggplotly renderPlotly
+#' @importFrom dplyr `%>%`
 #'
 #' @noRd 
 mod_map_view_server <- function(input, output, session, 
@@ -207,10 +207,11 @@ mod_map_view_server <- function(input, output, session,
       ints_all[which(labs != "red")] <- ints_all[which(labs != "red")] - reduce
       
       # Add gradient colors
+      OrRd <- c("#FFF7EC", "#FEE8C8", "#FDD49E", "#FDBB84", "#FC8D59", "#EF6548", "#D7301F", "#B30000", "#7F0000")
       if(length(labs[which(labs == "red")]) < 3){
-        qtl.colors <- brewer.pal(7, name = "OrRd")[-c(1:5)][1:length(labs[which(labs == "red")])]
+        qtl.colors <- OrRd[1:7][-c(1:5)][1:length(labs[which(labs == "red")])]
       } else {
-        qtl.colors <- brewer.pal(length(labs[which(labs == "red")]), name = "OrRd")
+        qtl.colors <- OrRd[1:length(labs[which(labs == "red")])]
       }
       
       labs[which(labs == "red")][order(as.numeric(data$Pval), decreasing = T)] <- qtl.colors

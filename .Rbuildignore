@@ -4,3 +4,4 @@
 ^\dev$
 ^\www$
 ^app\.R$
+^\.github$
