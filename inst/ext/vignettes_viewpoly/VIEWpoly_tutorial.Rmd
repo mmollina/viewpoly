@@ -1,5 +1,5 @@
 ---
-title: "VIEWpoly: a visualization tool for polyploid genetic analysis"
+title: "VIEWpoly: a visualization tool to integrate and explore results of polyploid genetic analysis"
 author: "Cristiane Taniguti, Gabriel Gesteira, Jeekin Lau, Guilherme Pereira, David Byrne, Zhao-Bang Zeng, Oscar Riera-Lizarazu and Marcelo Mollinari"
 date: '`r Sys.Date()`'
 output:
@@ -37,8 +37,10 @@ knitr::opts_chunk$set(collapse = TRUE,
 
 # Introduction
 
-`ViewPoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html) (@Bourke2018), [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html) (@Mollinari2019), [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html) (@Bourke2021), [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html) (@Pereira2019), 
+`VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html) (@Bourke2018), [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html) (@Mollinari2019), [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html) (@Bourke2021), [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html) (@Pereira2019), 
 [diaQTL](https://github.com/jendelman/diaQTL) (@Amadeu2021) and genomic assembly, variants, annotation and alignment files. VIEWpoly uses [shiny](https://cran.r-project.org/web/packages/shiny/index.html), [golem](https://cran.r-project.org/web/packages/golem/index.html), [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html), [plotly](https://cran.r-project.org/web/packages/plotly/index.html), and [JBrowseR](https://cran.r-project.org/web/packages/JBrowseR/index.html) libraries to graphically display the QTL profiles, positions, alleles estimated effects, progeny individuals containing specific haplotypes and their breeding values. It is also possible to access marker dosage and parental phase from the linkage map. If genomic information is available, the corresponding QTL positions are interactively explored using JBrowseR interface, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables and images for further analysis and presentation.
+
+Check also our [tutorial video](https://www.youtube.com/watch?v=yqWX86uT5jM).
 
 The app is organized into four modules: `Input data`, `VIEWqtl`, `VIEWgenome`, and `VIEWmap`.
 
@@ -75,18 +77,22 @@ The app will convert the uploaded files from `Upload linkage map` and `Upload QT
 
 ### Available example datasets
 
-Linkage map, QTL analysis results from previous studies are available together with the package:
+The linkage map, QTL analysis results from previous studies on a tetraploid potato mapping population are available together with the package:
 
 * [Tetraploid potato - Atlantic x B1829-5](https://www.nature.com/articles/s41437-021-00416-x)
-* [Hexaploid sweet potato - Beauregard x Tanzania](https://academic.oup.com/genetics/article/215/3/579/5930535)
 
-To save space in the package repository, they contain the entire linkage map and QTL analysis but just a subset of individuals and the genome information (FASTA and GFF3).
+To save space in the package repository, it contains the entire linkage map and QTL analysis but just a subset of individuals and the genome information (FASTA and GFF3).
 
 <br />
 
 <img src="images/available_datasets.PNG" alt="drawing" width="600"/>
 
 <br />
+
+You can access other example files [here](), which includes also data from a hexaploid sweetpotato mapping population:
+
+* [Hexaploid sweet potato - Beauregard x Tanzania](https://academic.oup.com/genetics/article/215/3/579/5930535)
+
 
 You can select one of them to explore the software features before uploading your data. By default, the app will display the tetraploid potato dataset. 
 
@@ -303,7 +309,7 @@ Don't forget to press `submit` after uploading the file or choose the listed dat
 
 # VIEWqtl: the QTL Browser
 
-If you uploaded the QTL analysis information for any of the software options, you can access the features in the `QTL` tab. If you didn't upload anything, the tetraploid potato analysis example will be displayed, you can also select the hexaploid example in the `Input data` tab.
+If you uploaded the QTL analysis information for any of the software options, you can access the features in the `QTL` tab. If you didn't upload anything, the tetraploid potato analysis example will be displayed.
 
 <br />
 
@@ -482,7 +488,7 @@ Because two groups must be represented in this case, the graphic design change t
 
 #### Breeding values
 
-This feature is only available for software **QTLpoly*. Only the effects of the selected QTL in the QTL profile graphic are considered to estimate the breeding values.
+This feature is only available for software **QTLpoly**. Only the effects of the selected QTL in the QTL profile graphic are considered to estimate the breeding values.
 
 <br />
 

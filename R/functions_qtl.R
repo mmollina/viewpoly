@@ -4,7 +4,6 @@
 #'
 #' @import ggplot2
 #' @import dplyr
-#' @import tidyr
 #' @importFrom plotly TeX
 #' @importFrom utils tail
 #' 
@@ -200,8 +199,8 @@ only_plot_profile <- function(pl.in){
 #' 
 #' @rdname viewqtl
 #' 
-#' @importFrom tidyr `%>%`
-#' @importFrom dplyr filter
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr filter `%>%`
 #' @import ggplot2
 #' 
 #' @keywords internal
@@ -474,7 +473,6 @@ plot_effects <- function(data_effects.obj, software,
 #' Adapted function from QTLpoly
 #' 
 #' @import dplyr
-#' @import tidyr
 #' 
 #' @rdname viewqtl
 #' 

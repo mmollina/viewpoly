@@ -4,8 +4,6 @@
 #' 
 #' @rdname viewmap
 #' 
-#' @importFrom RColorBrewer brewer.pal
-#' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
                          maps, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
@@ -15,9 +13,10 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   ploidy <- dim(ph.p1[[1]])[2]
   # if(is.character(ch))
   #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
-  var.col <- brewer.pal(n = 4, name = "Set1")
+  var.col <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3")
   names(var.col) <- c("A", "T", "C", "G")
-  d.col<-c(NA, brewer.pal(n = ploidy, name = "Dark2"))
+  dark2 <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666")
+  d.col<-c(NA, dark2[1:ploidy])
   names(d.col) <- 0:ploidy
   d.col[1]<-NA
   x <- maps[[ch]]
