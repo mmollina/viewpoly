@@ -77,18 +77,22 @@ The app will convert the uploaded files from `Upload linkage map` and `Upload QT
 
 ### Available example datasets
 
-Linkage map, QTL analysis results from previous studies are available together with the package:
+The linkage map, QTL analysis results from previous studies on a tetraploid potato mapping population are available together with the package:
 
 * [Tetraploid potato - Atlantic x B1829-5](https://www.nature.com/articles/s41437-021-00416-x)
-* [Hexaploid sweet potato - Beauregard x Tanzania](https://academic.oup.com/genetics/article/215/3/579/5930535)
 
-To save space in the package repository, they contain the entire linkage map and QTL analysis but just a subset of individuals and the genome information (FASTA and GFF3).
+To save space in the package repository, it contains the entire linkage map and QTL analysis but just a subset of individuals and the genome information (FASTA and GFF3).
 
 <br />
 
 <img src="images/available_datasets.PNG" alt="drawing" width="600"/>
 
 <br />
+
+You can access other example files [here](), which includes also data from a hexaploid sweetpotato mapping population:
+
+* [Hexaploid sweet potato - Beauregard x Tanzania](https://academic.oup.com/genetics/article/215/3/579/5930535)
+
 
 You can select one of them to explore the software features before uploading your data. By default, the app will display the tetraploid potato dataset. 
 
@@ -305,7 +309,7 @@ Don't forget to press `submit` after uploading the file or choose the listed dat
 
 # VIEWqtl: the QTL Browser
 
-If you uploaded the QTL analysis information for any of the software options, you can access the features in the `QTL` tab. If you didn't upload anything, the tetraploid potato analysis example will be displayed, you can also select the hexaploid example in the `Input data` tab.
+If you uploaded the QTL analysis information for any of the software options, you can access the features in the `QTL` tab. If you didn't upload anything, the tetraploid potato analysis example will be displayed.
 
 <br />
 
@@ -484,7 +488,7 @@ Because two groups must be represented in this case, the graphic design change t
 
 #### Breeding values
 
-This feature is only available for software **QTLpoly*. Only the effects of the selected QTL in the QTL profile graphic are considered to estimate the breeding values.
+This feature is only available for software **QTLpoly**. Only the effects of the selected QTL in the QTL profile graphic are considered to estimate the breeding values.
 
 <br />
 

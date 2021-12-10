@@ -23,9 +23,10 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = tags$h4(tags$b("Available example datasets")),
                    radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals and the genome."), 
-                                choices = c("Potato - Atlantic x B1829-5" = "tetra_map",
-                                            "Sweetpotato - Beauregard x Tanzania (BT)" = "hex_map"),
-                                selected = "tetra_map"), br(),
+                                choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
+                                selected = "tetra_map"), br(), br(), hr(),
+                   tags$p("Access other example datasets ", 
+                          tags$a(href= "","here"))
                )
              )
       ), br(),

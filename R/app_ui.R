@@ -64,10 +64,10 @@ app_ui <- function(request) {
         fluidPage(
           navbarPage( 
             tags$script(HTML("var header = $('.navbar > .container-fluid');
-header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"logo_white.png\" alt=\"alt\" style=\"float:right;width:120px;height:80px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
+header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"www/logo_white.png\" alt=\"alt\" style=\"float:right;width:120px;height:80px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
     console.log(header)")
             ),
-            title =  "ViewPoly", 
+            title =  "VIEWpoly", 
             id = "viewpoly",
             theme = shinythemes::shinytheme("flatly"),  # <--- Specify theme here
             tags$head(tags$style(HTML('.navbar-static-top {background-color: #22284c;}',
