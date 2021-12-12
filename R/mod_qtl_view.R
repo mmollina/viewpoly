@@ -22,7 +22,7 @@ mod_qtl_view_ui <- function(id){
                      actionButton(ns("goGenes"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
                  )
           ),
-          tags$h2(tags$b("VIEqtl")), br(), hr(),
+          tags$h2(tags$b("VIEWqtl")), br(), hr(),
           column(6,
                  column(6,
                         box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group/s"),
