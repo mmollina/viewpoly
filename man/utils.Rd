@@ -14,9 +14,6 @@
 \alias{imf_h}
 \alias{get_LOD}
 \alias{ph_list_to_matrix}
-\alias{find_polyqtlR_Peak}
-\alias{polyqtlReffects}
-\alias{list.depth}
 \title{Import data from polymapR}
 \usage{
 import_data_from_polymapR(
@@ -55,20 +52,6 @@ imf_h(r)
 get_LOD(x, sorted = TRUE)
 
 ph_list_to_matrix(L, ploidy)
-
-find_polyqtlR_Peak(LOD_data, linkage_group)
-
-polyqtlReffects(
-  IBD_list,
-  Phenotype.df,
-  genotype.ID,
-  trait.ID.c,
-  linkage_group,
-  LOD_data,
-  cM_range = NULL
-)
-
-list.depth(obj, objdepth = 0)
 }
 \arguments{
 \item{input.data}{a \code{polymapR} dataset}

@@ -23,7 +23,7 @@ prepare_QTLpoly(data, remim.mod, est.effects, fitted.mod)
 
 prepare_diaQTL(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list)
 
-prepare_polyqtlR(polyqtlR_QTLscan_list, polyqtlR_IBD, polyqtlR_phenotypes)
+prepare_polyqtlR(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_effects)
 
 prepare_qtl_custom_files(
   selected_mks,

@@ -37,45 +37,23 @@ mod_upload_ui <- function(id){
                        actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
-                       tags$p("Access further information about these type of inputs", 
-                              tags$a(href= "https://rpubs.com/mmollin/tetra_mappoly_vignette","here")), hr(),
+                       tags$p("Access further information about how to build a linkage maps with MAPpoly ", 
+                              tags$a(href= "https://rpubs.com/mmollin/tetra_mappoly_vignette","here")), br(),
+                       tags$p("Access a example code of how to obtain these inputs using MAPpoly functions ", 
+                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-MAPpoly ","here")),
+                       hr(),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_mappoly"), style = "jelly", color = "royal",  size = "sm", label = "submit MAPpoly", icon = icon("share-square")), 
                        ), br(), br(),
                        tags$p("Object of class `mappoly.map`."), 
                        fileInput(ns("mappoly_in"), label = h6("File: my_mappoly_list.RData"), multiple = F),
-                       tags$p("Example code from the MAPpoly tutorial to get this file:"),
-                       tags$code( "lg10.map <- est_rf_hmm_sequential(input.seq = LGS[[10]]$seq,
-                                start.set = 10,
-                                thres.twopt = 10, 
-                                thres.hmm = 10,
-                                extend.tail = 30,
-                                info.tail = TRUE, 
-                                twopt = LGS[[10]]$tpt,
-                                sub.map.size.diff.limit = 8, 
-                                phase.number.limit = 20,
-                                reestimate.single.ph.configuration = TRUE,
-                                tol = 10e-3,
-                                tol.final = 10e-4)", br(), br(),
-                                  "lg10.map.mds <- est_rf_hmm_sequential(input.seq = LGS.mds[[10]]$seq,
-                                      start.set = 10,
-                                      thres.twopt = 10, 
-                                      thres.hmm = 10,
-                                      extend.tail = 30,
-                                      info.tail = TRUE, 
-                                      twopt = LGS.mds[[10]]$tpt,
-                                      sub.map.size.diff.limit = 10, 
-                                      phase.number.limit = 20,
-                                      reestimate.single.ph.configuration = TRUE,
-                                      tol = 10e-3,
-                                      tol.final = 10e-4)", br(), br(),
-                                  "map_list <- list(lg10.map, lg10.map.mds)", br(), br(),
-                                  "save(map_list, file = \"my_mappoly_list.RData\")"), 
-                       br(),
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polymapR output")),
-                       tags$p("Access further information about these type of inputs", 
-                              tags$a(href= "https://cran.r-project.org/web/packages/polymapR/vignettes/Vignette_polymapR.html","here")), hr(),
+                       tags$p("Access further information about how to build a linkage maps with polymapR ", 
+                              tags$a(href= "https://cran.r-project.org/web/packages/polymapR/vignettes/Vignette_polymapR.html","here")), br(),
+                       tags$p("Access a example code of how to obtain these inputs using polymapR functions ", 
+                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-polymapR-output ","here")),
+                       hr(),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_polymapR"), style = "jelly", color = "royal",  size = "sm", label = "submit polymapR", icon = icon("share-square")), 
                        ), br(), br(),
@@ -100,20 +78,7 @@ mod_upload_ui <- function(id){
                          fill = TRUE
                        ), br(),
                        fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
-                       tags$p("Example code from the polymapR tutorial to get this file:"),
-                       tags$code("ALL_dosages <- read.csv(\"tetraploid_dosages.csv\",
-                        stringsAsFactors = FALSE,
-                        row.names = 1) #first column contains rownames", br(), br(),
-                                 "save(ALL_dosages, file = \"polymapR.dataset.RData\")"), br(), hr(),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F),
-                       tags$p("Example code from the polymapR tutorial to get this file:"),
-                       tags$code("phased.maplist <- create_phased_maplist(maplist = integrated.maplist,
-                                        dosage_matrix.conv = filtered_data,
-                                        N_linkages = 5,
-                                        ploidy = 4,
-                                        marker_assignment.1 = marker_assignments$P1,
-                                        marker_assignment.2 = marker_assignments$P2)", br(), br(),
-                                 "save(phased.maplist, file = \"polymapR.map.RData\")"), br(), 
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload linkage map files with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
@@ -145,103 +110,42 @@ mod_upload_ui <- function(id){
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_qtlpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit QTLpoly", icon = icon("share-square")), 
                        ), br(), br(),
-                       tags$p("Access further information about these type of inputs", 
-                              tags$a(href= "https://guilherme-pereira.github.io/QTLpoly/1-tutorial","here")), hr(),
+                       tags$p("Access further information about how to perform QTL analysis with QTLpoly ", 
+                              tags$a(href= "https://guilherme-pereira.github.io/QTLpoly/1-tutorial","here")), br(),
+                       tags$p("Access a example code of how to obtain these inputs using QTLpoly functions ", 
+                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-QTLpoly-output ","here")),
+                       hr(),
                        fileInput(ns("qtlpoly_data"), label = h6("File: QTLpoly_data.RData", br(), br(),"Object of class: qtlpoly.data"), multiple = F),
-                       tags$p("Example code from the QTLpoly tutorial to get this file:"),
-                       tags$code("library(\"qtlpoly\")", br(), 
-                                 "data <- read_data(ploidy = 6, geno.prob = genoprob, pheno = pheno, step = 1)", br(),
-                                 "save(data, file = \"QTLpoly_data.RData\")"), hr(),
-                       
                        fileInput(ns("qtlpoly_remim.mod"), label = h6("File: QTLpoly_remim.mod.RData", br(), br(), "Object of class: qtlpoly.remim"), multiple = F),
-                       
-                       tags$p("Example code from the QTLpoly tutorial to get this file:"),
-                       tags$code("remim.mod <- remim(data = data, w.size = 15, sig.fwd = 0.01, sig.bwd = 1e-04, d.sint = 1.5, n.clusters = 4, plot = \"remim\")", br(),
-                                 "save(remim.mod, file = \"QTLpoly_remim.mod.RData\")"), hr(),
-                       
                        fileInput(ns("qtlpoly_est.effects"), label = h6("File: QTLpoly_est.effects.RData", br(), br(),"Object of class: qtlpoly.effects"), multiple = F),
-                       
-                       tags$p("Example code from the QTLpoly tutorial to get this file:"),
-                       tags$code("est.effects <- qtl_effects(ploidy = 6, fitted = fitted.mod)", br(),
-                                 "save(est.effects, file = \"QTLpoly_est.effects.RData\")"), hr(),
-                       
                        fileInput(ns("qtlpoly_fitted.mod"), label = h6("File: QTLpoly_fitted.mod.RData", br(), br(), "Object of class: qtlpoly.fitted"), multiple = F),
-                       
-                       tags$p("Example code from the QTLpoly tutorial to get this file:"),
-                       tags$code("fitted.mod <- fit_model(data = data, model = remim.mod, probs = \"joint\", polygenes = \"none\")", br(),
-                                 "save(fitted.mod, file = \"QTLpoly_fitted.mod.RData\")"), br()
-                       
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload diaQTL output")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_diaQTL"), style = "jelly", color = "royal",  size = "sm", label = "submit diaQTL", icon = icon("share-square")), 
                        ), br(), br(),
-                       tags$p("Access further information about these type of inputs", 
-                              tags$a(href= "https://jendelman.github.io/diaQTL/diaQTL_Vignette.html","here")), hr(),
-                       
+                       tags$p("Access further information about how to perform QTL analysis with diaQTL ", 
+                              tags$a(href= "https://jendelman.github.io/diaQTL/diaQTL_Vignette.html","here")), br(),
+                       tags$p("Access a example code of how to obtain these inputs using diaQTL functions ", 
+                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-diaQTL-output ","here")),
+                       hr(),
                        fileInput(ns("diaQTL_scan1"), label = h6("File: diaQTL_scan1_list.RData"), multiple = F),
-                       
-                       tags$p("Example code from the diaQTL tutorial to get this file:"),
-                       tags$code("ans1 <- scan1(data = data, trait = \"tuber_shape\", params = list(burnIn=50,nIter=500), n.core = 2)", br(),
-                                 "ans2 <- scan1(data = data, trait = \"height\", params = list(burnIn=50,nIter=500), n.core = 2)",br(),
-                                 "scan1_list <- list(ans1, ans2)", br(),
-                                 "names(scan1_list) <- c(\"tuber_shape\",\"height\")", br(),
-                                 "save(scan1_list, file = \"diaQTL_scan1_list.RData\")"), hr(),
-                       
                        fileInput(ns("diaQTL_scan1.summaries"), label = h6("File: diaQTL_scan1.summaries_list.RData"), multiple = F),
-                       
-                       tags$p("Example code from the diaQTL tutorial to get this file:"),
-                       tags$code("summary_ans1 <- scan1_summary(ans1, position=\"bp\")", br(),
-                                 "summary_ans2 <- scan1_summary(ans2, position=\"bp\")",br(),
-                                 "scan1.summaries_list <- list(summary_ans1, summary_ans2)", br(),
-                                 "names(scan1.summaries_list) <- c(\"tuber_shape\",\"height\")", br(),
-                                 "save(scan1.summaries_list, file = \"diaQTL_scan1.summaries_list.RData\")"), hr(),
-                       
                        fileInput(ns("diaQTL_BayesCI"), label = h6("File: diaQTL_BayesCI_list.RData"), multiple = F),
-                       
-                       tags$p("Example code from the diaQTL tutorial to get this file:"),
-                       tags$code("bayes1 <- BayesCI(ans1,data,chrom=\"5\",CI.prob=0.9)", br(),
-                                 "bayes2 <- BayesCI(ans1,data,chrom=\"7\",CI.prob=0.9)", br(),
-                                 "bayes3 <- BayesCI(ans1,data,chrom=\"10\",CI.prob=0.9)", br(),
-                                 "BayesCI_list <- list(bayes1, bayes2, bayes3)", br(),
-                                 "save(BayesCI_list, file = \"diaQTL_BayesCI_list.RData\")"), hr(),                     
-                       
                        fileInput(ns("diaQTL_fitQTL"), label = h6("File: diaQTL_fitQTL_list.RData"), multiple = F),
-                       
-                       tags$p("Example code from the diaQTL tutorial to get this file:"),
-                       tags$code("fit1.1 <- fitQTL(data=data, trait=\"tuber_shape\", params=params, qtl=model1.1)", br(),
-                                 "fit1.2 <- fitQTL(data=data, trait=\"tuber_shape\", params=params, qtl=model1.2)", br(),
-                                 "fit2.1 <- fitQTL(data=data, trait=\"height\", params=params, qtl=model2.1)", br(),
-                                 "fit2.2 <- fitQTL(data=data, trait=\"height\", params=params, qtl=model2.2, epistasis=data.frame(marker1=qtl.10at63,marker2=qtl.1at133))", br(),
-                                 "feno1 <- list(fit1.1, fit1.2)", br(),
-                                 "feno2 <- list(fit2.1, fit2.2)", br(),
-                                 "fitQTL_list <- list(feno1, feno2)", br(),
-                                 "names(fitQTL_list) <- c(\"tuber_shape\",\"height\")", br(),
-                                 "save(fitQTL_list, file = \"diaQTL_fitQTL_list.RData\")")                    
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polyqtlR output")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_polyqtlR"), style = "jelly", color = "royal",  size = "sm", label = "submit polyqtlR", icon = icon("share-square")), 
                        ), br(), br(),
-                       tags$p("Access further information about these type of inputs", 
-                              tags$a(href= "https://cran.r-project.org/web/packages/polyqtlR/vignettes/polyqtlR_vignette.html","here")), hr(),
-                       
-                       fileInput(ns("polyqtlR_phenotypes"), label = h6("File: polyqtl_phenotypes.RData"), multiple = F), hr(),
-                       
-                       fileInput(ns("polyqtlR_IBD"), label = h6("File: polyqtlR_IBD.RData"), multiple = F),
-                       
-                       tags$p("Example code from the polyqtlR tutorial to get this file:"),
-                       tags$code("IBD_4x <- estimate_IBD(phased_maplist = phased_maplist.4x, genotypes = SNP_dosages.4x, method = \"heur\", ploidy = 4)", br(),
-                                 "save(IBD_4x, file = \"polyqtlR_IBD.RData\")"), hr(),
-                       
+                       tags$p("Access further information about how to perform QTL analysis with polyqtlR ", 
+                              tags$a(href= "https://cran.r-project.org/web/packages/polyqtlR/vignettes/polyqtlR_vignette.html","here")), br(),
+                       tags$p("Access a example code of how to obtain these inputs using polyqtlR functions ", 
+                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-polyqtlR-output ","here")),
+                       hr(),
+                       fileInput(ns("polyqtlR_effects"), label = h6("File: polyqtlR_effects.RData"), multiple = F), hr(),
+                       fileInput(ns("polyqtlR_qtl_info"), label = h6("File: polyqtlR_qtl_info.RData"), multiple = F),
                        fileInput(ns("polyqtlR_QTLscan_list"), label = h6("File: polyqtlR_QTLscan_list.RData"), multiple = F),
-                       
-                       tags$p("Example code from the polyqtlR tutorial to get this file:"),
-                       tags$code("qtl_LODs.4x.trait1 <- QTLscan(IBD_list = IBD_4x, Phenotype.df = Phenotypes_4x, genotype.ID = \"geno\", trait.ID = \"pheno1\", block = \"year\")", br(),
-                                 "qtl_LODs.4x.trait2 <- QTLscan(IBD_list = IBD_4x, Phenotype.df = Phenotypes_4x, genotype.ID = \"geno\", trait.ID = \"pheno2\", block = \"year\")", br(),
-                                 "QTLscan_list <- list(trait1 = qtl_LODs.4x.trait1, trait2 = qtl_LODs.4x.trait2)", br(),
-                                 "save(QTLscan_list, file = \"polyqtlR_QTLscan_list.RData\")")
-                       
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL analysis results with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
@@ -548,8 +452,8 @@ mod_upload_server <- function(input, output, session, parent_session){
     } else if(values$upload_state_polyqtlR == "uploaded"){
       return(list(
         polyqtlR_QTLscan_list = input$polyqtlR_QTLscan_list,
-        polyqtlR_IBD = input$polyqtlR_IBD,
-        polyqtlR_phenotypes = input$polyqtlR_phenotypes
+        polyqtlR_qtl_info = input$polyqtlR_qtl_info,
+        polyqtlR_effects = input$polyqtlR_effects
       ))
     } 
   })
@@ -594,8 +498,8 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(input_qtl()$diaQTL_fitQTL) &
        is.null(input_qtl()$diaQTL_BayesCI) &
        is.null(input_qtl()$polyqtlR_QTLscan_list) & 
-       is.null(input_qtl()$polyqtlR_IBD) &
-       is.null(input_qtl()$polyqtlR_phenotypes) &
+       is.null(input_qtl()$polyqtlR_qtl_info) &
+       is.null(input_qtl()$polyqtlR_effects) &
        is.null(input_genome()$fasta) &
        is.null(input_genome()$gff3) &
        is.null(input_genome()$vcf) &
@@ -709,16 +613,16 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   loadQTL_polyqtlR = reactive({
     if(!(is.null(input_qtl()$polyqtlR_QTLscan_list) & 
-         is.null(input_qtl()$polyqtlR_IBD) &
-         is.null(input_qtl()$polyqtlR_phenotypes))) {
+         is.null(input_qtl()$polyqtlR_qtl_info) &
+         is.null(input_qtl()$polyqtlR_effects))) {
       
       req(input_qtl()$polyqtlR_QTLscan_list,
-          input_qtl()$polyqtlR_IBD,
-          input_qtl()$polyqtlR_phenotypes)
+          input_qtl()$polyqtlR_qtl_info,
+          input_qtl()$polyqtlR_effects)
       
       prepare_polyqtlR(input_qtl()$polyqtlR_QTLscan_list,
-                       input_qtl()$polyqtlR_IBD,
-                       input_qtl()$polyqtlR_phenotypes)
+                       input_qtl()$polyqtlR_qtl_info,
+                       input_qtl()$polyqtlR_effects)
     } else NULL
   })
   
