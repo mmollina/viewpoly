@@ -5,28 +5,33 @@
 #' @keywords internal
 prepare_examples <- function(example){
   viewmap_hexa <- viewqtl_hexa <- viewmap_tetra <- viewqtl_tetra <- NULL
-  if(example == "hex_map"){
-    withProgress(message = 'Working:', value = 0, {
-      incProgress(0.5, detail = paste("Uploading BT example map data..."))
-      load(system.file("ext/viewmap_hexa.RData", package = "viewpoly"))
-      load(system.file("ext/viewqtl_hexa.RData", package = "viewpoly"))
-    })
-    structure(list(map = viewmap_hexa,
-                   qtl = viewqtl_hexa,
-                   fasta= system.file("ext/Trifida.Chr01.fa.gz", package="viewpoly"),
-                   gff3 = system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")),
-              class = "viewpoly")
+  ## if(example == "hex_map"){
+  ##   withProgress(message = 'Working:', value = 0, {
+  ##     incProgress(0.5, detail = paste("Uploading BT example map data..."))
+  ##     load(system.file("ext/viewmap_hexa.RData", package = "viewpoly"))
+  ##     load(system.file("ext/viewqtl_hexa.RData", package = "viewpoly"))
+  ##   })
+  ##   structure(list(map = viewmap_hexa,
+  ##                  qtl = viewqtl_hexa,
+  ##                  fasta= system.file("ext/Trifida.Chr01.fa.gz", package="viewpoly"),
+  ##                  gff3 = system.file("ext/Trifida.Chr01.sorted.gff3.gz", package = "viewpoly")),
+  ##             class = "viewpoly")
     
-  } else if(example == "tetra_map"){
+  ## } else
+    if(example == "tetra_map"){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
-      load(system.file("ext/viewmap_tetra.RData", package = "viewpoly"))
-      load(system.file("ext/viewqtl_tetra.RData", package = "viewpoly"))
+      load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
+      load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
+      download.file("http://152.1.45.17/files/Stuberosum.Chr01.fa.gz", destfile = "Stuberosum.Chr01.fa.gz")
+      download.file("http://152.1.45.17/files/Stuberosum.Chr01.gff3.gz", destfile = "Stuberosum.Chr01.gff3.gz")
     })
     structure(list(map=viewmap_tetra, 
-                   qtl=viewqtl_tetra, 
-                   fasta= system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly"),
-                   gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz", package="viewpoly")),
+                   qtl=viewqtl_tetra,
+                   fasta = "Stuberosum.Chr01.fa.gz",
+                   gff3 = "Stuberosum.Chr01.gff3.gz"),
+                   ## fasta= system.file("ext/Stuberosum.Chr01.fa.gz", package = "viewpoly"),
+                   ## gff3 = system.file("ext/Stuberosum.Chr01.gff3.gz", package="viewpoly")),
               class = "viewpoly")
   }
 }
