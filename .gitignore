@@ -43,3 +43,5 @@ vignettes/*.pdf
 inst/ext/NSP306*
 qtl_hex_data/
 tests/variables.R
+
+/*.Rproj/
