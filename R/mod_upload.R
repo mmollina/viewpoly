@@ -22,11 +22,11 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = tags$h4(tags$b("Available example datasets")),
-                   radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals and the genome."), 
+                   radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals."), 
                                 choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
                                 selected = "tetra_map"), br(), br(), hr(),
-                   tags$p("Access other example datasets ", 
-                          tags$a(href= "","here"))
+                   tags$p("Access complete example datasets ", 
+                          tags$a(href= "http://wenjuanwei_pc-zbz.statgen.ncsu.edu/files/","here"))
                )
              )
       ), br(),
@@ -40,7 +40,7 @@ mod_upload_ui <- function(id){
                        tags$p("Access further information about how to build a linkage maps with MAPpoly ", 
                               tags$a(href= "https://rpubs.com/mmollin/tetra_mappoly_vignette","here")), br(),
                        tags$p("Access a example code of how to obtain these inputs using MAPpoly functions ", 
-                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-MAPpoly ","here")),
+                              tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_linkage_map_files","here")),
                        hr(),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_mappoly"), style = "jelly", color = "royal",  size = "sm", label = "submit MAPpoly", icon = icon("share-square")), 
@@ -52,7 +52,7 @@ mod_upload_ui <- function(id){
                        tags$p("Access further information about how to build a linkage maps with polymapR ", 
                               tags$a(href= "https://cran.r-project.org/web/packages/polymapR/vignettes/Vignette_polymapR.html","here")), br(),
                        tags$p("Access a example code of how to obtain these inputs using polymapR functions ", 
-                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-polymapR-output ","here")),
+                              tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_linkage_map_files","here")),
                        hr(),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_polymapR"), style = "jelly", color = "royal",  size = "sm", label = "submit polymapR", icon = icon("share-square")), 
@@ -113,7 +113,7 @@ mod_upload_ui <- function(id){
                        tags$p("Access further information about how to perform QTL analysis with QTLpoly ", 
                               tags$a(href= "https://guilherme-pereira.github.io/QTLpoly/1-tutorial","here")), br(),
                        tags$p("Access a example code of how to obtain these inputs using QTLpoly functions ", 
-                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-QTLpoly-output ","here")),
+                              tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_QTL_analysis_files","here")),
                        hr(),
                        fileInput(ns("qtlpoly_data"), label = h6("File: QTLpoly_data.RData", br(), br(),"Object of class: qtlpoly.data"), multiple = F),
                        fileInput(ns("qtlpoly_remim.mod"), label = h6("File: QTLpoly_remim.mod.RData", br(), br(), "Object of class: qtlpoly.remim"), multiple = F),
@@ -127,7 +127,7 @@ mod_upload_ui <- function(id){
                        tags$p("Access further information about how to perform QTL analysis with diaQTL ", 
                               tags$a(href= "https://jendelman.github.io/diaQTL/diaQTL_Vignette.html","here")), br(),
                        tags$p("Access a example code of how to obtain these inputs using diaQTL functions ", 
-                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-diaQTL-output ","here")),
+                              tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_QTL_analysis_files","here")),
                        hr(),
                        fileInput(ns("diaQTL_scan1"), label = h6("File: diaQTL_scan1_list.RData"), multiple = F),
                        fileInput(ns("diaQTL_scan1.summaries"), label = h6("File: diaQTL_scan1.summaries_list.RData"), multiple = F),
@@ -141,7 +141,7 @@ mod_upload_ui <- function(id){
                        tags$p("Access further information about how to perform QTL analysis with polyqtlR ", 
                               tags$a(href= "https://cran.r-project.org/web/packages/polyqtlR/vignettes/polyqtlR_vignette.html","here")), br(),
                        tags$p("Access a example code of how to obtain these inputs using polyqtlR functions ", 
-                              tags$a(href= "https://rpubs.com/mmollin/viewpoly_vignette#Upload-polyqtlR-output ","here")),
+                              tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_QTL_analysis_files","here")),
                        hr(),
                        fileInput(ns("polyqtlR_effects"), label = h6("File: polyqtlR_effects.RData"), multiple = F), hr(),
                        fileInput(ns("polyqtlR_qtl_info"), label = h6("File: polyqtlR_qtl_info.RData"), multiple = F),
@@ -209,7 +209,7 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = tags$h4(tags$b("Download VIEWpoly dataset")),
-                   p("The uploaded data are converted to the viewpoly format. It keeps the map and the QTL information."), br(),
+                   p("The uploaded data are converted to the viewpoly format. It keeps the map and the QTL information. Genome information is not stored."), br(),
                    textInput(ns("data.name"), label = p("Define the dataset name. Do not use spaces between words."), value = "dataset_name"), br(),
                    
                    downloadBttn(ns('export_viewpoly'), style = "gradient", color = "royal")

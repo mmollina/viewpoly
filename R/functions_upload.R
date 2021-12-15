@@ -12,17 +12,11 @@ prepare_examples <- function(example){
       incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
       load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
       load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
-      temp <- tempdir()
-      download.file("http://152.1.45.17/files/Stuberosum.Chr01.fa.gz", destfile = paste0(temp, "/Stuberosum.Chr01.fa.gz"))
-      download.file("http://152.1.45.17/files/Stuberosum.Chr01.fa.gz.fai", destfile = paste0(temp, "/Stuberosum.Chr01.fa.gz.fai"))
-      download.file("http://152.1.45.17/files/Stuberosum.Chr01.fa.gz.gzi", destfile = paste0(temp, "/Stuberosum.Chr01.fa.gz.gzi"))
-      download.file("http://152.1.45.17/files/Stuberosum.Chr01.gff3.gz", destfile = paste0(temp,"/Stuberosum.Chr01.gff3.gz"))
-      download.file("http://152.1.45.17/files/Stuberosum.Chr01.gff3.gz.tbi", destfile = paste0(temp,"/Stuberosum.Chr01.gff3.gz.tbi"))
     })
     structure(list(map=viewmap_tetra, 
                    qtl=viewqtl_tetra,
-                   fasta = paste0(temp, "/Stuberosum.Chr01.fa.gz"),
-                   gff3 = paste0(temp,"/Stuberosum.Chr01.gff3.gz")),
+                   fasta = "http://wenjuanwei_pc-zbz.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz",
+                   gff3 = "http://wenjuanwei_pc-zbz.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz"),
               class = "viewpoly")
   }
 }

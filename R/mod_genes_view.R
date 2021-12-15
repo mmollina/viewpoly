@@ -325,7 +325,9 @@ mod_genes_view_server <- function(input, output, session,
       stop("Upload the genome information in upload session to access this feature.")
     }
     
-    data_server <- serve_data(dirname(path.fa), port = 5000)
+    if(is.null(loadExample())){
+      data_server <- serve_data(dirname(path.fa), port = 5000)
+    } else data_server = NULL
     
     list(path.fa = path.fa, 
          path.gff = path.gff, 
@@ -338,7 +340,9 @@ mod_genes_view_server <- function(input, output, session,
   # Reset server
   reset <- reactive({
     if(!input$reset_server) { 
-      button()$data_server$stop_server()
+      if(is.null(loadExample())){
+        button()$data_server$stop_server()
+      }
       return(TRUE)
     } else {
       return(FALSE)
@@ -353,17 +357,32 @@ mod_genes_view_server <- function(input, output, session,
       if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")
     
     if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
-    assembly <- assembly(
-      paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
-      bgzip = TRUE
-    )
     
-    ## create configuration for a JB2 GFF FeatureTrack
-    if(!is.null(button()$path.gff)){
-      annotations_track <- track_feature(
-        paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
-        assembly
+    if(is.null(loadExample())){
+      assembly <- assembly(
+        paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
+        bgzip = TRUE
       )
+    } else {
+      assembly <- assembly(
+        button()$path.fa, 
+        bgzip = TRUE
+      )
+    }
+    ## create configuration for a JB2 GFF FeatureTrack
+    
+    if(!is.null(button()$path.gff)){
+      if(is.null(loadExample())){
+        annotations_track <- track_feature(
+          paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
+          assembly
+        )
+      } else {
+        annotations_track <- track_feature(
+          button()$path.gff, 
+          assembly
+        )
+      }
     } else annotations_track <- NULL
     
     if(!is.null(button()$path.vcf)){
@@ -408,7 +427,6 @@ mod_genes_view_server <- function(input, output, session,
         assembly,
         tracks_set[which(!is.null(tracks_set))]
       )
-      
       JBrowseR(
         "View",
         assembly = assembly,
