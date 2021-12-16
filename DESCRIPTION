@@ -31,11 +31,11 @@ Authors@R: c(
            )
 Maintainer: Cristiane Taniguti <chtaniguti@tamu.edu>
 Description: This package provides a graphical user interface to integrate, visualize and explore results 
-from linkage and quantitative trait loci analysis, together with genomic information for autopolyploid 
-species. The app is meant for interactive use and allows users to optionally upload different sources 
-of information, including  gene annotation and alignment files, enabling the exploitation and search for 
-candidate genes in a genome browser. In its current version, VIEWpoly supports inputs from MAPpoly, 
-polymapR, diaQTL, QTLpoly and polyqtlR packages. 
+            from linkage and quantitative trait loci analysis, together with genomic information for autopolyploid 
+            species. The app is meant for interactive use and allows users to optionally upload different sources 
+            of information, including  gene annotation and alignment files, enabling the exploitation and search for 
+            candidate genes in a genome browser. In its current version, VIEWpoly supports inputs from MAPpoly, 
+            polymapR, diaQTL, QTLpoly and polyqtlR packages. 
 License: GPL-3
 Depends:
     R (>= 3.5.0)
