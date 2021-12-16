@@ -30,15 +30,12 @@ Authors@R: c(
                   email = "mmollin@ncsu.edu")
            )
 Maintainer: Cristiane Taniguti <chtaniguti@tamu.edu>
-Description: This package is for visualizing and exploring results from polyploid 
-         computational tools using an interactive graphical user interface. The package 
-         allows users to directly upload output files from polyploid tools, and genomic 
-         assembly and annotation files. ViewPoly displays the SNP dosages in parentals and offspring, and their 
-         respective haplotypes in the genetic map. It also shows the results of QTL analysis, 
-         including confidence intervals, estimated effects, and their corresponding genomic 
-         positions, which can be interactively explored with a genome browser, allowing the 
-         search for candidate genes. It also provides features to download specific information 
-         into comprehensive tables for further analysis and presentation.
+Description: This package provides a graphical user interface to integrate, visualize and explore results 
+from linkage and quantitative trait loci analysis, together with genomic information for autopolyploid 
+species. The app is meant for interactive use and allows users to optionally upload different sources 
+of information, including  gene annotation and alignment files, enabling the exploitation and search for 
+candidate genes in a genome browser. In its current version, VIEWpoly supports inputs from MAPpoly, 
+polymapR, diaQTL, QTLpoly and polyqtlR packages. 
 License: GPL-3
 Depends:
     R (>= 3.5.0)

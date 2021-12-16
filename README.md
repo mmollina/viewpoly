@@ -5,8 +5,8 @@
   
 # VIEWpoly <img src="https://user-images.githubusercontent.com/7572527/145726577-7b01d48b-ca1d-446b-b9c8-aff8c3c9877b.png" align="right" width="230"/>
 
-`VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html), [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html) , [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html) , [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html), 
-[diaQTL](https://github.com/jendelman/diaQTL) and genomic assembly, variants, annotation and alignment files. VIEWpoly uses [shiny](https://cran.r-project.org/web/packages/shiny/index.html), [golem](https://cran.r-project.org/web/packages/golem/index.html), [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html), [plotly](https://cran.r-project.org/web/packages/plotly/index.html), and [JBrowseR](https://cran.r-project.org/web/packages/JBrowseR/index.html) libraries to graphically display the QTL profiles, positions, alleles estimated effects, progeny individuals containing specific haplotypes and their breeding values. It is also possible to access marker dosage and parental phase from the linkage map. If genomic information is available, the corresponding QTL positions are interactively explored using JBrowseR interface, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables and images for further analysis and presentation.
+`VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://CRAN.R-project.org/package=polymapR), [MAPpoly](https://CRAN.R-project.org/package=mappoly) , [polyqtlR](https://CRAN.R-project.org/package=polyqtlR), [QTLpoly](https://CRAN.R-project.org/package=qtlpoly), 
+[diaQTL](https://github.com/jendelman/diaQTL) and genomic assembly, variants, annotation and alignment files. VIEWpoly uses [shiny](https://CRAN.R-project.org/package=shiny), [golem](https://CRAN.R-project.org/package=golem), [ggplot2](https://CRAN.R-project.org/package=ggplot2), [plotly](https://CRAN.R-project.org/package=plotly), and [JBrowseR]( https://CRAN.R-project.org/package=JBrowseR) libraries to graphically display the QTL profiles, positions, alleles estimated effects, progeny individuals containing specific haplotypes and their breeding values. It is also possible to access marker dosage and parental phase from the linkage map. If genomic information is available, the corresponding QTL positions are interactively explored using JBrowseR interface, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables and images for further analysis and presentation.
 
 ### Quick Start
 
@@ -20,10 +20,10 @@ viewpoly::run_app()
 
 The `Input data` tab has options for diverse types of inputs. You can upload directly outputs from:
 
-* [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html)
-* [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html)
-* [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html)
-* [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html)
+* [MAPpoly](https://CRAN.R-project.org/package=mappoly)
+* [polymapR](https://CRAN.R-project.org/package=polymapR)
+* [polyqtlR](https://CRAN.R-project.org/package=polyqtlR)
+* [QTLpoly](https://CRAN.R-project.org/package=qtlpoly)
 * [diaQTL](https://github.com/jendelman/diaQTL)
 * CSV, TSV or TSV.GZ standard formats
 
@@ -40,7 +40,7 @@ It is optional to upload also:
 
 ### Documentation
 
-Access the [tutorial](). 
+Access the [tutorial](https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html). 
 
 We also presented the app main features in [this video](https://www.youtube.com/embed/yqWX86uT5jM)
 
