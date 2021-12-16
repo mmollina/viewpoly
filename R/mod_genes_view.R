@@ -296,36 +296,46 @@ mod_genes_view_server <- function(input, output, session,
   button <- eventReactive(input$create_server, {
     
     if(!is.null(loadJBrowse_fasta())){
-      path.fa <- loadJBrowse_fasta()
+      if(loadJBrowse_fasta() != "") {
+        path.fa <- loadJBrowse_fasta()
+      } else path.fa <- NULL
     } else path.fa <- NULL
     
     if(!is.null(loadJBrowse_gff3())){
-      path.gff <- loadJBrowse_gff3()
+      if(loadJBrowse_gff3() != "") {
+        path.gff <- loadJBrowse_gff3()
+      } else path.gff <- NULL
     } else path.gff <- NULL
     
     if(!is.null(loadJBrowse_vcf())){
-      path.vcf <- loadJBrowse_vcf()
+      if(loadJBrowse_vcf() != ""){
+        path.vcf <- loadJBrowse_vcf()
+      } else path.vcf <- NULL
     } else path.vcf <- NULL
     
     if(!is.null(loadJBrowse_align())){
-      path.align <- loadJBrowse_align()
+      if(loadJBrowse_align() != "") {
+        path.align <- loadJBrowse_align()
+      } else path.align <- NULL
     } else path.align <- NULL
     
     if(!is.null(loadJBrowse_wig())){
-      path.wig <- loadJBrowse_wig()
+      if(loadJBrowse_wig() != "") {
+        path.wig <- loadJBrowse_wig()
+      } else path.wig <- NULL
     } else path.wig <- NULL
     
     if(is.null(loadJBrowse_fasta()) & !is.null(loadExample())){
-      path.fa <- loadExample()$fasta
-      path.gff <- loadExample()$gff3
-      # Add other tracks
-      # variants_track <- track_variant()
-      # alignments_track <- track_alignments()
+        path.fa <- loadExample()$fasta
+        path.gff <- loadExample()$gff3
+        # Add other tracks
+        # variants_track <- track_variant()
+        # alignments_track <- track_alignments()
     } else if(is.null(loadJBrowse_fasta())){
       stop("Upload the genome information in upload session to access this feature.")
     }
     
-    if(is.null(loadExample())){
+    if(!grepl("^http", path.fa)){
       data_server <- serve_data(dirname(path.fa), port = 5000)
     } else data_server = NULL
     
@@ -340,7 +350,7 @@ mod_genes_view_server <- function(input, output, session,
   # Reset server
   reset <- reactive({
     if(!input$reset_server) { 
-      if(is.null(loadExample())){
+      if(!is.null(button()$data_server)){
         button()$data_server$stop_server()
       }
       return(TRUE)
@@ -358,7 +368,7 @@ mod_genes_view_server <- function(input, output, session,
     
     if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
     
-    if(is.null(loadExample())){
+    if(!grepl("^http", button()$path.fa)){
       assembly <- assembly(
         paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
         bgzip = TRUE
@@ -372,7 +382,7 @@ mod_genes_view_server <- function(input, output, session,
     ## create configuration for a JB2 GFF FeatureTrack
     
     if(!is.null(button()$path.gff)){
-      if(is.null(loadExample())){
+      if(!grepl("^http", button()$path.gff)){
         annotations_track <- track_feature(
           paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
           assembly
@@ -386,24 +396,45 @@ mod_genes_view_server <- function(input, output, session,
     } else annotations_track <- NULL
     
     if(!is.null(button()$path.vcf)){
-      vcf_track <- track_variant(
-        paste0("http://127.0.0.1:5000/", basename(button()$path.vcf)), 
-        assembly
-      )
+      if(!grepl("^http", button()$path.vcf)){
+        vcf_track <- track_variant(
+          paste0("http://127.0.0.1:5000/", basename(button()$path.vcf)), 
+          assembly
+        )
+      } else {
+        vcf_track <- track_variant(
+          button()$path.vcf, 
+          assembly
+        )
+      }
     } else vcf_track <- NULL
     
     if(!is.null(button()$path.align)){
-      align_track <- track_alignments(
-        paste0("http://127.0.0.1:5000/", basename(button()$path.align)), 
-        assembly
-      )
+      if(!grepl("^http", button()$path.align)){
+        align_track <- track_alignments(
+          paste0("http://127.0.0.1:5000/", basename(button()$path.align)), 
+          assembly
+        )
+      } else {
+        align_track <- track_alignments(
+          button()$path.align, 
+          assembly
+        )  
+      }
     } else align_track <- NULL
     
     if(!is.null(button()$path.wig)){
-      wiggle_track <- track_wiggle(
-        paste0("http://127.0.0.1:5000/", basename(button()$path.wig)), 
-        assembly
-      )
+      if(!grepl("^http", button()$path.wig)){
+        wiggle_track <- track_wiggle(
+          paste0("http://127.0.0.1:5000/", basename(button()$path.wig)), 
+          assembly
+        )
+      } else {
+        wiggle_track <- track_wiggle(
+          button()$path.wig, 
+          assembly
+        )
+      }
     } else wiggle_track <- NULL
     
     ## create the tracks array to pass to browser

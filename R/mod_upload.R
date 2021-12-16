@@ -177,6 +177,9 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload Genome Browser files")),
+                   tags$p("Access further information about the files expected in this section ", 
+                          tags$a(href= "https://gmod.github.io/JBrowseR/articles/creating-urls.html","here")), br(),
+                   
                    column(6,
                           tags$h5(tags$b("Upload genome information")),
                           box(
@@ -192,16 +195,35 @@ mod_upload_ui <- function(id){
                    ), br(), br(),
                    column(12,
                           br(), 
-                          tags$h5(tags$b("Upload .fasta/.fasta.gz and .fasta.fai/.fasta.gz.fai,.fasta.gz.gzi file with assembly information")),
-                          fileInput(ns("fasta"), label = h6("Files: genome_v2.fasta.gz, genome_v2.fasta.gz.fai, genome_v2.fasta.gz.gzi"), multiple = T),
+                          tags$h5(tags$b("Upload .fasta/.fasta.gz and .fasta.fai/.fasta.gz.fai,.fasta.gz.gzi file with assembly information. Using this option, a local HTTP server will be generated.")),
+                          fileInput(ns("fasta"), label = h6("Files: genome_v2.fasta.gz, genome_v2.fasta.gz.fai, genome_v2.fasta.gz.gzi"), multiple = T), 
+                          p("or"), 
+                          tags$h5(tags$b("Add the URL of the hosted FASTA file location. The loading procedure is more efficient using this option.")),
+                          textInput(ns("fasta_server"), label = h6("https://jbrowse.org/genomes/sars-cov2/fasta/sars-cov2.fa.gz"), value = NULL),
+                          br(), hr(),
                           tags$h5(tags$b("Upload .gff3/.gff3.gz and .gff3.tbi/.gff3.gz.tbi file with annotation information")),
-                          fileInput(ns("gff3"), label = h6("Files: genome_v2.gff3.gz, genome_v2.gff3.gz.tbi"), multiple = T),
+                          fileInput(ns("gff3"), label = h6("Files: genome_v2.gff3.gz, genome_v2.gff3.gz.tbi"), multiple = T), 
+                          p("or"), 
+                          tags$h5(tags$b("Add the URL of the hosted GFF3 file location. The loading procedure is more efficient using this option.")),
+                          textInput(ns("gff3_server"), label = h6("https://jbrowse.org/genomes/sars-cov2/sars-cov2-annotations.sorted.gff.gz"), value = NULL),
+                          br(), hr(),
                           tags$h5(tags$b("Upload VCF file with variants information")),
-                          fileInput(ns("vcf"), label = h6("Files: markers.vcf, markers.vcf.tbi"), multiple = T),
+                          fileInput(ns("vcf"), label = h6("Files: markers.vcf, markers.vcf.tbi"), multiple = T), 
+                          p("or"), 
+                          tags$h5(tags$b("Add the URL of the hosted VCF file location. The loading procedure is more efficient using this option.")),
+                          textInput(ns("vcf_server"), label = h6("https://some/path/file.vcf"), value = NULL),
+                          br(), hr(),
                           tags$h5(tags$b("Upload .bam and .bam.bai or .cram and .cram.crai file with alignment information")),
-                          fileInput(ns("align"), label = h6("Files: all_ind.bam, all_ind.bam.bai"), multiple = T),
+                          fileInput(ns("align"), label = h6("Files: all_ind.bam, all_ind.bam.bai"), multiple = T), 
+                          p("or"), 
+                          tags$h5(tags$b("Add the URL of the hosted BAM or CRAM file location. The loading procedure is more efficient using this option.")),
+                          textInput(ns("align_server"), label = h6("https://some/path/file.bam"), value = NULL),
+                          br(), hr(),
                           tags$h5(tags$b("Upload .wig file with bigWig information")),
-                          fileInput(ns("wig"), label = h6("File: data.wig"), multiple = F)
+                          fileInput(ns("wig"), label = h6("File: data.wig"), multiple = F), 
+                          p("or"), 
+                          tags$h5(tags$b("Add the URL of the hosted WIG file location. The loading procedure is more efficient using this option.")),
+                          textInput(ns("wig_server"), label = h6("https://some/path/file.wig"), value = NULL),
                    )
                )
              )
@@ -467,10 +489,15 @@ mod_upload_server <- function(input, output, session, parent_session){
         return(NULL)
       } else if(values$upload_state_genome == "uploaded"){
         return(list(fasta = input$fasta,
+                    fasta_server = input$fasta_server,
                     gff3 = input$gff3,
+                    gff3_server = input$gff3_server,
                     vcf = input$vcf,
+                    vcf_server = input$vcf_server,
                     align = input$align,
-                    wig = input$wig))
+                    align_server = input$align_server,
+                    wig = input$wig,
+                    wig_server = input$wig_server))
       }
     })
   })
@@ -501,10 +528,15 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(input_qtl()$polyqtlR_qtl_info) &
        is.null(input_qtl()$polyqtlR_effects) &
        is.null(input_genome()$fasta) &
+       is.null(input_genome()$fasta_server) &
        is.null(input_genome()$gff3) &
+       is.null(input_genome()$gff3_server) &
        is.null(input_genome()$vcf) &
-       is.null(input_genome()$align) & 
+       is.null(input_genome()$vcf_server) &
+       is.null(input_genome()$align) &
+       is.null(input_genome()$align_server) &
        is.null(input_genome()$wig) &
+       is.null(input_genome()$wig_server) &
        is.null(input$viewpoly_input) &
        is.null(input$viewpoly_env))
     prepare_examples(input$example_map)
@@ -638,7 +670,9 @@ mod_upload_server <- function(input, output, session, parent_session){
                       file.path(temp_dir(), input_genome()$fasta$name[i]))
         }
         file.path(temp_dir(), input_genome()$fasta$name[1]) 
-      } else if(!is.null(input_genome()$fasta)) {
+      } else if(!is.null(input_genome()$fasta_server) & !is.null(loadMap())) {
+        input_genome()$fasta_server
+      } else if(!is.null(input_genome()$fasta) | !is.null(input_genome()$fasta_server)) {
         warning("Load map data first to use this feature.")
       } else NULL
     })
@@ -653,6 +687,8 @@ mod_upload_server <- function(input, output, session, parent_session){
                       file.path(temp_dir(), input_genome()$gff3$name[i]))
         }
         file.path(temp_dir(), input_genome()$gff3$name[1]) 
+      } else if(!is.null(input_genome()$gff3_server)) { 
+        input_genome()$gff3_server
       } else NULL
     })
   })
@@ -666,6 +702,8 @@ mod_upload_server <- function(input, output, session, parent_session){
                       file.path(temp_dir(), input_genome()$vcf$name[i]))
         }
         file.path(temp_dir(), input_genome()$vcf$name[1]) 
+      } else if(!is.null(input_genome()$vcf_server)) {
+        input_genome()$vcf_server
       } else NULL
     })
   })
@@ -679,6 +717,8 @@ mod_upload_server <- function(input, output, session, parent_session){
                       file.path(temp_dir(), input_genome()$align$name[i]))
         }
         file.path(temp_dir(), input_genome()$align$name[1]) 
+      } else if(!is.null(input_genome()$align_server)) {
+        input_genome()$align_server
       } else NULL
     })
   })
@@ -692,6 +732,8 @@ mod_upload_server <- function(input, output, session, parent_session){
                       file.path(temp_dir(), input_genome()$wig$name[i]))
         }
         file.path(temp_dir(), input_genome()$wig$name[1]) 
+      } else if(!is.null(input_genome()$wig_server)) {
+        input_genome()$wig_server
       } else NULL
     })
   })
