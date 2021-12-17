@@ -30,7 +30,7 @@ viewpoly::run_app()
 
 NOTE: Windows users may need to install the [`Rtools`](https://cran.rstudio.com/bin/windows/Rtools/rtools40.html) before compiling the package from source (development version).
 
-The `Input data` tab has options for diverse types of inputs. You can upload directly outputs from:
+The `Input data` tab has options for several types of inputs. You can upload directly outputs from:
 
 * [MAPpoly](https://CRAN.R-project.org/package=mappoly)
 * [polymapR](https://CRAN.R-project.org/package=polymapR)
