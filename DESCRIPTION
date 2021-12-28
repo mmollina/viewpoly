@@ -1,6 +1,6 @@
 Package: viewpoly
 Title: A Shiny App to Visualize Genetic Maps and QTL Analysis in Polyploid Species
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
            person(given = "Cristiane",
                   family = "Taniguti",
@@ -22,7 +22,7 @@ Authors@R: c(
                   family = "Zeng",
                   role = c("ctb")),   
            person(given = "Oscar",
-                  family = "Riera-Lizarau",
+                  family = "Riera-Lizarazu",
                   role = c("ctb")),
            person(given = "Marcelo",
                   family = "Mollinari",
@@ -30,15 +30,15 @@ Authors@R: c(
                   email = "mmollin@ncsu.edu")
            )
 Maintainer: Cristiane Taniguti <chtaniguti@tamu.edu>
-Description: This package provides a graphical user interface to integrate, visualize and explore results 
+Description: Provides a graphical user interface to integrate, visualize and explore results 
             from linkage and quantitative trait loci analysis, together with genomic information for autopolyploid 
             species. The app is meant for interactive use and allows users to optionally upload different sources 
             of information, including  gene annotation and alignment files, enabling the exploitation and search for 
-            candidate genes in a genome browser. In its current version, VIEWpoly supports inputs from MAPpoly, 
-            polymapR, diaQTL, QTLpoly and polyqtlR packages. 
+            candidate genes in a genome browser. In its current version, 'VIEWpoly' supports inputs from 'MAPpoly', 
+            'polymapR', 'diaQTL', 'QTLpoly' and 'polyqtlR' packages. 
 License: GPL-3
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.0)
 Imports: 
     shiny (>= 1.6.0),
     shinyjs,
