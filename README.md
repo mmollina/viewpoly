@@ -1,3 +1,11 @@
+<!-- badges: start -->
+[![Development](https://img.shields.io/badge/development-active-blue.svg)](https://img.shields.io/badge/development-active-blue.svg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/viewpoly)](https://cran.r-project.org/package=viewpoly)
+[![R-universe PolyVerse Status Badge](https://polyploids.r-universe.dev/badges/viewpoly)](https://polyploids.r-universe.dev/badges/viewpoly)
+[![CRAN_monthly_downloads](https://cranlogs.r-pkg.org/badges/viewpoly)](https://cranlogs.r-pkg.org/badges/viewpoly)
+<!-- badges: end -->
+  
 # VIEWpoly <img src="https://user-images.githubusercontent.com/7572527/145726577-7b01d48b-ca1d-446b-b9c8-aff8c3c9877b.png" align="right" width="230"/>
 
 `VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://CRAN.R-project.org/package=polymapR), [MAPpoly](https://CRAN.R-project.org/package=mappoly) , [polyqtlR](https://CRAN.R-project.org/package=polyqtlR), [QTLpoly](https://CRAN.R-project.org/package=qtlpoly), 
@@ -5,7 +13,14 @@
 
 ### Quick Start
 
-You can run `VIEWpoly` locally installing the package and accessing the graphical interface through a web browser:
+You can run `VIEWpoly` locally installing the package and accessing the graphical interface through a web browser. To use the stable version, please install the package from CRAN:
+
+```{r}
+install.packages("viewpoly")
+viewpoly::run_app()
+```
+
+If you want to use the latest development version, go ahead and install `VIEWpoly` from our Github repository:
 
 ```{r}
 # install.packages("devtools")
@@ -13,7 +28,9 @@ devtools::install_github("mmollina/viewpoly")
 viewpoly::run_app()
 ```
 
-The `Input data` tab has options for diverse types of inputs. You can upload directly outputs from:
+NOTE: Windows users may need to install the [`Rtools`](https://cran.rstudio.com/bin/windows/Rtools/rtools40.html) before compiling the package from source (development version).
+
+The `Input data` tab has options for several types of inputs. You can upload directly outputs from:
 
 * [MAPpoly](https://CRAN.R-project.org/package=mappoly)
 * [polymapR](https://CRAN.R-project.org/package=polymapR)
