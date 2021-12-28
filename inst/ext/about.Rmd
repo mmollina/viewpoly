@@ -7,7 +7,7 @@ output: html_document
 
 <br />
 
-<div><img src="www/viewpoly-flowchart.jpg" alt="alt" align="center" style="width:1200px;height:570px;"></div>
+<div><img src="www/viewpoly-flowchart.png" alt="alt" align="center" style="width:1200px;height:570px;"></div>
 
 <br />
 

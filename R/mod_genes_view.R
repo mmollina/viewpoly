@@ -306,13 +306,13 @@ mod_genes_view_server <- function(input, output, session,
         path.gff <- loadJBrowse_gff3()
         if(grepl("^http", loadJBrowse_gff3())){
           gff.dir <- tempfile()
-          download.file(path, destfile = gff.dir)
+          download.file(loadJBrowse_gff3(), destfile = gff.dir)
           gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F)
         } else {
           gff <- vroom(loadJBrowse_gff3(), delim = "\t", skip = 3, col_names = F)
         }
-      } else path.gff <- gff.dir <- NULL
-    } else path.gff <- gff.dir <- NULL
+      } else path.gff <- gff <- NULL
+    } else path.gff <- gff <- NULL
     
     if(!is.null(loadJBrowse_vcf())){
       if(loadJBrowse_vcf() != ""){
@@ -335,6 +335,9 @@ mod_genes_view_server <- function(input, output, session,
     if(is.null(loadJBrowse_fasta()) & !is.null(loadExample())){
         path.fa <- loadExample()$fasta
         path.gff <- loadExample()$gff3
+        gff.dir <- tempfile()
+        download.file(loadExample()$gff3, destfile = gff.dir)
+        gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F)
         # Add other tracks
         # variants_track <- track_variant()
         # alignments_track <- track_alignments()
@@ -500,7 +503,6 @@ mod_genes_view_server <- function(input, output, session,
       df <- button()$gff
       colnames(df) <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase", "attributes")
       df <- df %>% filter(seqid == unique(mks$g.chr) & start > mks.range.1 & end < mks.range.2)
-      str(df)
       DT::datatable(df, extensions = 'Buttons',
                     options = list(
                       dom = 'Bfrtlp',
