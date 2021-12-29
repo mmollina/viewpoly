@@ -51,8 +51,7 @@ Access the [tutorial](https://cristianetaniguti.github.io/viewpoly_vignettes/VIE
 We present the app main features in the video bellow:
 
 <iframe width="600" height="315"
-src="https://www.youtube.com/embed/yqWX86uT5jM">
+src="https://www.youtube.com/embed/OBt_jebhfeY">
 </iframe> 
-
 
 
