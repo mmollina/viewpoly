@@ -119,7 +119,7 @@ mod_genes_view_server <- function(input, output, session,
   ns <- session$ns
   
   pheno <- LG <- l.dist <- g.dist <- high <- mk.names <- track_variant <- track_alignments <- track_wiggle <- NULL
-  start <- end <- NULL
+  start <- end <- seqid <- NULL
   
   observeEvent(input$exit, {
     stopApp()

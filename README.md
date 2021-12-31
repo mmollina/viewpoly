@@ -28,7 +28,7 @@ devtools::install_github("mmollina/viewpoly")
 viewpoly::run_app()
 ```
 
-NOTE: Windows users may need to install the [`Rtools`](https://cran.rstudio.com/bin/windows/Rtools/rtools40.html) before compiling the package from source (development version).
+NOTE: Windows users may need to install the `Rtools` before compiling the package from source (development version).
 
 The `Input data` tab has options for several types of inputs. You can upload directly outputs from:
 
@@ -72,4 +72,4 @@ Bourke PM, Voorrips RE, Hackett CA, van Geest G, Willemsen JH, Arens P, Smulders
 
 ### Acknowledgment
 
-VIEWpoly is supported by the USDA, National Institute of Food and Agriculture (NIFA), Specialty Crop Research Initiative (SCRI) project [‘‘Tools for Genomics-Assisted Breeding in Polyploids: Development of a Community Resource’’](https://www.polyploids.org/)  and by the Bill & Melinda Gates Foundation under the Genetic Advances and [Innovative Seed Systems for Sweetpotato project (SweetGAINS)](https://cgspace.cgiar.org/handle/10568/106838).
+VIEWpoly project is supported by the USDA, National Institute of Food and Agriculture (NIFA), Specialty Crop Research Initiative (SCRI) project [‘‘Tools for Genomics-Assisted Breeding in Polyploids: Development of a Community Resource’’](https://www.polyploids.org/)  and by the Bill & Melinda Gates Foundation under the Genetic Advances and [Innovative Seed Systems for Sweetpotato project (SweetGAINS)](https://cgspace.cgiar.org/handle/10568/106838).
