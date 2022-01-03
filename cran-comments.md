@@ -1,4 +1,4 @@
-# First submission of VIEWpoly (12-15-2021)
+# Re-submission of VIEWpoly (01-03-2022)
 
 ## Maintainer comments
 
