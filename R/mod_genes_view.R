@@ -342,14 +342,14 @@ mod_genes_view_server <- function(input, output, session,
         if(x[length(x)] == "gz") paste0(x[length(x)-1], ".",x[length(x)])
       })
       
-      fasta.dir <- paste0(tempfile(),".", ext[1])
-      download.file(loadExample()$fasta, destfile = fasta.dir)
-      download.file(paste0(loadExample()$fasta, ".fai"), destfile = paste0(fasta.dir, ".fai"))
-      path.fa <- fasta.dir
+      # fasta.dir <- paste0(tempfile(),".", ext[1])
+      # download.file(loadExample()$fasta, destfile = fasta.dir)
+      # download.file(paste0(loadExample()$fasta, ".fai"), destfile = paste0(fasta.dir, ".fai"))
+      # path.fa <- fasta.dir
       
       gff.dir <- paste0(tempfile(),".", ext[2])
       download.file(loadExample()$gff3, destfile = gff.dir)
-      path.gff <- gff.dir
+      #path.gff <- gff.dir
       
       gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F)
       # Add other tracks
@@ -399,6 +399,7 @@ mod_genes_view_server <- function(input, output, session,
         bgzip = TRUE
       )
     } else {
+      cat("Aqui:", button()$path.fa)
       assembly <- assembly(
         button()$path.fa, 
         bgzip = TRUE
