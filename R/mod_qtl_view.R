@@ -18,8 +18,8 @@ mod_qtl_view_ui <- function(id){
         fluidRow(
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
-                     actionButton(ns("goGenes"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
+                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"), br(), br(),
+                     actionButton(ns("goGenes"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("VIEWqtl")), br(), hr(),
@@ -85,7 +85,7 @@ mod_qtl_view_ui <- function(id){
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
                          column(12,
-                                actionBttn(ns("haplo_update"), style = "jelly", color = "royal",  size = "sm", label = "update available haplotypes", icon = icon("refresh")), 
+                                actionBttn(ns("haplo_update"), style = "jelly", color = "royal",  size = "sm", label = "update available haplotypes", icon = icon("refresh", verify_fa = FALSE)), 
                                 br(), br(),
                                 pickerInput(ns("haplo"),
                                             label = h6("Select haplotypes"),
@@ -100,7 +100,7 @@ mod_qtl_view_ui <- function(id){
                                               dropdownAlignRight = TRUE
                                             ), 
                                             multiple = TRUE), br(),
-                                actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes", icon = icon("share-square")), 
+                                actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes", icon = icon("share-square", verify_fa = FALSE)), 
                                 br(), hr()),
                          column(2,
                                 downloadBttn(ns('bn_download_haplo'), style = "gradient", color = "royal")

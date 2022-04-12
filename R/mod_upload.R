@@ -13,8 +13,8 @@ mod_upload_ui <- function(id){
     fluidRow(
       column(width = 12,
              div(style = "position:absolute;right:1em;", 
-                 actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"), br(), br(),
-                 actionButton(ns("goQTL"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
+                 actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"), br(), br(),
+                 actionButton(ns("goQTL"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
              ),
              tags$h2(tags$b("Input data")), br(),
              "Use this module to select an example dataset or to upload yours.", br(), br()
@@ -34,7 +34,7 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = tags$h4(tags$b("Upload linkage map files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
+                       actionBttn(ns("reset_map"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload MAPpoly output")),
                        tags$p("Access further information about how to build a linkage maps with MAPpoly ", 
@@ -43,7 +43,7 @@ mod_upload_ui <- function(id){
                               tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_linkage_map_files","here")),
                        hr(),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_mappoly"), style = "jelly", color = "royal",  size = "sm", label = "submit MAPpoly", icon = icon("share-square")), 
+                           actionBttn(ns("submit_mappoly"), style = "jelly", color = "royal",  size = "sm", label = "submit MAPpoly", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        tags$p("Object of class `mappoly.map`."), 
                        fileInput(ns("mappoly_in"), label = h6("File: my_mappoly_list.RData"), multiple = F),
@@ -55,7 +55,7 @@ mod_upload_ui <- function(id){
                               tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_linkage_map_files","here")),
                        hr(),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_polymapR"), style = "jelly", color = "royal",  size = "sm", label = "submit polymapR", icon = icon("share-square")), 
+                           actionBttn(ns("submit_polymapR"), style = "jelly", color = "royal",  size = "sm", label = "submit polymapR", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        p("Indicates whether the genotype input is discrete or probabilistic."),
                        prettyRadioButtons(
@@ -82,7 +82,7 @@ mod_upload_ui <- function(id){
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, title = tags$h5(tags$b("Upload linkage map files with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_map_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit map custom", icon = icon("share-square")), 
+                           actionBttn(ns("submit_map_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit map custom", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        fileInput(ns("dosages"), label = h6("File: dosages.tsv"), multiple = F),
                        fileInput(ns("genetic_map"), label = h6("File: genetic_map.tsv"), multiple = F),
@@ -104,11 +104,11 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title =   tags$h4(tags$b("Upload QTL analysis files")),
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_qtl"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt"))
+                       actionBttn(ns("reset_qtl"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE))
                    ), br(), br(), 
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTLpoly output")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_qtlpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit QTLpoly", icon = icon("share-square")), 
+                           actionBttn(ns("submit_qtlpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit QTLpoly", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        tags$p("Access further information about how to perform QTL analysis with QTLpoly ", 
                               tags$a(href= "https://guilherme-pereira.github.io/QTLpoly/1-tutorial","here")), br(),
@@ -122,7 +122,7 @@ mod_upload_ui <- function(id){
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload diaQTL output")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_diaQTL"), style = "jelly", color = "royal",  size = "sm", label = "submit diaQTL", icon = icon("share-square")), 
+                           actionBttn(ns("submit_diaQTL"), style = "jelly", color = "royal",  size = "sm", label = "submit diaQTL", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        tags$p("Access further information about how to perform QTL analysis with diaQTL ", 
                               tags$a(href= "https://jendelman.github.io/diaQTL/diaQTL_Vignette.html","here")), br(),
@@ -136,7 +136,7 @@ mod_upload_ui <- function(id){
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload polyqtlR output")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_polyqtlR"), style = "jelly", color = "royal",  size = "sm", label = "submit polyqtlR", icon = icon("share-square")), 
+                           actionBttn(ns("submit_polyqtlR"), style = "jelly", color = "royal",  size = "sm", label = "submit polyqtlR", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        tags$p("Access further information about how to perform QTL analysis with polyqtlR ", 
                               tags$a(href= "https://cran.r-project.org/web/packages/polyqtlR/vignettes/polyqtlR_vignette.html","here")), br(),
@@ -149,7 +149,7 @@ mod_upload_ui <- function(id){
                    ),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  title = tags$h5(tags$b("Upload QTL analysis results with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_qtl_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit QTL custom", icon = icon("share-square")), 
+                           actionBttn(ns("submit_qtl_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit QTL custom", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
                        fileInput(ns("selected_mks"), label = h6("File: selected_mks.tsv"), multiple = F),
                        fileInput(ns("qtl_info"), label = h6("File: qtl_info.tsv"), multiple = F),
@@ -189,8 +189,8 @@ mod_upload_ui <- function(id){
                    ), 
                    column(6,
                           div(style = "position:absolute;right:1em;",
-                              actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(),br(),
-                              actionBttn(ns("submit_genome"), style = "jelly", color = "royal",  size = "sm", label = "submit", icon = icon("share-square")), br(),br(),
+                              actionBttn(ns("reset_genome"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE)), br(),br(),
+                              actionBttn(ns("submit_genome"), style = "jelly", color = "royal",  size = "sm", label = "submit", icon = icon("share-square", verify_fa = FALSE)), br(),br(),
                           ), 
                    ), br(), br(),
                    column(12,
@@ -248,8 +248,8 @@ mod_upload_ui <- function(id){
                    ),
                    column(4,
                           div(style = "position:absolute;right:1em;",
-                              actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt")), br(), br(),
-                              actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square"))
+                              actionBttn(ns("reset_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE)), br(), br(),
+                              actionBttn(ns("submit_viewpoly"), style = "jelly", color = "royal",  size = "sm", label = "submit VIEWpoly file", icon = icon("share-square", verify_fa = FALSE))
                           )
                    ), 
                    column(12,

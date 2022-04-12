@@ -23,8 +23,8 @@ mod_genes_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle"), class = "btn btn-danger"),  br(), br(),
-                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right"), class = "btn btn-success")
+                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"),  br(), br(),
+                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("VIEWgenome")), br(), hr(),
@@ -83,7 +83,7 @@ mod_genes_view_ui <- function(id){
         box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
             column(12,
                    column(6,
-                          actionButton(ns("create_server"), "Open JBrowseR",icon("power-off"))
+                          actionButton(ns("create_server"), "Open JBrowseR",icon("power-off", verify_fa = FALSE))
                    ),
                    column(6,
                           div(style = "position:absolute;right:1em;", 
@@ -307,9 +307,9 @@ mod_genes_view_server <- function(input, output, session,
         if(grepl("^http", loadJBrowse_gff3())){
           gff.dir <- tempfile()
           download.file(loadJBrowse_gff3(), destfile = gff.dir)
-          gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F)
+          gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
         } else {
-          gff <- vroom(loadJBrowse_gff3(), delim = "\t", skip = 3, col_names = F)
+          gff <- vroom(loadJBrowse_gff3(), delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
         }
       } else path.gff <- gff <- NULL
     } else path.gff <- gff <- NULL
@@ -351,7 +351,7 @@ mod_genes_view_server <- function(input, output, session,
       download.file(loadExample()$gff3, destfile = gff.dir)
       #path.gff <- gff.dir
       
-      gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F)
+      gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
       # Add other tracks
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
@@ -399,7 +399,6 @@ mod_genes_view_server <- function(input, output, session,
         bgzip = TRUE
       )
     } else {
-      cat("Aqui:", button()$path.fa)
       assembly <- assembly(
         button()$path.fa, 
         bgzip = TRUE

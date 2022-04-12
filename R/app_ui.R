@@ -62,17 +62,17 @@ app_ui <- function(request) {
         border-top-color:#a91021ff;
         }
                               '))),
-        fluidPage(
-          navbarPage( 
-            tags$script(HTML("var header = $('.navbar > .container-fluid');
+        tags$script(HTML("var header = $('.navbar > .container-fluid');
 header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"www/logo_white.png\" alt=\"alt\" style=\"float:right;width:120px;height:80px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
     console.log(header)")
-            ),
+        ),
+        tags$head(tags$style(HTML('.navbar-static-top {background-color: #22284c;}',
+                                  '.navbar-default .navbar-nav>.active>a {background-color: #22284c;}'))),
+        fluidPage(
+          navbarPage(
             title =  "VIEWpoly", 
             id = "viewpoly",
             theme = shinythemes::shinytheme("flatly"),  # <--- Specify theme here
-            tags$head(tags$style(HTML('.navbar-static-top {background-color: #22284c;}',
-                                      '.navbar-default .navbar-nav>.active>a {background-color: #22284c;}'))),
             tabPanel("About",
                      includeMarkdown(system.file("ext", "about.Rmd", package = "viewpoly"))
             ),
