@@ -387,7 +387,7 @@ mod_qtl_view_server <- function(input, output, session,
   fn_downloadname <- reactive({
     seed <- sample(1:1000,1)
     if(input$fformat=="png") filename <- paste0("profile","_",seed,".png")
-    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tif")
+    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tiff")
     if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
     if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
     return(filename)
@@ -407,6 +407,7 @@ mod_qtl_view_server <- function(input, output, session,
     content = function(file) {
       fn_download()
       file.copy(fn_downloadname(), file, overwrite=T)
+      file.remove(fn_downloadname())
     }
   )
   
@@ -416,7 +417,7 @@ mod_qtl_view_server <- function(input, output, session,
     
     seed <- sample(1:1000,1)
     if(input$fformat_effects=="png") filename <- paste0("effects","_",seed,".png")
-    if(input$fformat_effects=="tiff") filename <- paste0("effects","_",seed,".tif")
+    if(input$fformat_effects=="tiff") filename <- paste0("effects","_",seed,".tiff")
     if(input$fformat_effects=="jpeg") filename <- paste0("effects","_",seed,".jpg")
     if(input$fformat_effects=="pdf") filename <- paste0("effects","_",seed,".pdf")
     return(filename)
@@ -450,6 +451,7 @@ mod_qtl_view_server <- function(input, output, session,
     content = function(file) {
       fn_download_effects()
       file.copy(fn_downloadname_effects(), file, overwrite=T)
+      file.remove(fn_downloadname_effects())
     }
   )
   
@@ -459,7 +461,7 @@ mod_qtl_view_server <- function(input, output, session,
     
     seed <- sample(1:1000,1)
     if(input$fformat_haplo=="png") filename <- paste0("haplotypes","_",seed,".png")
-    if(input$fformat_haplo=="tiff") filename <- paste0("haplotypes","_",seed,".tif")
+    if(input$fformat_haplo=="tiff") filename <- paste0("haplotypes","_",seed,".tiff")
     if(input$fformat_haplo=="jpeg") filename <- paste0("haplotypes","_",seed,".jpg")
     if(input$fformat_haplo=="pdf") filename <- paste0("haplotypes","_",seed,".pdf")
     return(filename)
@@ -480,6 +482,7 @@ mod_qtl_view_server <- function(input, output, session,
     content = function(file) {
       fn_download_haplo()
       file.copy(fn_downloadname_haplo(), file, overwrite=T)
+      file.remove(fn_downloadname_haplo())
     }
   )
 }

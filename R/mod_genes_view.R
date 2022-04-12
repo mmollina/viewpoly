@@ -519,7 +519,7 @@ mod_genes_view_server <- function(input, output, session,
   fn_downloadname <- reactive({
     seed <- sample(1:1000,1)
     if(input$fformat=="png") filename <- paste0("profile","_",seed,".png")
-    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tif")
+    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tiff")
     if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
     if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
     return(filename)
@@ -546,6 +546,7 @@ mod_genes_view_server <- function(input, output, session,
     content = function(file) {
       fn_download()
       file.copy(fn_downloadname(), file, overwrite=T)
+      file.remove(fn_downloadname())
     }
   )
   
@@ -553,7 +554,7 @@ mod_genes_view_server <- function(input, output, session,
   fn_downloadname_phi <- reactive({
     seed <- sample(1:1000,1)
     if(input$fformat_phi=="png") filename <- paste0("linkageXphisical","_",seed,".png")
-    if(input$fformat_phi=="tiff") filename <- paste0("linkageXphisical","_",seed,".tif")
+    if(input$fformat_phi=="tiff") filename <- paste0("linkageXphisical","_",seed,".tiff")
     if(input$fformat_phi=="jpeg") filename <- paste0("linkageXphisical","_",seed,".jpg")
     if(input$fformat_phi=="pdf") filename <- paste0("linkageXphisical","_",seed,".pdf")
     return(filename)
@@ -587,6 +588,7 @@ mod_genes_view_server <- function(input, output, session,
     content = function(file) {
       fn_download_phi()
       file.copy(fn_downloadname_phi(), file, overwrite=T)
+      file.remove(fn_downloadname_phi())
     }
   )
   

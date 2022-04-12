@@ -331,7 +331,7 @@ mod_map_view_server <- function(input, output, session,
   fn_downloadname <- reactive({
     seed <- sample(1:1000,1)
     if(input$fformat=="png") filename <- paste0("profile","_",seed,".png")
-    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tif")
+    if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tiff")
     if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
     if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
     return(filename)
@@ -358,6 +358,7 @@ mod_map_view_server <- function(input, output, session,
     content = function(file) {
       fn_download()
       file.copy(fn_downloadname(), file, overwrite=T)
+      file.remove(fn_downloadname())
     }
   )
   
@@ -366,7 +367,7 @@ mod_map_view_server <- function(input, output, session,
     png <- tiff <- jpeg <- pdf <- dev.off <- NULL
     seed <- sample(1:1000,1)
     if(input$fformat_map=="png") filename <- paste0("map","_",seed,".png")
-    if(input$fformat_map=="tiff") filename <- paste0("map","_",seed,".tif")
+    if(input$fformat_map=="tiff") filename <- paste0("map","_",seed,".tiff")
     if(input$fformat_map=="jpeg") filename <- paste0("map","_",seed,".jpg")
     if(input$fformat_map=="pdf") filename <- paste0("map","_",seed,".pdf")
     return(filename)
@@ -410,6 +411,7 @@ mod_map_view_server <- function(input, output, session,
     content = function(file) {
       fn_download_map()
       file.copy(fn_downloadname_map(), file, overwrite=T)
+      file.remove(fn_downloadname_map())
     }
   )
   
@@ -418,7 +420,7 @@ mod_map_view_server <- function(input, output, session,
     png <- tiff <- jpeg <- pdf <- dev.off <- NULL
     seed <- sample(1:1000,1)
     if(input$fformat_summary=="png") filename <- paste0("map","_",seed,".png")
-    if(input$fformat_summary=="tiff") filename <- paste0("map","_",seed,".tif")
+    if(input$fformat_summary=="tiff") filename <- paste0("map","_",seed,".tiff")
     if(input$fformat_summary=="jpeg") filename <- paste0("map","_",seed,".jpg")
     if(input$fformat_summary=="pdf") filename <- paste0("map","_",seed,".pdf")
     return(filename)
@@ -456,6 +458,7 @@ mod_map_view_server <- function(input, output, session,
     content = function(file) {
       fn_download_summary()
       file.copy(fn_downloadname_summary(), file, overwrite=T)
+      file.remove(fn_downloadname_summary())
     }
   )
 }
