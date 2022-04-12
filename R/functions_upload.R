@@ -15,8 +15,8 @@ prepare_examples <- function(example){
     })
     structure(list(map=viewmap_tetra, 
                    qtl=viewqtl_tetra,
-                   fasta = "http://wenjuanwei_pc-zbz.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz",
-                   gff3 = "http://wenjuanwei_pc-zbz.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz"),
+                   fasta = "http://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz",
+                   gff3 = "http://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz"),
               class = "viewpoly")
   }
 }
