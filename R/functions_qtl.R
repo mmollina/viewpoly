@@ -733,7 +733,7 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
       like.ind.all[[i]] <-  like.ind
     }
     like.intersect <- Reduce(intersect, like.ind.all)
-    if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("Any individual contain all the selected homolog/s")
+    if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("No individual in the progeny was found containing the combination of all the selected homolog/s. Please, select another combination of homolog/s.")
     idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% paste0(round(as.numeric(pos),2), "_", lgs))
     homo.dat$homoprob$qtl <- NA
     homo.dat$homoprob$qtl[idx] <- homo.dat$homoprob$map.position[idx] # vertical lines
