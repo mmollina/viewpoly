@@ -33,7 +33,6 @@ data_effects(
   pheno.col = NULL,
   p1 = "P1",
   p2 = "P2",
-  df.info = NULL,
   lgs = NULL,
   groups = NULL,
   position = NULL,
@@ -83,6 +82,42 @@ If TRUE, it returns a ggplot graphic.}
 
 \item{software}{character defining which software was used for QTL analysis. Currently support for: QTLpoly, diaQTL and polyqtlR.}
 
+\item{pl.in}{output object from \code{plot_profile} when plot == TRUE}
+
+\item{effects}{data.frame with: pheno - phenotype ID; qtl.id - QTL ID; haplo - haplotype ID; effect - haplotype effect value}
+
+\item{p1}{character with parent 1 ID}
+
+\item{p2}{character with parent 2 ID}
+
+\item{lgs}{vector of integers with linkage group ID of selected QTL/s}
+
+\item{groups}{vector of integers with selected linkage group ID}
+
+\item{position}{vector of centimorgan positions of selected QTL/s}
+
+\item{design}{character defining the graphic design. Options: `bar` - barplot of the effects; 
+`circle` - circular plot of the effects (useful to compare effects of different traits); 
+`digenic` - heatmap plotting sum of additive effects (bottom diagonal) and digenic effects (top diagonal) when present}
+
+\item{theta}{ariable to map angle to (x or y)}
+
+\item{start}{offset of starting point from 12 o'clock in radians. Offset is applied clockwise or anticlockwise depending on value of direction.}
+
+\item{direction}{1, clockwise; -1, anticlockwise}
+
+\item{data_effects.obj}{output of function \code{data_effects}}
+
+\item{probs}{data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker}
+
+\item{blups}{data.frame with: haplo - haplotype ID; pheno - phenotype ID; qtl - QTL ID; u.hat - QTL estimated BLUPs}
+
+\item{beta.hat}{data.frame with: pheno - phenotype ID; beta.hat - estimated beta}
+
+\item{pos}{selected QTL position (cM)}
+
+\item{selected_lgs}{vector containing selected LGs ID}
+
 \item{x}{an object of class \code{mappoly.homoprob}}
 
 \item{stack}{logical. If \code{TRUE}, probability profiles of all homologues
@@ -102,11 +137,23 @@ individual}
 
 \item{...}{unused arguments}
 
-\item{use.plotly}{if \code{TRUE} (default), it uses plotly interactive graphic}
+\item{input.haplo}{character vector with selected haplotypes. It contains the information: "Trait:<trait ID>_LG:<linkage group ID_Pos:<QTL position>"}
+
+\item{effects.data}{output object from \code{data_effects} function}
 }
 \value{
 ggplot graphic (if plot == TRUE) or data.frame (if plot == FALSE) with information 
 from QTL significance profile
+
+ggplot graphic with QTL significance profile
+
+ggplot graphic
+
+data.frame containing breeding values
+
+object of class \code{mappoly.homoprob}
+
+ggplot graphic
 }
 \description{
 Plots profiled logarithm of score-based \emph{P}-values (LOP) from individual or combined traits.

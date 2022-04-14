@@ -2,6 +2,23 @@
 #' Draws linkage map, parents haplotypes and marker doses
 #' Adapted from MAPpoly
 #' 
+#' @param left.lim covered window in the linkage map start position 
+#' @param rigth.lim covered window in the linkage map end position
+#' @param ch linkage group ID 
+#' @param maps list containing a vector for each linkage group markers with marker positions (named with marker names)
+#' @param ph.p1 list containing a data.frame for each group with parent 1 estimated phases. The data.frame contain the columns:
+#' 1) Character vector with chromosome ID; 2) Character vector with marker ID;
+#' 3 to (ploidy number)*2 columns with each parents haplotypes
+#' @param ph.p2 list containing a data.frame for each group with parent 2 estimated phases. See ph.p1 parameter description.
+#' @param d.p1 list containing a data.frame for each group with parent 1 dosages. The data.frame contain the columns: 
+#' 1) character vector with chromosomes ID; 
+#' 2) Character vector with markers ID; 3) Character vector with parent ID; 
+#' 4) numerical vector with dosage
+#' @param d.p2 list containing a data.frame for each group with parent 2 dosages. See d.p1 parameter description
+#' @param snp.names logical TRUE/FALSE. If TRUE it includes the marker names in the plot
+#' 
+#' @return graphic representing selected section of a linkage group
+#' 
 #' @rdname viewmap
 #' 
 #' @keywords internal
@@ -103,6 +120,18 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' Gets summary information from map.
 #' Adapted from MAPpoly
 #' 
+#' @param left.lim covered window in the linkage map start position 
+#' @param rigth.lim covered window in the linkage map end position
+#' @param ch linkage group ID 
+#' @param maps list containing a vector for each linkage group markers with marker positions (named with marker names)
+#' @param d.p1 list containing a data.frame for each group with parent 1 dosages. The data.frame contain the columns: 
+#' 1) character vector with chromosomes ID; 
+#' 2) Character vector with markers ID; 3) Character vector with parent ID; 
+#' 4) numerical vector with dosage
+#' @param d.p2 list containing a data.frame for each group with parent 2 dosages. See d.p1 parameter description
+#' 
+#' @return list with linkage map information: doses;  number snps by group; cM per snp; map size; number of linkage groups
+#' 
 #' @rdname viewmap
 #' 
 #' @keywords internal
@@ -127,7 +156,12 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
     for(j in as.character(0:ploidy))
       M[i,j]<-w[paste(i,j,sep = "-")]
   M[is.na(M)]<-0
-  return(list(doses = M, number.snps = length(curx), length = diff(range(curx)), cM.per.snp = round(diff(range(curx))/length(curx), 3), full.size = as.numeric(maps[[ch]][length(maps[[ch]])]), number.of.lgs = length(maps)))
+  return(list(doses = M, 
+              number.snps = length(curx), 
+              length = diff(range(curx)), 
+              cM.per.snp = round(diff(range(curx))/length(curx), 3), 
+              full.size = as.numeric(maps[[ch]][length(maps[[ch]])]), 
+              number.of.lgs = length(maps)))
 }
 
 #' Summary maps - adapted from MAPpoly
@@ -144,7 +178,7 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' @rdname viewmap
 #' 
 #' @keywords internal
-summary_maps = function(viewmap, verbose = TRUE){
+summary_maps = function(viewmap){
   
   simplex <- mapply(function(x,y) {
     sum((x == 1 & y == 0) | (x == 0 & y == 1) |
@@ -255,7 +289,7 @@ plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linka
 
 #' Color pallet ggplot-like - Adapted from MAPpoly
 #'
-#' @param void internal function to be documented
+#' @param n number of colors
 #' 
 #' @importFrom grDevices hcl col2rgb hsv rgb2hsv
 #' 
@@ -272,7 +306,10 @@ gg_color_hue <- function(n) {
 
 #' plot a single linkage group with no phase - from MAPpoly
 #'
-#' @param void internal function to be documented
+#' @param x vector of genetic distances
+#' @param i margins size
+#' @param horiz logical TRUE/FALSE. If TRUE the map is plotted horizontally.
+#' @param col color pallete to be used
 #' 
 #' @rdname viewmap
 #' 

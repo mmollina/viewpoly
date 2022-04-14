@@ -224,7 +224,7 @@ mod_qtl_view_server <- function(input, output, session,
       plot_effects(effects.data(), software = loadQTL()$software, design = input$effects_design)
     })
   })
-  
+  breeding_values
   plotHeight <- reactive({
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){

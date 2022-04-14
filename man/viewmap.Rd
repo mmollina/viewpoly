@@ -24,7 +24,7 @@ draw_map_shiny(
 
 map_summary(left.lim = 0, right.lim = 5, ch = 1, maps, d.p1, d.p2)
 
-summary_maps(viewmap, verbose = TRUE)
+summary_maps(viewmap)
 
 plot_map_list(viewmap, horiz = TRUE, col = "ggstyle", title = "Linkage group")
 
@@ -33,19 +33,48 @@ gg_color_hue(n)
 plot_one_map(x, i = 0, horiz = FALSE, col = "lightgray")
 }
 \arguments{
+\item{left.lim}{covered window in the linkage map start position}
+
+\item{ch}{linkage group ID}
+
+\item{maps}{list containing a vector for each linkage group markers with marker positions (named with marker names)}
+
+\item{ph.p1}{list containing a data.frame for each group with parent 1 estimated phases. The data.frame contain the columns:
+1) Character vector with chromosome ID; 2) Character vector with marker ID;
+3 to (ploidy number)*2 columns with each parents haplotypes}
+
+\item{ph.p2}{list containing a data.frame for each group with parent 2 estimated phases. See ph.p1 parameter description.}
+
+\item{d.p1}{list containing a data.frame for each group with parent 1 dosages. The data.frame contain the columns: 
+1) character vector with chromosomes ID; 
+2) Character vector with markers ID; 3) Character vector with parent ID; 
+4) numerical vector with dosage}
+
+\item{d.p2}{list containing a data.frame for each group with parent 2 dosages. See d.p1 parameter description}
+
+\item{snp.names}{logical TRUE/FALSE. If TRUE it includes the marker names in the plot}
+
 \item{viewmap}{object of class \code{viewmap}}
 
-\item{horiz}{logical. If FALSE, the maps are plotted vertically with the first map to the left. 
-If TRUE  (default), the maps are plotted horizontally with the first at the bottom}
+\item{horiz}{logical TRUE/FALSE. If TRUE the map is plotted horizontally.}
 
-\item{col}{a vector of colors for the bars or bar components (default = 'lightgrey')
-\code{ggstyle} produces maps using the default \code{ggplot} color palette}
+\item{col}{color pallete to be used}
 
 \item{title}{a title (string) for the maps (default = 'Linkage group')}
 
-\item{void}{internal function to be documented}
+\item{n}{number of colors}
+
+\item{x}{vector of genetic distances}
+
+\item{i}{margins size}
+
+\item{rigth.lim}{covered window in the linkage map end position}
 }
 \value{
+graphic representing selected section of a linkage group
+
+list with linkage map information: doses;  number snps by group; cM per snp; map size; number of linkage groups
+
 a data frame containing a brief summary of all maps
 
 A \code{data.frame} object containing the name of the markers and their genetic position

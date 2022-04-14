@@ -187,6 +187,10 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
 
 #' Only the plot part of plot_profile function
 #' 
+#' @param pl.in output object from \code{plot_profile} when plot == TRUE
+#' 
+#' @return ggplot graphic with QTL significance profile
+#' 
 #' @rdname viewqtl
 #' 
 #' @keywords internal
@@ -216,6 +220,23 @@ only_plot_profile <- function(pl.in){
 
 #' Get effects information
 #' 
+#' @param qtl_info data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
+#' Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
+#' Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability
+#' @param effects data.frame with: pheno - phenotype ID; qtl.id - QTL ID; haplo - haplotype ID; effect - haplotype effect value
+#' @param pheno.col integer identifying phenotype  
+#' @param p1 character with parent 1 ID
+#' @param p2 character with parent 2 ID
+#' @param lgs vector of integers with linkage group ID of selected QTL/s
+#' @param groups vector of integers with selected linkage group ID
+#' @param position vector of centimorgan positions of selected QTL/s
+#' @param software character defining which software was used for QTL analysis. Currently support for: QTLpoly, diaQTL and polyqtlR.
+#' @param design character defining the graphic design. Options: `bar` - barplot of the effects; 
+#' `circle` - circular plot of the effects (useful to compare effects of different traits); 
+#' `digenic` - heatmap plotting sum of additive effects (bottom diagonal) and digenic effects (top diagonal) when present   
+#' 
+#' @return ggplot graphic
+#' 
 #' @rdname viewqtl
 #' 
 #' @importFrom tidyr pivot_longer
@@ -224,7 +245,7 @@ only_plot_profile <- function(pl.in){
 #' 
 #' @keywords internal
 data_effects <- function(qtl_info, effects, pheno.col = NULL, 
-                         p1 = "P1", p2 = "P2", df.info=NULL, 
+                         p1 = "P1", p2 = "P2",  
                          lgs = NULL, groups = NULL, position = NULL, 
                          software, design = c("bar", "circle", "digenic")) {
   
@@ -449,7 +470,11 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
   })
 }
 
-#' Change ggplot coordinates to plot radar
+#' Change ggplot coordinates to plot radar - From package see
+#' 
+#' @param theta ariable to map angle to (x or y)
+#' @param start offset of starting point from 12 o'clock in radians. Offset is applied clockwise or anticlockwise depending on value of direction.
+#' @param direction 1, clockwise; -1, anticlockwise
 #' 
 #' @rdname viewqtl
 #' 
@@ -463,6 +488,12 @@ coord_radar <- function (theta = "x", start = 0, direction = 1) {
 }
 
 #' Plot effects data
+#' 
+#' @param data_effects.obj output of function \code{data_effects}
+#' @param software character defining which software was used for QTL analysis. Currently support for: QTLpoly, diaQTL and polyqtlR.
+#' @param design character defining the graphic design. Options: `bar` - barplot of the effects; 
+#' `circle` - circular plot of the effects (useful to compare effects of different traits); 
+#' `digenic` - heatmap plotting sum of additive effects (bottom diagonal) and digenic effects (top diagonal) when present   
 #' 
 #' @rdname viewqtl
 #' 
@@ -490,6 +521,18 @@ plot_effects <- function(data_effects.obj, software,
 }
 
 #' Adapted function from QTLpoly
+#' 
+#' @param qtl_info data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
+#' Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
+#' Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability
+#' @param probs data.frame with first column (named `ind`) as individuals ID and next columns 
+#' named with markers ID and containing the genotype probability at each marker
+#' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
+#' @param blups data.frame with: haplo - haplotype ID; pheno - phenotype ID; qtl - QTL ID; u.hat - QTL estimated BLUPs
+#' @param beta.hat data.frame with: pheno - phenotype ID; beta.hat - estimated beta
+#' @param pos selected QTL position (cM)
+#' 
+#' @return data.frame containing breeding values
 #' 
 #' @import dplyr
 #' 
@@ -545,6 +588,12 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
 }
 
 #' Adapted from MAPpoly
+#' 
+#' @param probs data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker
+#' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
+#' @param selected_lgs vector containing selected LGs ID
+#' 
+#' @return object of class \code{mappoly.homoprob}
 #' 
 #' @rdname viewqtl
 #' 
@@ -633,13 +682,10 @@ calc_homologprob  <- function(probs, selected_mks, selected_lgs){
 #'            If \code{NULL} (default), the function plots the first 
 #'            individual
 #'            
-#' @param use.plotly if \code{TRUE} (default), it uses plotly interactive graphic
-#'
 #' @param verbose if \code{TRUE} (default), the current progress is shown; if
 #'     \code{FALSE}, no output is produced
 #' 
 #' @param ... unused arguments
-#' @importFrom plotly ggplotly
 #' 
 #' @rdname viewqtl
 #' 
@@ -720,6 +766,13 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 }
 
 #' Plot selected haplotypes
+#' 
+#' @param input.haplo character vector with selected haplotypes. It contains the information: "Trait:<trait ID>_LG:<linkage group ID_Pos:<QTL position>" 
+#' @param probs data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker
+#' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
+#' @param effects.data output object from \code{data_effects} function
+#' 
+#' @return ggplot graphic
 #' 
 #' @rdname viewqtl
 #' 
