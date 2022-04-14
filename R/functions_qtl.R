@@ -433,7 +433,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                   axis.text.y=element_blank(),
                   axis.ticks.y=element_blank(),
                   axis.title.x=element_blank(), 
-                  legend.title = element_blank()) + guides(alpha = FALSE) 
+                  legend.title = element_blank()) + guides(alpha = "none") 
         }
         incProgress(0.9, detail = paste("building graphic..."))
         return(p) 
