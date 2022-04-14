@@ -26,7 +26,7 @@ mod_upload_ui <- function(id){
                                 choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
                                 selected = "tetra_map"), br(), br(), hr(),
                    tags$p("Access complete example datasets ", 
-                          tags$a(href= "https://gesteira.statgen.ncsu.edu/files/","here"))
+                          tags$a(href= "https://www.polyploids.org/input-tests","here"))
                )
              )
       ), br(),

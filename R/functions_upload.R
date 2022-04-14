@@ -1,5 +1,9 @@
 #' Upload example files
 #' 
+#' @param example character indicating the example dataset selected
+#' 
+#' @return object of class \code{viewpoly}
+#' 
 #' @rdname inputs
 #' 
 #' @importFrom utils download.file
@@ -33,6 +37,8 @@ prepare_examples <- function(example){
 #' 1) Character vector with chromosome ID; 2) Character vector with marker ID;
 #' 3 to (ploidy number)*2 columns with each parents haplotypes.
 #' @param genetic_map TSV or TSV.GZ file with the genetic map information
+#' 
+#' @return object of class \code{viewmap}
 #' 
 #' @import dplyr
 #' @import vroom
@@ -86,7 +92,9 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 
 #' Converts list of mappoly.map object into viewmap object
 #' 
-#' @param mappoly_list list with objects of class mappoly.map
+#' @param mappoly_list list with objects of class \code{mappoly.map}
+#' 
+#' @return object of class \code{viewmap}
 #' 
 #' @rdname inputs
 #' 
@@ -112,6 +120,13 @@ prepare_MAPpoly <- function(mappoly_list){
 }
 
 #' Converts polymapR ouputs to viewmap object
+#' 
+#' @param polymapR.dataset a \code{polymapR} dataset
+#' @param polymapR.map output map sequence from polymapR
+#' @param input.type indicates whether the input is discrete ("disc") or probabilistic ("prob")
+#' @param ploidy ploidy level
+#' 
+#' @return object of class \code{viewmap}
 #' 
 #' @rdname inputs
 #' 
@@ -157,6 +172,8 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
 #' @param fitted.mod object of class "qtlpoly.fitted"
 #' 
 #' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
+#' 
+#' @return object of class \code{viewqtl}
 #' 
 #' @importFrom tidyr pivot_longer
 #' @import dplyr
@@ -249,6 +266,13 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 }
 
 #' Converts diaQTL output to viewqtl object
+#' 
+#' @param scan1_list list with results from diaQTL \code{scan1} function
+#' @param scan1_summaries_list list with results from diaQTL \code{scan1_summaries} function 
+#' @param fitQTL_list list with results from diaQTL \code{fitQTL} function
+#' @param BayesCI_list list with results from diaQTL \code{BayesCI} function
+#' 
+#' @return object of class \code{viewqtl}
 #' 
 #' @importFrom dplyr filter
 #' 
@@ -351,6 +375,14 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
 
 #' Converts polyqtlR outputs to viewqtl object
 #' 
+#' @param polyqtlR_QTLscan_list list containing results from polyqtlR \code{QTLscan_list} function
+#' @param polyqtlR_qtl_info data.frame containing the QTL information:LG - group ID; Pos - QTL position (cM); 
+#' pheno - phenotype ID; Pos_lower - lower position of confidence interval; Pos_upper - upper position of the confidence interval;
+#' thresh - LOD threshold applied
+#' @param polyqtlR_effects data.frame with results from \code{visualiseQTLeffects} polyqtlR function
+#' 
+#' @return object of class \code{viewqtl}
+#' 
 #' @rdname inputs
 #' 
 #' @keywords internal
@@ -392,7 +424,19 @@ prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_
 
 #' Converts QTL information in custom files to viewqtl object
 #' 
+#' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
+#' @param qtl_info data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
+#' Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
+#' Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability
+#' @param blups data.frame with: haplo - haplotype ID; pheno - phenotype ID; qtl - QTL ID; u.hat - QTL estimated BLUPs
+#' @param beta.hat data.frame with: pheno - phenotype ID; beta.hat - estimated beta
+#' @param profile data.frame with: pheno - phenotype ID; LOP - significance value for the QTL, in this case LOP (can be LOD or DIC depending of the software used)
+#' @param effects data.frame with: pheno - phenotype ID; qtl.id - QTL ID; haplo - haplotype ID; effect - haplotype effect value
+#' @param probs data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker
+#' 
 #' @rdname inputs
+#' 
+#' @return object of class \code{viewqtl}
 #' 
 #' @import vroom
 #' @import abind

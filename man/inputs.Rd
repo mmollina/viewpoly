@@ -36,6 +36,8 @@ prepare_qtl_custom_files(
 )
 }
 \arguments{
+\item{example}{character indicating the example dataset selected}
+
 \item{dosages}{TSV or TSV.GZ file with both parents dosage information.
 It should contain four columns: 1) character vector with chromosomes ID; 
 2) Character vector with markers ID; 3) Character vector with parent ID; 
@@ -47,7 +49,15 @@ It should contain four columns: 1) character vector with chromosomes ID;
 
 \item{genetic_map}{TSV or TSV.GZ file with the genetic map information}
 
-\item{mappoly_list}{list with objects of class mappoly.map}
+\item{mappoly_list}{list with objects of class \code{mappoly.map}}
+
+\item{polymapR.dataset}{a \code{polymapR} dataset}
+
+\item{polymapR.map}{output map sequence from polymapR}
+
+\item{input.type}{indicates whether the input is discrete ("disc") or probabilistic ("prob")}
+
+\item{ploidy}{ploidy level}
 
 \item{data}{object of class "qtlpoly.data"}
 
@@ -56,6 +66,55 @@ It should contain four columns: 1) character vector with chromosomes ID;
 \item{est.effects}{object of class "qtlpoly.effects"}
 
 \item{fitted.mod}{object of class "qtlpoly.fitted"}
+
+\item{scan1_list}{list with results from diaQTL \code{scan1} function}
+
+\item{scan1_summaries_list}{list with results from diaQTL \code{scan1_summaries} function}
+
+\item{fitQTL_list}{list with results from diaQTL \code{fitQTL} function}
+
+\item{BayesCI_list}{list with results from diaQTL \code{BayesCI} function}
+
+\item{polyqtlR_QTLscan_list}{list containing results from polyqtlR \code{QTLscan_list} function}
+
+\item{polyqtlR_qtl_info}{data.frame containing the QTL information:LG - group ID; Pos - QTL position (cM); 
+pheno - phenotype ID; Pos_lower - lower position of confidence interval; Pos_upper - upper position of the confidence interval;
+thresh - LOD threshold applied}
+
+\item{polyqtlR_effects}{data.frame with results from \code{visualiseQTLeffects} polyqtlR function}
+
+\item{selected_mks}{data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)}
+
+\item{qtl_info}{data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
+Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
+Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability}
+
+\item{blups}{data.frame with: haplo - haplotype ID; pheno - phenotype ID; qtl - QTL ID; u.hat - QTL estimated BLUPs}
+
+\item{beta.hat}{data.frame with: pheno - phenotype ID; beta.hat - estimated beta}
+
+\item{profile}{data.frame with: pheno - phenotype ID; LOP - significance value for the QTL, in this case LOP (can be LOD or DIC depending of the software used)}
+
+\item{effects}{data.frame with: pheno - phenotype ID; qtl.id - QTL ID; haplo - haplotype ID; effect - haplotype effect value}
+
+\item{probs}{data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker}
+}
+\value{
+object of class \code{viewpoly}
+
+object of class \code{viewmap}
+
+object of class \code{viewmap}
+
+object of class \code{viewmap}
+
+object of class \code{viewqtl}
+
+object of class \code{viewqtl}
+
+object of class \code{viewqtl}
+
+object of class \code{viewqtl}
 }
 \description{
 Upload example files

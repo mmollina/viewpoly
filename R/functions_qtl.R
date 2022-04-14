@@ -1,6 +1,22 @@
 #' Logarithm of \emph{P}-value (LOP) profile plots. Modified version of QTLpoly function.
 #'
 #' Plots profiled logarithm of score-based \emph{P}-values (LOP) from individual or combined traits.
+#' 
+#' @param profile data.frame with: pheno - phenotype ID; LOP - significance value for the QTL. 
+#' It can be LOP, LOD or DIC depending of the software used
+#' @param qtl_info data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
+#' Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
+#' Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability
+#' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
+#' @param pheno.col integer identifying phenotype  
+#' @param lgs.id integer identifying linkage group
+#' @param by_range logical TRUE/FALSE. If TRUE range.min and range.max will set a colored window in the plot and the other positions will be gray.
+#' If FALSE, range.min and range.max is ignored
+#' @param range.min position in centimorgan defining the start of the colored window
+#' @param range.max position in centimorgan defining the end of the colored window
+#' @param plot logical TRUE/FALSE. If FALSE the function return a data.frame with information for \code{only_plot_profile} function. 
+#' If TRUE, it returns a ggplot graphic.
+#' @param software character defining which software was used for QTL analysis. Currently support for: QTLpoly, diaQTL and polyqtlR.
 #'
 #' @import ggplot2
 #' @import dplyr
@@ -8,6 +24,9 @@
 #' @importFrom utils tail
 #' 
 #' @rdname viewqtl
+#' 
+#' @return ggplot graphic (if plot == TRUE) or data.frame (if plot == FALSE) with information 
+#' from QTL significance profile
 #' 
 #' @keywords internal
 plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL, 

@@ -22,6 +22,9 @@
 #' @param verbose if \code{TRUE} (default), the current progress is shown; if
 #'     \code{FALSE}, no output is produced
 #'
+#'
+#' @return object of class \code{mappoly.data}
+#' 
 #' @author Marcelo Mollinari \email{mmollin@ncsu.edu}
 #'
 #' @references
@@ -42,6 +45,7 @@
 #' 
 #' @importFrom reshape2 acast
 #' @importFrom dplyr filter arrange
+#' 
 import_data_from_polymapR <- function(input.data, 
                                       ploidy, 
                                       parent1 = "P1", 
@@ -198,7 +202,10 @@ import_data_from_polymapR <- function(input.data,
 #' Filter non-conforming classes in F1, non double reduced population.
 #' Function from MAPpoly.
 #'
-#' @param void internal function to be documented
+#' @param input.data object of class mappoly
+#' @param prob.thres threshold for filtering genotypes by genotype probability values. If NULL, the filter is not applied.
+#' 
+#' @return filtered \code{mappoly.data} object
 #' 
 #' @rdname utils
 #' 
@@ -283,7 +290,9 @@ ph_matrix_to_list <- function(M) {
 
 #' Is it a probability dataset? Function from MAPpoly.
 #'
-#' @param void internal function to be documented
+#' @param x object of class \code{mappoly.data}
+#' 
+#' @return TRUE/FALSE indicating if genotype probability information is present
 #' 
 #' @rdname utils
 #' 
@@ -292,9 +301,11 @@ is.prob.data <- function(x){
   exists('geno', where = x)
 }
 
-#' Map functions. From MAPpoly
+#' Haldane map function. From MAPpoly
 #'
-#' @param void internal function to be documented
+#' @param d vector containing recombination fraction values
+#' 
+#' @return vector with genetic distances estimated with Haldane function
 #' 
 #' @rdname utils
 #' 
@@ -303,7 +314,10 @@ mf_h <- function(d) 0.5 * (1 - exp(-d/50))
 
 #' Chi-square test. Function from MAPpoly.
 #'
-#' @param void internal function to be documented
+#' @param x data.frame containing dosage information
+#' @param ploidy integer defining the specie ploidy
+#' 
+#' @return vector with p-values for each marker
 #' 
 #' @importFrom stats chisq.test
 #' @rdname utils
@@ -433,6 +447,8 @@ segreg_poly <- function(ploidy, d.p1, d.p2) {
 #' converted into class \code{mappoly.data}
 #' @param ploidy the ploidy level     
 #'
+#' @return object of class \code{mappoly.map}
+#' 
 #' @author Marcelo Mollinari \email{mmollin@ncsu.edu}
 #'
 #' @references
@@ -493,7 +509,11 @@ import_phased_maplist_from_polymapR <- function(maplist,
 }
 
 #' prepare maps for plot - from MAPpoly
-#' @param void internal function to be documented
+#' @param input.map object of class \code{mappoly.map}
+#' @param config choose between 'best', 'all' or provide vector with defined configuration. 
+#' 'best' provide just the best estimated configuration. 'all' provides all possibles.
+#' 
+#' @return list containing phase and dosage information
 #' 
 #' @rdname utils
 #' 
@@ -542,8 +562,11 @@ prepare_map <- function(input.map, config = "best"){
 
 #' Map functions - from MAPpoly
 #'
-#' @param void internal function to be documented
+#' @param r vector with recombination fraction values
+#' 
 #' @keywords internal
+#' 
+#' @return vector with genetic distances
 #' 
 #' @rdname utils
 #' 
@@ -555,9 +578,11 @@ imf_h <- function(r) {
 
 #' Extract the LOD Scores in a \code{'mappoly.map'} object
 #' Function from MAPpoly.
+#' 
 #' @param x an object of class \code{mappoly.map}
 #' @param sorted logical. if \code{TRUE}, the LOD Scores are displayed
 #'     in a decreasing order
+#'     
 #' @return a numeric vector containing the LOD Scores
 #' @keywords internal
 #' 

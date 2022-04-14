@@ -54,7 +54,7 @@ get_LOD(x, sorted = TRUE)
 ph_list_to_matrix(L, ploidy)
 }
 \arguments{
-\item{input.data}{a \code{polymapR} dataset}
+\item{input.data}{object of class mappoly}
 
 \item{ploidy}{ploidy level}
 
@@ -86,6 +86,8 @@ the rows represent markers}
 
 \item{x}{an object of class \code{mappoly.map}}
 
+\item{d}{vector containing recombination fraction values}
+
 \item{geno}{the probabilistic genotypes contained in the object
 \code{'mappoly.data'}}
 
@@ -99,15 +101,30 @@ the rows represent markers}
 \item{mappoly.data}{a dataset used to obtain \code{maplist}, 
 converted into class \code{mappoly.data}}
 
+\item{input.map}{object of class \code{mappoly.map}}
+
+\item{config}{choose between 'best', 'all' or provide vector with defined configuration. 
+'best' provide just the best estimated configuration. 'all' provides all possibles.}
+
+\item{r}{vector with recombination fraction values}
+
 \item{sorted}{logical. if \code{TRUE}, the LOD Scores are displayed
 in a decreasing order}
 
 \item{L}{a list of configuration phases}
-
-\item{void}{internal function to be documented}
 }
 \value{
+object of class \code{mappoly.data}
+
+filtered \code{mappoly.data} object
+
 a list of linkage phase configurations
+
+TRUE/FALSE indicating if genotype probability information is present
+
+vector with genetic distances estimated with Haldane function
+
+vector with p-values for each marker
 
 a matrix containing the doses of each genotype and
     marker. Markers are disposed in rows and individuals are 
@@ -115,6 +132,12 @@ a matrix containing the doses of each genotype and
 
 a vector containing the expected segregation frequency for
     all possible genotypic classes.
+
+object of class \code{mappoly.map}
+
+list containing phase and dosage information
+
+vector with genetic distances
 
 a numeric vector containing the LOD Scores
 

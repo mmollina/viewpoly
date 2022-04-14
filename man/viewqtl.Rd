@@ -58,6 +58,31 @@ calc_homologprob(probs, selected_mks, selected_lgs)
 select_haplo(input.haplo, probs, selected_mks, effects.data)
 }
 \arguments{
+\item{profile}{data.frame with: pheno - phenotype ID; LOP - significance value for the QTL. 
+It can be LOP, LOD or DIC depending of the software used}
+
+\item{qtl_info}{data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
+Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
+Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability}
+
+\item{selected_mks}{data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)}
+
+\item{pheno.col}{integer identifying phenotype}
+
+\item{lgs.id}{integer identifying linkage group}
+
+\item{by_range}{logical TRUE/FALSE. If TRUE range.min and range.max will set a colored window in the plot and the other positions will be gray.
+If FALSE, range.min and range.max is ignored}
+
+\item{range.min}{position in centimorgan defining the start of the colored window}
+
+\item{range.max}{position in centimorgan defining the end of the colored window}
+
+\item{plot}{logical TRUE/FALSE. If FALSE the function return a data.frame with information for \code{only_plot_profile} function. 
+If TRUE, it returns a ggplot graphic.}
+
+\item{software}{character defining which software was used for QTL analysis. Currently support for: QTLpoly, diaQTL and polyqtlR.}
+
 \item{x}{an object of class \code{mappoly.homoprob}}
 
 \item{stack}{logical. If \code{TRUE}, probability profiles of all homologues
@@ -78,6 +103,10 @@ individual}
 \item{...}{unused arguments}
 
 \item{use.plotly}{if \code{TRUE} (default), it uses plotly interactive graphic}
+}
+\value{
+ggplot graphic (if plot == TRUE) or data.frame (if plot == FALSE) with information 
+from QTL significance profile
 }
 \description{
 Plots profiled logarithm of score-based \emph{P}-values (LOP) from individual or combined traits.
