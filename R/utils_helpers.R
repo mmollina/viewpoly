@@ -39,7 +39,6 @@
 #'     models, _G3: Genes, Genomes, Genetics_. 
 #'     \doi{10.1534/g3.119.400378}
 #'     
-#' @rdname utils
 #' 
 #' @keywords internal
 #' 
@@ -207,7 +206,6 @@ import_data_from_polymapR <- function(input.data,
 #' 
 #' @return filtered \code{mappoly.data} object
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 filter_non_conforming_classes <- function(input.data, prob.thres = NULL)
@@ -279,7 +277,6 @@ filter_non_conforming_classes <- function(input.data, prob.thres = NULL)
 #' 
 #' @return a list of linkage phase configurations
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 ph_matrix_to_list <- function(M) {
@@ -294,7 +291,6 @@ ph_matrix_to_list <- function(M) {
 #' 
 #' @return TRUE/FALSE indicating if genotype probability information is present
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 is.prob.data <- function(x){
@@ -307,7 +303,6 @@ is.prob.data <- function(x){
 #' 
 #' @return vector with genetic distances estimated with Haldane function
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 mf_h <- function(d) 0.5 * (1 - exp(-d/50))
@@ -320,7 +315,6 @@ mf_h <- function(d) 0.5 * (1 - exp(-d/50))
 #' @return vector with p-values for each marker
 #' 
 #' @importFrom stats chisq.test
-#' @rdname utils
 #' 
 #' @keywords internal
 mrk_chisq_test <- function(x, ploidy){
@@ -350,7 +344,6 @@ mrk_chisq_test <- function(x, ploidy){
 #' @importFrom reshape2 melt dcast
 #' @importFrom dplyr group_by filter arrange `%>%`
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 dist_prob_to_class <- function(geno, prob.thres = 0.9) {
@@ -413,7 +406,6 @@ dist_prob_to_class <- function(geno, prob.thres = 0.9) {
 #'     e30906.
 #'     
 #' @importFrom stats dhyper
-#' @rdname utils
 #' 
 #' @keywords internal
 segreg_poly <- function(ploidy, d.p1, d.p2) {
@@ -463,7 +455,6 @@ segreg_poly <- function(ploidy, d.p1, d.p2) {
 #'     models, _G3: Genes, Genomes, Genetics_. 
 #'     \doi{10.1534/g3.119.400378}
 #'     
-#' @rdname utils
 #' 
 #' @keywords internal
 import_phased_maplist_from_polymapR <- function(maplist, 
@@ -515,7 +506,6 @@ import_phased_maplist_from_polymapR <- function(maplist,
 #' 
 #' @return list containing phase and dosage information
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 prepare_map <- function(input.map, config = "best"){
@@ -568,7 +558,6 @@ prepare_map <- function(input.map, config = "best"){
 #' 
 #' @return vector with genetic distances
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 imf_h <- function(r) {
@@ -586,7 +575,6 @@ imf_h <- function(r) {
 #' @return a numeric vector containing the LOD Scores
 #' @keywords internal
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 get_LOD <- function(x, sorted = TRUE) {
@@ -610,7 +598,6 @@ get_LOD <- function(x, sorted = TRUE) {
 #' @return a matrix whose columns represent homologous chromosomes and
 #'     the rows represent markers
 #' 
-#' @rdname utils
 #' 
 #' @keywords internal
 ph_list_to_matrix <- function(L, ploidy) {

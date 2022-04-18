@@ -2,11 +2,6 @@
 % Please edit documentation in R/functions_map.R
 \name{draw_map_shiny}
 \alias{draw_map_shiny}
-\alias{map_summary}
-\alias{summary_maps}
-\alias{plot_map_list}
-\alias{gg_color_hue}
-\alias{plot_one_map}
 \title{Draws linkage map, parents haplotypes and marker doses
 Adapted from MAPpoly}
 \usage{
@@ -21,16 +16,6 @@ draw_map_shiny(
   d.p2,
   snp.names = TRUE
 )
-
-map_summary(left.lim = 0, right.lim = 5, ch = 1, maps, d.p1, d.p2)
-
-summary_maps(viewmap)
-
-plot_map_list(viewmap, horiz = TRUE, col = "ggstyle", title = "Linkage group")
-
-gg_color_hue(n)
-
-plot_one_map(x, i = 0, horiz = FALSE, col = "lightgray")
 }
 \arguments{
 \item{left.lim}{covered window in the linkage map start position}
@@ -54,50 +39,13 @@ plot_one_map(x, i = 0, horiz = FALSE, col = "lightgray")
 
 \item{snp.names}{logical TRUE/FALSE. If TRUE it includes the marker names in the plot}
 
-\item{viewmap}{object of class \code{viewmap}}
-
-\item{horiz}{logical TRUE/FALSE. If TRUE the map is plotted horizontally.}
-
-\item{col}{color pallete to be used}
-
-\item{title}{a title (string) for the maps (default = 'Linkage group')}
-
-\item{n}{number of colors}
-
-\item{x}{vector of genetic distances}
-
-\item{i}{margins size}
-
 \item{rigth.lim}{covered window in the linkage map end position}
 }
 \value{
 graphic representing selected section of a linkage group
-
-list with linkage map information: doses;  number snps by group; cM per snp; map size; number of linkage groups
-
-a data frame containing a brief summary of all maps
-
-A \code{data.frame} object containing the name of the markers and their genetic position
 }
 \description{
-This function generates a brief summary table
-
-This function plots a genetic linkage map(s)
-}
-\references{
-Mollinari, M., and Garcia, A.  A. F. (2019) Linkage
-    analysis and haplotype phasing in experimental autopolyploid
-    populations with high ploidy level using hidden Markov
-    models, _G3: Genes, Genomes, Genetics_. 
-    \doi{10.1534/g3.119.400378}
-}
-\author{
-Gabriel Gesteira, \email{gabrielgesteira@usp.br}
-
-Cristiane Taniguti, \email{chtaniguti@tamu.edu}
-
-Marcelo Mollinari, \email{mmollin@ncsu.edu}
-
-Cristiane Taniguti, \email{chtaniguti@tamu.edu}
+Draws linkage map, parents haplotypes and marker doses
+Adapted from MAPpoly
 }
 \keyword{internal}

@@ -4,7 +4,6 @@
 #' 
 #' @return object of class \code{viewpoly}
 #' 
-#' @rdname inputs
 #' 
 #' @importFrom utils download.file
 #' 
@@ -27,7 +26,6 @@ prepare_examples <- function(example){
 
 #' Converts map information in custom format files to viewmap object
 #' 
-#' @rdname inputs
 #' 
 #' @param dosages TSV or TSV.GZ file with both parents dosage information.
 #' It should contain four columns: 1) character vector with chromosomes ID; 
@@ -96,7 +94,6 @@ prepare_map_custom_files <- function(dosages, phases, genetic_map){
 #' 
 #' @return object of class \code{viewmap}
 #' 
-#' @rdname inputs
 #' 
 #' @keywords internal
 prepare_MAPpoly <- function(mappoly_list){
@@ -128,7 +125,6 @@ prepare_MAPpoly <- function(mappoly_list){
 #' 
 #' @return object of class \code{viewmap}
 #' 
-#' @rdname inputs
 #' 
 #' @keywords internal
 prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy){ 
@@ -164,7 +160,6 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
 
 #' Converts QTLpoly outputs to viewqtl object
 #' 
-#' @rdname inputs
 #' 
 #' @param data object of class "qtlpoly.data"
 #' @param remim.mod object of class "qtlpoly.model" "qtlpoly.remim".
@@ -276,7 +271,6 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 #' 
 #' @importFrom dplyr filter
 #' 
-#' @rdname inputs
 #' 
 #' @keywords internal
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
@@ -383,7 +377,6 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
 #' 
 #' @return object of class \code{viewqtl}
 #' 
-#' @rdname inputs
 #' 
 #' @keywords internal
 prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_effects){
@@ -434,7 +427,6 @@ prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_
 #' @param effects data.frame with: pheno - phenotype ID; qtl.id - QTL ID; haplo - haplotype ID; effect - haplotype effect value
 #' @param probs data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker
 #' 
-#' @rdname inputs
 #' 
 #' @return object of class \code{viewqtl}
 #' 

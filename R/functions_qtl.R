@@ -23,8 +23,6 @@
 #' @importFrom plotly TeX
 #' @importFrom utils tail
 #' 
-#' @rdname viewqtl
-#' 
 #' @return ggplot graphic (if plot == TRUE) or data.frame (if plot == FALSE) with information 
 #' from QTL significance profile
 #' 
@@ -191,7 +189,6 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
 #' 
 #' @return ggplot graphic with QTL significance profile
 #' 
-#' @rdname viewqtl
 #' 
 #' @keywords internal
 only_plot_profile <- function(pl.in){
@@ -237,7 +234,6 @@ only_plot_profile <- function(pl.in){
 #' 
 #' @return ggplot graphic
 #' 
-#' @rdname viewqtl
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr filter `%>%`
@@ -476,7 +472,6 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
 #' @param start offset of starting point from 12 o'clock in radians. Offset is applied clockwise or anticlockwise depending on value of direction.
 #' @param direction 1, clockwise; -1, anticlockwise
 #' 
-#' @rdname viewqtl
 #' 
 #' @keywords internal
 coord_radar <- function (theta = "x", start = 0, direction = 1) {
@@ -495,7 +490,6 @@ coord_radar <- function (theta = "x", start = 0, direction = 1) {
 #' `circle` - circular plot of the effects (useful to compare effects of different traits); 
 #' `digenic` - heatmap plotting sum of additive effects (bottom diagonal) and digenic effects (top diagonal) when present   
 #' 
-#' @rdname viewqtl
 #' 
 #' @keywords internal
 plot_effects <- function(data_effects.obj, software, 
@@ -520,7 +514,7 @@ plot_effects <- function(data_effects.obj, software,
   return(p.t)
 }
 
-#' Adapted function from QTLpoly
+#' Estimate breeding values - Adapted function from QTLpoly
 #' 
 #' @param qtl_info data.frame with: LG - linkage group ID; Pos - position in linkage map (cM); 
 #' Pheno - phenotype ID; Pos_lower - lower position of confidence interval; 
@@ -536,7 +530,6 @@ plot_effects <- function(data_effects.obj, software,
 #' 
 #' @import dplyr
 #' 
-#' @rdname viewqtl
 #' 
 #' @keywords internal
 breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos) {
@@ -587,7 +580,7 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
   return(results)
 }
 
-#' Adapted from MAPpoly
+#' Calculates homologues probabilities - Adapted from MAPpoly
 #' 
 #' @param probs data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker
 #' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
@@ -595,7 +588,6 @@ breeding_values <- function(qtl_info, probs, selected_mks, blups, beta.hat, pos)
 #' 
 #' @return object of class \code{mappoly.homoprob}
 #' 
-#' @rdname viewqtl
 #' 
 #' @importFrom reshape2 melt
 #' @importFrom dplyr filter
@@ -687,7 +679,6 @@ calc_homologprob  <- function(probs, selected_mks, selected_lgs){
 #' 
 #' @param ... unused arguments
 #' 
-#' @rdname viewqtl
 #' 
 #' @keywords internal
 plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL, 
@@ -774,7 +765,6 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' @return ggplot graphic
 #' 
-#' @rdname viewqtl
 #' 
 #' @keywords internal
 select_haplo <- function(input.haplo, probs, selected_mks, effects.data){

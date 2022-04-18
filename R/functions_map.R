@@ -19,7 +19,6 @@
 #' 
 #' @return graphic representing selected section of a linkage group
 #' 
-#' @rdname viewmap
 #' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
@@ -132,7 +131,6 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' 
 #' @return list with linkage map information: doses;  number snps by group; cM per snp; map size; number of linkage groups
 #' 
-#' @rdname viewmap
 #' 
 #' @keywords internal
 map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
@@ -175,7 +173,6 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' @author Gabriel Gesteira, \email{gabrielgesteira@usp.br}
 #' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
 #' 
-#' @rdname viewmap
 #' 
 #' @keywords internal
 summary_maps = function(viewmap){
@@ -239,7 +236,6 @@ summary_maps = function(viewmap){
 #'     models, _G3: Genes, Genomes, Genetics_. 
 #'     \doi{10.1534/g3.119.400378}
 #'
-#' @rdname viewmap
 #' 
 #' @keywords internal
 plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linkage group"){
@@ -293,7 +289,6 @@ plot_map_list <- function(viewmap, horiz = TRUE, col = "ggstyle", title = "Linka
 #' 
 #' @importFrom grDevices hcl col2rgb hsv rgb2hsv
 #' 
-#' @rdname viewmap
 #' 
 #' @keywords internal
 gg_color_hue <- function(n) {
@@ -304,14 +299,13 @@ gg_color_hue <- function(n) {
   return(hsv(cols, x[2], x[3]))
 }
 
-#' plot a single linkage group with no phase - from MAPpoly
+#' Plot a single linkage group with no phase - from MAPpoly
 #'
 #' @param x vector of genetic distances
 #' @param i margins size
 #' @param horiz logical TRUE/FALSE. If TRUE the map is plotted horizontally.
 #' @param col color pallete to be used
 #' 
-#' @rdname viewmap
 #' 
 #' @keywords internal
 plot_one_map <- function(x, i = 0, horiz = FALSE, col = "lightgray")
