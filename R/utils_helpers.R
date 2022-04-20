@@ -606,3 +606,114 @@ ph_list_to_matrix <- function(L, ploidy) {
     M[i, L[[i]]] <- 1
   M
 }
+
+button_mod <- function (outputId, label = "Download", style = "unite", 
+                        color = "primary", size = "md", block = FALSE, 
+                        no_outline = TRUE) 
+{
+  bttn <- actionBttn(inputId = paste0(outputId, "_bttn"), 
+                     label = tagList(tags$a(id = outputId, class = "shiny-download-link", 
+                                            href = "", target = "_blank", download = TRUE), 
+                                     label), color = color, style = style, size = size, 
+                     block = block, no_outline = no_outline, icon = icon("download"))
+  htmltools::tagAppendAttributes(bttn, onclick = sprintf("getElementById('%s').click()", 
+                                                         outputId), )
+}
+
+
+#' Viewmap object sanity check 
+#' 
+#' 
+#' @param viewmap_obj an object of class \code{viewmap}
+#' 
+#' @return if consistent, returns 0. If not consistent, returns a 
+#'         vector with a number of tests, where \code{TRUE} indicates
+#'         a failed test.
+#'         
+#' 
+#' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
+#' 
+#' @export
+check_viewmap <- function(viewmap_obj){
+  test <- logical(7L)
+  names(test) <- 1:7
+  
+  test[1] <- length(viewmap_obj) != 6
+  test[2] <- any(names(viewmap_obj) != c("d.p1", "d.p2", "ph.p1", "ph.p2", "maps", "software"))
+  test[3] <- is.null(names(viewmap_obj$d.p1[[1]]))
+  test[4] <- is.null(rownames(viewmap_obj$ph.p1[[1]]))
+  test[5] <- any(sapply(viewmap_obj$maps, length) != 6)
+  test[6] <- is.null(viewmap_obj$software)
+  test[7] <- !inherits(viewmap_obj, "viewmap")
+  
+  if(any(test))
+    return(test)
+  else return(0)
+}
+
+#' viewqtl object sanity check 
+#' 
+#' 
+#' @param viewqtl_obj an object of class \code{viewqtl}
+#' 
+#' @return if consistent, returns 0. If not consistent, returns a 
+#'         vector with a number of tests, where \code{TRUE} indicates
+#'         a failed test.
+#'         
+#' 
+#' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
+#' 
+#' @export
+check_viewqtl <- function(viewqtl_obj){
+  test <- logical(10L)
+  names(test) <- 1:10
+  
+  test[1] <- length(viewqtl_obj) != 8
+  test[2] <- any(names(viewqtl_obj) != c("selected_mks", "qtl_info", "blups", "beta.hat", "profile", "effects", "probs", "software"))
+  test[3] <- any(names(viewqtl_obj$selected_mks != c("LG", "mk", "pos")))
+  test[4] <- any(names(viewqtl_obj$qtl_info != c("LG", "Pos", "pheno", "Pos_lower", "Pos_upper", "Pval", "h2")))                
+  test[5] <- any(names(viewqtl_obj$blups) != c("haplo", "pheno", "qtl", "u.hat")) 
+  test[6] <- any(names(viewqtl_obj$beta.hat) != c("pheno", "beta.hat"))
+  test[7] <- any(names(viewqtl_obj$profile) != c("pheno", "LOP"))
+  test[8] <- any(names(viewqtl_obj$effects) != c("pheno", "qtl.id", "haplo", "effect"))
+  test[9] <- length(dim(viewqtl_obj$probs)) != 3
+  test[10] <- !inherits(viewqtl_obj, "viewqtl")
+  
+  if(any(test))
+    return(test)
+  else return(0)
+}
+
+
+#' Viewpoly object sanity check 
+#' 
+#' 
+#' @param viewpoly_obj an object of class \code{viewpoly}
+#' 
+#' @return if consistent, returns 0. If not consistent, returns a 
+#'         vector with a number of tests, where \code{TRUE} indicates
+#'         a failed test.
+#'         
+#' 
+#' @author Cristiane Taniguti, \email{chtaniguti@tamu.edu}
+#' 
+#' @export
+check_viewpoly <- function(viewpoly_obj){
+  test <- logical(19L)
+  names(test) <- 1:19
+  
+  test[1] <- length(viewpoly_obj) != 8    
+  test[2] <- any(names(viewpoly_obj) != c("map", "qtl", "fasta", "gff3", "vcf", "align", "wig", "version"))
+  test[3] <- !inherits(viewpoly_obj, "viewpoly")
+  test[4] <- is.null(viewpoly_obj$version)
+  
+  if(is.null(viewpoly_obj$map)) test[5:10] <- FALSE else test[5:10] <- check_viewmap(viewpoly_obj$map)
+  
+  if(is.null(viewpoly_obj$qtl)) test[11:19] <- FALSE  else test[11:19] <- check_viewqtl(viewpoly_obj$qtl)
+  
+  if(any(test))
+    return(test)
+  else return(0)
+}
+
+

@@ -4,7 +4,7 @@
 \alias{prepare_map_custom_files}
 \title{Converts map information in custom format files to viewmap object}
 \usage{
-prepare_map_custom_files(dosages, phases, genetic_map)
+prepare_map_custom_files(dosages, phases, genetic_map, mks_pos = NULL)
 }
 \arguments{
 \item{dosages}{TSV or TSV.GZ file with both parents dosage information.
@@ -17,6 +17,9 @@ It should contain four columns: 1) character vector with chromosomes ID;
 3 to (ploidy number)*2 columns with each parents haplotypes.}
 
 \item{genetic_map}{TSV or TSV.GZ file with the genetic map information}
+
+\item{mks_pos}{TSV or TSV.GZ file with table with three columns: 1) marker ID; 
+2) genome position; 3) chromosome}
 }
 \value{
 object of class \code{viewmap}

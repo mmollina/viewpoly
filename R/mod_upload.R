@@ -87,7 +87,7 @@ mod_upload_ui <- function(id){
                        fileInput(ns("dosages"), label = h6("File: dosages.tsv"), multiple = F),
                        fileInput(ns("genetic_map"), label = h6("File: genetic_map.tsv"), multiple = F),
                        fileInput(ns("phases"), label = h6("File: phases.tsv"), multiple = F),
-                       p("Upload here an RDS file with table with three columns: 1) marker ID; 2) genome position; 3) chromosome"),
+                       p("Upload here an TSV file with table with three columns: 1) marker ID; 2) genome position; 3) chromosome"),
                        fileInput(ns("mks.pos"), label = h6("File: marker information"), multiple = F),
                        "Check the input file formats with the example files:", br(),
                        radioButtons(ns("downloadType_map"), "", 
@@ -539,7 +539,10 @@ mod_upload_server <- function(input, output, session, parent_session){
        is.null(input_genome()$wig_server) &
        is.null(input$viewpoly_input) &
        is.null(input$viewpoly_env))
-    prepare_examples(input$example_map)
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.5, detail = paste("Uploading example map data..."))
+      prepare_examples(input$example_map)
+    })
     else NULL
   })
   
@@ -565,9 +568,12 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadMap_custom = reactive({
     if(!(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map))){
       req(input_map()$dosages, input_map()$phases, input_map()$genetic_map)
-      prepare_map_custom_files(input_map()$dosages,
-                               input_map()$phases,
-                               input_map()$genetic_map)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.5, detail = paste("Uploading custom map data..."))
+        prepare_map_custom_files(input_map()$dosages,
+                                 input_map()$phases,
+                                 input_map()$genetic_map)
+      })
     } else NULL
   })
   
@@ -597,13 +603,16 @@ mod_upload_server <- function(input, output, session, parent_session){
       req(input_qtl()$selected_mks, input_qtl()$qtl_info, input_qtl()$blups,
           input_qtl()$beta.hat, input_qtl()$profile, input_qtl()$effects,
           input_qtl()$probs)
-      prepare_qtl_custom_files(input_qtl()$selected_mks,
-                               input_qtl()$qtl_info,
-                               input_qtl()$blups,
-                               input_qtl()$beta.hat,
-                               input_qtl()$profile,
-                               input_qtl()$effects,
-                               input_qtl()$probs)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.5, detail = paste("Uploading custom QTL data..."))
+        prepare_qtl_custom_files(input_qtl()$selected_mks,
+                                 input_qtl()$qtl_info,
+                                 input_qtl()$blups,
+                                 input_qtl()$beta.hat,
+                                 input_qtl()$profile,
+                                 input_qtl()$effects,
+                                 input_qtl()$probs)
+      })
     } else NULL
   })
   

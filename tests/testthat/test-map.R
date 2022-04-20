@@ -1,0 +1,1 @@
+context("Linkage map graphics and tables")

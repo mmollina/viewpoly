@@ -9,17 +9,19 @@
 #' 
 #' @keywords internal
 prepare_examples <- function(example){
-    viewmap_tetra <- viewqtl_tetra <- NULL
-    if(example == "tetra_map"){
-    withProgress(message = 'Working:', value = 0, {
-      incProgress(0.5, detail = paste("Uploading tetraploid potato example map data..."))
-      load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
-      load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
-    })
+  viewmap_tetra <- viewqtl_tetra <- NULL
+  if(example == "tetra_map"){
+    load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
+    load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
+    
     structure(list(map=viewmap_tetra, 
                    qtl=viewqtl_tetra,
                    fasta = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz",
-                   gff3 = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz"),
+                   gff3 = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz",
+                   vcf = NULL,
+                   align = NULL, 
+                   wig = NULL,
+                   version = packageVersion("viewpoly")),
               class = "viewpoly")
   }
 }
@@ -35,6 +37,8 @@ prepare_examples <- function(example){
 #' 1) Character vector with chromosome ID; 2) Character vector with marker ID;
 #' 3 to (ploidy number)*2 columns with each parents haplotypes.
 #' @param genetic_map TSV or TSV.GZ file with the genetic map information
+#' @param mks_pos TSV or TSV.GZ file with table with three columns: 1) marker ID; 
+#' 2) genome position; 3) chromosome
 #' 
 #' @return object of class \code{viewmap}
 #' 
@@ -42,43 +46,56 @@ prepare_examples <- function(example){
 #' @import vroom
 #' 
 #' @keywords internal
-prepare_map_custom_files <- function(dosages, phases, genetic_map){
+prepare_map_custom_files <- function(dosages, phases, genetic_map, mks_pos=NULL){
   parent <- chr <- marker <- NULL
-  withProgress(message = 'Working:', value = 0, {
-    incProgress(0.1, detail = paste("Uploading custom map data..."))
-    ds <- vroom(dosages)
-    ph <- vroom(phases)
-    map <- vroom(genetic_map)
-    
-    parent1 <- unique(ds$parent)[1]
-    parent2 <- unique(ds$parent)[2]
-    d.p1 <- ds %>% filter(parent == parent1) %>% select(chr, marker, dosages) 
-    d.p1 <- split(d.p1$dosages, d.p1$chr)
-    
-    d.p2 <- ds %>% filter(parent == parent2) %>% select(chr, marker, dosages) 
-    d.p2 <- split(d.p2$dosages, d.p2$chr)
-    
-    maps <- split(map$dist, map$chr)
-    maps.names <- split(map$marker, map$chr)
-    for(i in 1:length(maps)){
-      names(maps[[i]]) <- maps.names[[i]]  
-    }
-    names(maps) <- NULL
-    incProgress(0.3, detail = paste("Uploading custom map data..."))
-    
-    ploidy <- (dim(ph)[2] - 2)/2
-    
-    ph.p1 <- select(ph, 3:(ploidy +2))
-    rownames(ph.p1) <- ph$marker
-    ph.p1 <- split(ph.p1, ph$chr)
-    ph.p1 <- lapply(ph.p1, as.matrix)
-    
-    ph.p2 <- select(ph, (ploidy +3):dim(ph)[2])
-    rownames(ph.p2) <- ph$marker
-    ph.p2 <- split(ph.p2, ph$chr)
-    ph.p2 <- lapply(ph.p2, as.matrix)
-    incProgress(0.6, detail = paste("Uploading custom map data..."))
-  })
+  ds <- vroom(dosages$datapath, progress = FALSE, col_types = cols())
+  ph <- vroom(phases$datapath, progress = FALSE, col_types = cols())
+  map <- vroom(genetic_map$datapath, progress = FALSE, col_types = cols())
+  if(!is.null(mks_pos)) mks_pos <- vroom(mks_pos$datapath, progress = FALSE, col_types = cols()) 
+  
+  parent1 <- unique(ds$parent)[1]
+  parent2 <- unique(ds$parent)[2]
+  d.p1 <- ds %>% filter(parent == parent1) %>% select(chr, marker, dosages) 
+  d.p1.names <- split(d.p1$marker, d.p1$chr)
+  d.p1 <- split(d.p1$dosages, d.p1$chr)
+  d.p1 <- Map(function(x,y) {
+    names(x) <- y
+    return(x)
+  }, d.p1, d.p1.names)
+  
+  d.p2 <- ds %>% filter(parent == parent2) %>% select(chr, marker, dosages) 
+  d.p2.names <- split(d.p2$marker, d.p2$chr)
+  d.p2 <- split(d.p2$dosages, d.p2$chr)
+  d.p2 <- Map(function(x,y) {
+    names(x) <- y
+    return(x)
+  }, d.p2, d.p2.names)
+  
+  any(!is.na(match(map$marker, viewpoly_obj$map$maps[[1]]$mk.names)))
+  
+  if(!is.null(mks_pos)) pos <- mks_pos[,2][match(map$marker,mks_pos[,1])] else pos <- NA
+  
+  maps <- data.frame(mk.names = map$marker, 
+                     l.dist = map$dist, 
+                     g.chr = map$chr, 
+                     g.dist = pos,
+                     alt = NA,
+                     ref= NA)
+  
+  maps <- split.data.frame(maps, maps$g.chr)
+
+  ploidy <- (dim(ph)[2] - 2)/2
+  
+  ph.p1 <- as.data.frame(select(ph, 3:(ploidy +2)))
+  rownames(ph.p1) <- ph$marker
+  ph.p1 <- split(ph.p1, ph$chr)
+  ph.p1 <- lapply(ph.p1, as.matrix)
+  
+  ph.p2 <- as.data.frame(select(ph, (ploidy +3):dim(ph)[2]))
+  rownames(ph.p2) <- ph$marker
+  ph.p2 <- split(ph.p2, ph$chr)
+  ph.p2 <- lapply(ph.p2, as.matrix)
+  
   structure(list(d.p1 = d.p1, 
                  d.p2 = d.p2,
                  ph.p1 = ph.p1,
@@ -436,26 +453,23 @@ prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_
 #' @keywords internal
 prepare_qtl_custom_files <- function(selected_mks, qtl_info, blups, beta.hat,
                                      profile, effects, probs){
-  withProgress(message = 'Working:', value = 0, {
-    incProgress(0.1, detail = paste("Uploading custom QTL data..."))
-    qtls <- list()
-    qtls$selected_mks <- as.data.frame(vroom(selected_mks))
-    qtls$qtl_info <- as.data.frame(vroom(qtl_info))
-    qtls$blups <- as.data.frame(vroom(blups))
-    qtls$beta.hat <- as.data.frame(vroom(beta.hat))
-    qtls$profile <- as.data.frame(vroom(profile))
-    qtls$profile[,2] <- as.numeric(qtls$profile[,2])
-    qtls$effects <- as.data.frame(vroom(effects))
-    incProgress(0.3, detail = paste("Uploading custom QTL data..."))
-    
-    probs.t <- vroom(probs)
-    ind <- probs.t$ind
-    probs.t <- as.data.frame(probs.t[,-1])
-    probs.df <- split(probs.t, ind)
-    qtls$probs <- abind(probs.df, along = 3)
-    qtls$software <- "custom"
-    incProgress(0.8, detail = paste("Uploading custom QTL data..."))
-  })
+  
+  qtls <- list()
+  qtls$selected_mks <- as.data.frame(vroom(selected_mks$datapath, progress = FALSE, col_types = cols()))
+  qtls$qtl_info <- as.data.frame(vroom(qtl_info$datapath, progress = FALSE, col_types = cols()))
+  qtls$blups <- as.data.frame(vroom(blups$datapath, progress = FALSE, col_types = cols()))
+  qtls$beta.hat <- as.data.frame(vroom(beta.hat$datapath, progress = FALSE, col_types = cols()))
+  qtls$profile <- as.data.frame(vroom(profile$datapath, progress = FALSE, col_types = cols()))
+  qtls$profile[,2] <- as.numeric(qtls$profile[,2])
+  qtls$effects <- as.data.frame(vroom(effects$datapath, progress = FALSE, col_types = cols()))
+  
+  probs.t <- vroom(probs$datapath, progress = FALSE, col_types = cols())
+  ind <- probs.t$ind
+  probs.t <- as.data.frame(probs.t[,-1])
+  probs.df <- split(probs.t, ind)
+  qtls$probs <- abind(probs.df, along = 3)
+  qtls$software <- "custom"
+  
   structure(qtls, class = "viewqtl")
 }
 

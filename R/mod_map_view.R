@@ -59,7 +59,7 @@ mod_map_view_ui <- function(id){
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             column(2,
-                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
+                   button_mod(ns('bn_download'), style = "gradient", color = "royal")
             ),
             column(10,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -311,7 +311,7 @@ mod_map_view_server <- function(input, output, session,
       DT::datatable(summary, extensions = 'Buttons', 
                 options = list(
                   dom = 'Bfrtlp',
-                  buttons = c('copy', 'csv', 'excel', 'pdf')
+                  buttons = c('copy', 'csv', 'excel', 'pdf') 
                 ),
                 class = "display")
     } else 
