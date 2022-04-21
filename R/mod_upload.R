@@ -578,9 +578,13 @@ mod_upload_server <- function(input, output, session, parent_session){
   })
   
   loadMap_mappoly =  reactive({
-    if(!is.null(input_map()$mappoly_in))
-      prepare_MAPpoly(input_map()$mappoly_in)
-    else NULL
+    
+    if(!is.null(input_map()$mappoly_in)){
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("Uploading MAPpoly data..."))
+        prepare_MAPpoly(input_map()$mappoly_in)
+      })
+    } else NULL
   })
   
   loadMap_polymapR =  reactive({
@@ -627,10 +631,13 @@ mod_upload_server <- function(input, output, session, parent_session){
           input_qtl()$qtlpoly_est.effects,
           input_qtl()$qtlpoly_fitted.mod)
       
-      prepare_QTLpoly(input_qtl()$qtlpoly_data,
-                      input_qtl()$qtlpoly_remim.mod,
-                      input_qtl()$qtlpoly_est.effects,
-                      input_qtl()$qtlpoly_fitted.mod)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("Uploading QTLpoly data..."))
+        prepare_QTLpoly(input_qtl()$qtlpoly_data,
+                        input_qtl()$qtlpoly_remim.mod,
+                        input_qtl()$qtlpoly_est.effects,
+                        input_qtl()$qtlpoly_fitted.mod)
+      })
     } else NULL
   })
   
