@@ -19,7 +19,6 @@
 #' 
 #' @return graphic representing selected section of a linkage group
 #' 
-#' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
                          maps, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
@@ -306,7 +305,6 @@ gg_color_hue <- function(n) {
 #' @param horiz logical TRUE/FALSE. If TRUE the map is plotted horizontally.
 #' @param col color pallete to be used
 #' 
-#' 
 #' @keywords internal
 plot_one_map <- function(x, i = 0, horiz = FALSE, col = "lightgray")
 {
@@ -326,4 +324,32 @@ plot_one_map <- function(x, i = 0, horiz = FALSE, col = "lightgray")
     for(j in 1:length(x))
       lines(y = c(x[j], x[j]), x = c(i-0.25, i+0.25), lwd = .5)
   }
+}
+
+#' Scatter plot relating linkage map and genomic positions
+#' 
+#' @param viewmap object of class \code{viewmap}
+#' @param group selected group ID
+#' @param range.min minimum value of the selected position range
+#' @param range.max maximum value of the selected position range
+#' 
+#' @keywords internal
+plot_cm_mb <- function(viewmap, group, range.min, range.max) {
+  map.lg <- viewmap$maps[[as.numeric(group)]]
+  
+  map.lg$high <- map.lg$g.dist
+  map.lg$high[round(map.lg$l.dist,5) < range.min | round(map.lg$l.dist,5) > range.max] <- "black"
+  map.lg$high[round(map.lg$l.dist,5) >= range.min & round(map.lg$l.dist,5) <= range.max] <- "red"
+  
+  map.lg$high <- as.factor(map.lg$high)
+  p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, 
+                          colour = high, 
+                          text = paste("Marker:", mk.names, "\n", 
+                                       "Genetic:", round(l.dist,2), "cM \n",
+                                       "Genomic:", g.dist/1000, "Mb"))) +
+    geom_point() + scale_color_manual(values=c('black','red')) + 
+    theme(legend.position = "none") + 
+    labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
+    theme_bw()
+  return(p)
 }

@@ -213,14 +213,17 @@ mod_qtl_view_server <- function(input, output, session,
       } else {
         stop("Select a point or region on QTL profile graphic.") 
       }
-      data <- data_effects(qtl_info = loadQTL()$qtl_info, 
-                           effects = loadQTL()$effects,
-                           pheno.col = as.character(df$Trait), 
-                           lgs = df$LG, 
-                           position = df$`Position (cM)`,
-                           groups = as.numeric(input$group),
-                           software = loadQTL()$software,
-                           design = input$effects_design)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.5, detail = paste("Getting data..."))
+        data <- data_effects(qtl_info = loadQTL()$qtl_info, 
+                             effects = loadQTL()$effects,
+                             pheno.col = as.character(df$Trait), 
+                             lgs = df$LG, 
+                             position = df$`Position (cM)`,
+                             groups = as.numeric(input$group),
+                             software = loadQTL()$software,
+                             design = input$effects_design)
+      })
     } else 
       stop("Upload the QTL information in upload session to access this feature.")
   })

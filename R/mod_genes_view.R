@@ -264,20 +264,7 @@ mod_genes_view_server <- function(input, output, session,
     
     if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
     
-    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
-    
-    map.lg$high <- map.lg$g.dist
-    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
-    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
-    
-    map.lg$high <- as.factor(map.lg$high)
-    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
-                                                                                   "Genetic:", round(l.dist,2), "cM \n",
-                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
-      geom_point() + scale_color_manual(values=c('black','red')) + 
-      theme(legend.position = "none") + 
-      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
-      theme_bw()
+    p <- plot_cm_mb(loadMap(), input$group, input$range[1], input$range[2])
     
     max_updated = reactive({
       dist <- loadMap()$maps[[as.numeric(input$group)]]$l.dist
