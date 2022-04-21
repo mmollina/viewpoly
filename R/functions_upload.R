@@ -254,7 +254,7 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
     profile.t <- data.frame(pheno, LOP = SIG)
     profile <- rbind(profile, profile.t)
   }
-
+  
   # Rearrange the progeny probabilities into a list
   probs <- data$Z
   
@@ -284,90 +284,82 @@ prepare_QTLpoly <- function(data, remim.mod, est.effects, fitted.mod){
 #' @keywords internal
 prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesCI_list){
   marker <- pheno <- NULL
-  withProgress(message = 'Working:', value = 0, {
-    incProgress(0.1, detail = paste("Uploading diaQTL data..."))
+  
+  temp <- load(scan1_list$datapath)
+  scan1_list <- get(temp)
+  
+  temp <- load(scan1_summaries_list$datapath)
+  scan1_summaries_list <- get(temp)
+  
+  temp <- load(fitQTL_list$datapath)
+  fitQTL_list <- get(temp)
+  
+  temp <- load(BayesCI_list$datapath)
+  BayesCI_list <- get(temp)
+  
+  selected_mks <- scan1_list[[1]][,c(2,1,3)]
+  colnames(selected_mks) <- c("LG", "mk", "pos")
+  qtl_info <- data.frame()
+  
+  for(i in 1:length(scan1_summaries_list)){
+    temp <- cbind(pheno = names(scan1_summaries_list)[i],scan1_summaries_list[[i]]$peaks)
+    qtl_info <- rbind(qtl_info, temp)
+  }
+  
+  qtls.id <- list()
+  qtl_info2 <- data.frame()
+  
+  profile <- effects <- data.frame()
+  for(i in 1:length(fitQTL_list)){
+    qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
+    trait <- gsub("Trait: ","",fitQTL_list[[i]]$plots[[1]]$additive$labels$title)
+    qtl_temp <-  filter(qtl_info, pheno == trait & marker %in% qtls.id)
+    qtl_info2 <- rbind(qtl_info2, qtl_temp)
+    # profile
+    profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
+    profile <- rbind(profile, profile_temp)
     
-    temp <- load(scan1_list$datapath)
-    scan1_list <- get(temp)
-    
-    temp <- load(scan1_summaries_list$datapath)
-    scan1_summaries_list <- get(temp)
-    
-    temp <- load(fitQTL_list$datapath)
-    fitQTL_list <- get(temp)
-    
-    temp <- load(BayesCI_list$datapath)
-    BayesCI_list <- get(temp)
-    
-    selected_mks <- scan1_list[[1]][,c(2,1,3)]
-    colnames(selected_mks) <- c("LG", "mk", "pos")
-    qtl_info <- data.frame()
-    incProgress(0.3, detail = paste("Uploading diaQTL data..."))
-    
-    for(i in 1:length(scan1_summaries_list)){
-      temp <- cbind(pheno = names(scan1_summaries_list)[i],scan1_summaries_list[[i]]$peaks)
-      qtl_info <- rbind(qtl_info, temp)
-    }
-    
-    qtls.id <- list()
-    qtl_info2 <- data.frame()
-    incProgress(0.5, detail = paste("Uploading diaQTL data..."))
-    
-    profile <- effects <- data.frame()
-    for(i in 1:length(fitQTL_list)){
-      qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
-      trait <- gsub("Trait: ","",fitQTL_list[[i]]$plots[[1]]$additive$labels$title)
-      qtl_temp <-  filter(qtl_info, pheno == trait & marker %in% qtls.id)
-      qtl_info2 <- rbind(qtl_info2, qtl_temp)
-      # profile
-      profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
-      profile <- rbind(profile, profile_temp)
+    for(j in 1:length(fitQTL_list[[i]]$plots)){
+      # aditive effect
+      temp <- fitQTL_list[[i]]$plots[[j]]$additive$data
+      effects.ad.t <- data.frame(pheno = trait, 
+                                 haplo = rownames(temp), 
+                                 qtl.id = j, 
+                                 effect= temp$mean, 
+                                 type = "Additive",
+                                 CI.lower = temp$CI.lower,
+                                 CI.upper = temp$CI.upper)
       
-      for(j in 1:length(fitQTL_list[[i]]$plots)){
-        # aditive effect
-        temp <- fitQTL_list[[i]]$plots[[j]]$additive$data
-        effects.ad.t <- data.frame(pheno = trait, 
-                                   haplo = rownames(temp), 
-                                   qtl.id = j, 
-                                   effect= temp$mean, 
-                                   type = "Additive",
-                                   CI.lower = temp$CI.lower,
-                                   CI.upper = temp$CI.upper)
+      # digenic effect
+      temp <- data.frame(haplo = rownames(fitQTL_list[[i]]$effects$digenic), z = fitQTL_list[[i]]$effects$digenic[,j])
+      if(!is.null(temp)){
+        effects.di.t <- data.frame(pheno = trait, 
+                                   haplo = gsub("[+]", "x", temp$haplo),
+                                   qtl.id = j,
+                                   effect = as.numeric(temp$z), 
+                                   type = "Digenic",
+                                   CI.lower = NA,
+                                   CI.upper = NA)
         
-        # digenic effect
-        temp <- data.frame(haplo = rownames(fitQTL_list[[i]]$effects$digenic), z = fitQTL_list[[i]]$effects$digenic[,j])
-        if(!is.null(temp)){
-          effects.di.t <- data.frame(pheno = trait, 
-                                     haplo = gsub("[+]", "x", temp$haplo),
-                                     qtl.id = j,
-                                     effect = as.numeric(temp$z), 
-                                     type = "Digenic",
-                                     CI.lower = NA,
-                                     CI.upper = NA)
-          
-          effects.t <- rbind(effects.ad.t, effects.di.t)
-        } else effects.t <- effects.ad.t
-        effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
-        effects <- rbind(effects, effects.t)
-      }
+        effects.t <- rbind(effects.ad.t, effects.di.t)
+      } else effects.t <- effects.ad.t
+      effects.t <- effects.t[order(effects.t$pheno, effects.t$qtl.id, effects.t$type,effects.t$haplo),]
+      effects <- rbind(effects, effects.t)
     }
-    incProgress(0.75, detail = paste("Uploading diaQTL data..."))
-    
-    CI <- lapply(BayesCI_list, function(x) {
-      y = c(Pos_lower = x$cM[1], Pos_upper = x$cM[length(x$cM)])
-      return(y)
-    })
-    
-    CI <- do.call(rbind, CI)
-    
-    qtl_info <- qtl_info2[,c(3,4,1,6)]
-    qtl_info <- cbind(qtl_info, CI)
-    qtl_info <- qtl_info[,c(1:3,5,6,4)]
-    colnames(qtl_info)[1:2] <- c("LG", "Pos")
-    
-    incProgress(0.85, detail = paste("Uploading diaQTL data..."))
-    
+  }
+  
+  CI <- lapply(BayesCI_list, function(x) {
+    y = c(Pos_lower = x$cM[1], Pos_upper = x$cM[length(x$cM)])
+    return(y)
   })
+  
+  CI <- do.call(rbind, CI)
+  
+  qtl_info <- qtl_info2[,c(3,4,1,6)]
+  qtl_info <- cbind(qtl_info, CI)
+  qtl_info <- qtl_info[,c(1:3,5,6,4)]
+  colnames(qtl_info)[1:2] <- c("LG", "Pos")
+  
   structure(list(selected_mks = selected_mks,
                  qtl_info = qtl_info,
                  profile = profile,
@@ -389,32 +381,28 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
 #' 
 #' @keywords internal
 prepare_polyqtlR <- function(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_effects){
-  withProgress(message = 'Working:', value = 0, {
-    incProgress(0.1, detail = paste("Uploading polyqtlR data..."))
-    temp <- load(polyqtlR_QTLscan_list$datapath)
-    polyqtlR_QTLscan_list <- get(temp)
-    
-    temp <- load(polyqtlR_qtl_info$datapath)
-    polyqtlR_qtl_info <- get(temp)
-    
-    temp <- load(polyqtlR_effects$datapath)
-    polyqtlR_effects <- get(temp)
-    
-    # selected markers
-    selected_mks <- polyqtlR_QTLscan_list[[1]]$Map
-    colnames(selected_mks) <- c("LG", "mk", "pos")
-    incProgress(0.5, detail = paste("Uploading polyqtlR data..."))
-    
-    profile <- qtl_info <- effects <- data.frame()
-    for(i in 1:length(polyqtlR_QTLscan_list)){
-      pheno <- names(polyqtlR_QTLscan_list)[i]
-      # profile
-      profile_temp <- data.frame(pheno = pheno,
-                                 LOD = polyqtlR_QTLscan_list[[i]]$QTL.res$LOD)
-      profile <- rbind(profile, profile_temp)
-    }
-    incProgress(0.85, detail = paste("Uploading polyqtlR data..."))
-  })
+  
+  temp <- load(polyqtlR_QTLscan_list$datapath)
+  polyqtlR_QTLscan_list <- get(temp)
+  
+  temp <- load(polyqtlR_qtl_info$datapath)
+  polyqtlR_qtl_info <- get(temp)
+  
+  temp <- load(polyqtlR_effects$datapath)
+  polyqtlR_effects <- get(temp)
+  
+  # selected markers
+  selected_mks <- polyqtlR_QTLscan_list[[1]]$Map
+  colnames(selected_mks) <- c("LG", "mk", "pos")
+  
+  profile <- qtl_info <- effects <- data.frame()
+  for(i in 1:length(polyqtlR_QTLscan_list)){
+    pheno <- names(polyqtlR_QTLscan_list)[i]
+    # profile
+    profile_temp <- data.frame(pheno = pheno,
+                               LOD = polyqtlR_QTLscan_list[[i]]$QTL.res$LOD)
+    profile <- rbind(profile, profile_temp)
+  }
   
   structure(list(selected_mks = selected_mks,
                  qtl_info = polyqtlR_qtl_info,

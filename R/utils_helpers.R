@@ -668,15 +668,32 @@ check_viewqtl <- function(viewqtl_obj){
   test <- logical(10L)
   names(test) <- 1:10
   
-  test[1] <- length(viewqtl_obj) != 8
-  test[2] <- any(names(viewqtl_obj) != c("selected_mks", "qtl_info", "blups", "beta.hat", "profile", "effects", "probs", "software"))
-  test[3] <- any(names(viewqtl_obj$selected_mks != c("LG", "mk", "pos")))
-  test[4] <- any(names(viewqtl_obj$qtl_info != c("LG", "Pos", "pheno", "Pos_lower", "Pos_upper", "Pval", "h2")))                
-  test[5] <- any(names(viewqtl_obj$blups) != c("haplo", "pheno", "qtl", "u.hat")) 
-  test[6] <- any(names(viewqtl_obj$beta.hat) != c("pheno", "beta.hat"))
-  test[7] <- any(names(viewqtl_obj$profile) != c("pheno", "LOP"))
-  test[8] <- any(names(viewqtl_obj$effects) != c("pheno", "qtl.id", "haplo", "effect"))
-  test[9] <- length(dim(viewqtl_obj$probs)) != 3
+  test[3] <- any(names(viewqtl_obj$selected_mks) != c("LG", "mk", "pos"))
+  if(viewqtl_obj$software == "QTLpoly") {
+    test[1] <- length(viewqtl_obj) != 8
+    test[2] <- any(names(viewqtl_obj) != c("selected_mks", "qtl_info", "blups", "beta.hat", "profile", "effects", "probs", "software"))
+    test[4] <- any(names(viewqtl_obj$qtl_info) != c("LG", "Pos", "pheno", "Pos_lower", "Pos_upper", "Pval", "h2"))
+    test[5] <- any(names(viewqtl_obj$blups) != c("haplo", "pheno", "qtl", "u.hat")) 
+    test[6] <- any(names(viewqtl_obj$beta.hat) != c("pheno", "beta.hat"))
+    test[7] <- any(names(viewqtl_obj$profile) != c("pheno", "LOP"))
+    test[8] <- any(names(viewqtl_obj$effects) != c("pheno", "qtl.id", "haplo", "effect"))
+    test[9] <- length(dim(viewqtl_obj$probs)) != 3
+  } else if(viewqtl_obj$software == "diaQTL") {
+    test[1] <- length(viewqtl_obj) != 5
+    test[2] <- any(names(viewqtl_obj) != c("selected_mks", "qtl_info", "profile", "effects", "software"))
+    test[4] <- any(names(viewqtl_obj$qtl_info) != c("LG", "Pos", "pheno", "Pos_lower", "Pos_upper", "LL"))   
+    test[7] <- any(names(viewqtl_obj$profile) != c("pheno", "deltaDIC"))
+    test[8] <- any(names(viewqtl_obj$effects) != c("pheno", "haplo", "qtl.id", "effect", "type", "CI.lower", "CI.upper"))
+    test[5] <- test[6] <- test[9] <- FALSE
+  } else if(viewqtl_obj$software == "polyqtlR"){
+    test[1] <- length(viewqtl_obj) != 5
+    test[2] <- any(names(viewqtl_obj) != c("selected_mks", "qtl_info", "profile", "effects", "software"))
+    test[4] <- any(names(viewqtl_obj$qtl_info) != c("LG", "Pos", "pheno", "Pos_lower", "Pos_upper", "thresh"))   
+    test[7] <- any(names(viewqtl_obj$profile) != c("pheno", "LOD"))
+    test[8] <- any(names(viewqtl_obj$effects)[1:3] != c("pos", "pheno", "LG"))
+    test[5] <- test[6] <- test[9] <- FALSE
+  }
+  
   test[10] <- !inherits(viewqtl_obj, "viewqtl")
   
   if(any(test))

@@ -652,10 +652,13 @@ mod_upload_server <- function(input, output, session, parent_session){
           input_qtl()$diaQTL_fitQTL,
           input_qtl()$diaQTL_BayesCI)
       
-      prepare_diaQTL(input_qtl()$diaQTL_scan1,
-                     input_qtl()$diaQTL_scan1.summaries,
-                     input_qtl()$diaQTL_fitQTL,
-                     input_qtl()$diaQTL_BayesCI)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("Uploading diaQTL data..."))
+        prepare_diaQTL(input_qtl()$diaQTL_scan1,
+                       input_qtl()$diaQTL_scan1.summaries,
+                       input_qtl()$diaQTL_fitQTL,
+                       input_qtl()$diaQTL_BayesCI)
+      })
     } else NULL
   })
   
@@ -668,9 +671,12 @@ mod_upload_server <- function(input, output, session, parent_session){
           input_qtl()$polyqtlR_qtl_info,
           input_qtl()$polyqtlR_effects)
       
-      prepare_polyqtlR(input_qtl()$polyqtlR_QTLscan_list,
-                       input_qtl()$polyqtlR_qtl_info,
-                       input_qtl()$polyqtlR_effects)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("Uploading polyqtlR data..."))
+        prepare_polyqtlR(input_qtl()$polyqtlR_QTLscan_list,
+                         input_qtl()$polyqtlR_qtl_info,
+                         input_qtl()$polyqtlR_effects)
+      })
     } else NULL
   })
   
