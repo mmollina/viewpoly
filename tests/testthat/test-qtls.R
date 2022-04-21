@@ -111,14 +111,7 @@ test_that("QTL graphics and tables",{
                                 1:5)
   
   expect_equal(sum(data.prob$homoprob$probability), 14900, tolerance = 0.001)
-  
-  alleles <- p[[1]]$data$Alleles[!grepl("_",p[[1]]$data$Alleles)]
-  alleles <- rep(alleles, length(haplo_choices))
-  haplo_choices <- rep(haplo_choices, each = length(alleles)/length(haplo_choices))
-  haplo_choices <- paste0(haplo_choices, "_homolog:", alleles)
-  haplo_choices <- as.list(haplo_choices)
-  names(haplo_choices) <- unlist(haplo_choices)
-  
+
   input.haplo <- c("Trait:SG06_LG:2_Pos:77_homolog:P1.1")
   p <- select_haplo(input.haplo, 
                     viewpoly_obj$qtl$probs, 
