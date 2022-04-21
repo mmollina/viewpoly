@@ -185,18 +185,25 @@ mod_qtl_view_server <- function(input, output, session,
   qtl.data <- reactive({
     if(!is.null(loadQTL())){
       idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-      pl <- plot_profile(profile = loadQTL()$profile, 
-                         qtl_info = loadQTL()$qtl_info, 
-                         selected_mks = loadQTL()$selected_mks,
-                         pheno.col = idx,
-                         lgs.id = as.numeric(input$group), 
-                         by_range=F, plot = F)
+      
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("building graphic..."))
+        pl <- plot_profile(profile = loadQTL()$profile, 
+                           qtl_info = loadQTL()$qtl_info, 
+                           selected_mks = loadQTL()$selected_mks,
+                           pheno.col = idx,
+                           lgs.id = as.numeric(input$group), 
+                           by_range=F, plot = F)
+      })
     } else
       stop("Upload the QTL information in upload session to access this feature.")
   })
   
   output$plot_qtl <- renderPlot({
-    only_plot_profile(pl.in = qtl.data())
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.3, detail = paste("building graphic..."))
+      only_plot_profile(pl.in = qtl.data())
+    })
   })
   
   effects.data <- reactive({

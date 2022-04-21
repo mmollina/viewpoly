@@ -141,10 +141,10 @@ test_that("upload files",{
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_fitQTL_list%20%281%29.RData", destfile = fitQTL_list$datapath)
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_BayesCI_list_0.RData", destfile = BayesCI_list$datapath)
   
-  viewqtl_diaqtl <- viewpoly:::prepare_diaQTL(scan1_list,
-                                              scan1_summaries_list,
-                                              fitQTL_list,
-                                              BayesCI_list)
+  viewqtl_diaqtl <- prepare_diaQTL(scan1_list,
+                                   scan1_summaries_list,
+                                   fitQTL_list,
+                                   BayesCI_list)
   
   expect_equal(check_viewqtl(viewqtl_obj = viewqtl_diaqtl),0)
   
@@ -155,12 +155,12 @@ test_that("upload files",{
   polyqtlR_QTLscan_list$datapath <- tempfile()
   polyqtlR_qtl_info$datapath <- tempfile()
   polyqtlR_effects$datapath <- tempfile()
-
+  
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_QTLscan.RData", destfile = polyqtlR_QTLscan_list$datapath)
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_qtl_info.RData", destfile = polyqtlR_qtl_info$datapath)
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_effects.RData", destfile = polyqtlR_effects$datapath)
   
-  viewqtl_polyqtlr <- viewpoly:::prepare_polyqtlR(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_effects)
+  viewqtl_polyqtlr <- prepare_polyqtlR(polyqtlR_QTLscan_list, polyqtlR_qtl_info, polyqtlR_effects)
   
   expect_equal(check_viewqtl(viewqtl_obj = viewqtl_polyqtlr),0)
   
