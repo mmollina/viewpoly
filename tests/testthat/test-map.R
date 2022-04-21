@@ -1,1 +1,1 @@
-context("Linkage map graphics and tables")
+# Linkage map graphics and tables

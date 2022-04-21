@@ -1,5 +1,3 @@
-context("upload functions")
-
 test_that("upload files",{
   check_viewmap_values <- function(viewmap_obj, doses, phases, maps){
     expect_equal(as.vector(table(viewmap_obj$d.p1[[1]])), doses)
@@ -18,9 +16,9 @@ test_that("upload files",{
   }
   
   # upload examples
-  viewpoly_obj <- viewpoly:::prepare_examples("tetra_map")
+  viewpoly_obj <- prepare_examples("tetra_map")
   
-  expect_equal(viewpoly:::check_viewpoly(viewpoly_obj),0)
+  expect_equal(check_viewpoly(viewpoly_obj),0)
 
   check_viewmap_values(viewpoly_obj$map, 
                        c(14, 132, 139, 157, 34), 
@@ -42,9 +40,9 @@ test_that("upload files",{
   phases$datapath <- system.file("ext/phases.tsv.gz", package = "viewpoly")
   genetic_map$datapath <- system.file("ext/map.tsv.gz", package = "viewpoly")
 
-  viewmap_obj <- viewpoly:::prepare_map_custom_files(dosages, phases, genetic_map)
+  viewmap_obj <- prepare_map_custom_files(dosages, phases, genetic_map)
   
-  expect_equal(viewpoly:::check_viewmap(viewmap_obj),0)
+  expect_equal(check_viewmap(viewmap_obj),0)
   
   check_viewmap_values(viewmap_obj, 
                        c(887, 1063,543,188,54,10), 
@@ -60,16 +58,15 @@ test_that("upload files",{
   effects$datapath = system.file("ext/effects.tsv.gz", package = "viewpoly")
   probs$datapath = system.file("ext/probs.tsv.gz", package = "viewpoly")
   
-  viewqtl_obj <- viewpoly:::prepare_qtl_custom_files(selected_mks, qtl_info, blups, 
+  viewqtl_obj <- prepare_qtl_custom_files(selected_mks, qtl_info, blups, 
                                                      beta.hat, profile, effects, probs)
   
-  expect_equal(viewpoly:::check_viewqtl(viewqtl_obj),0)
+  expect_equal(check_viewqtl(viewqtl_obj),0)
   
   check_viewqtl_values(viewqtl_obj, 
                        245183.2, 
                        6.702273, 
                        3.091306e-10, 
-                       341.4562, 
                        341.4562, 
                        4.29507e-05, 
                        -7.647564e-11, 
@@ -80,9 +77,9 @@ test_that("upload files",{
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_MAPpoly_maps.RData", destfile = temp)
   temp.name <- load(temp)
   input.data <- get(temp.name)
-  viewmap_mappoly <- viewpoly:::prepare_MAPpoly(input.data)
+  viewmap_mappoly <- prepare_MAPpoly(input.data)
 
-  expect_equal(viewpoly:::check_viewmap(viewmap_mappoly),0)
+  expect_equal(check_viewmap(viewmap_mappoly),0)
 
   check_viewmap_values(viewmap_mappoly, 
                        c(14, 132, 139, 157, 34), 
@@ -101,12 +98,12 @@ test_that("upload files",{
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_effects.RData", destfile = est.effects$datapath)
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_fitted.RData", destfile = fitted.mod$datapath)
  
-  viewqtl_qtlpoly <- viewpoly:::prepare_QTLpoly(data = input.data, 
+  viewqtl_qtlpoly <- prepare_QTLpoly(data = input.data, 
                                                 remim.mod = remim.mod, 
                                                 est.effects = est.effects, 
                                                 fitted.mod = fitted.mod)
   
-  expect_equal(viewpoly:::check_viewqtl(viewqtl_qtlpoly),0)
+  expect_equal(check_viewqtl(viewqtl_qtlpoly),0)
   
   check_viewqtl_values(viewqtl_qtlpoly, 
                        116504, 
