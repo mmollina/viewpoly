@@ -48,6 +48,18 @@ test_that("upload files",{
                                                            ph.p2 = viewpoly_obj$map$ph.p2,
                                                            snp.names = FALSE))
   
+  expect_doppelganger("linkage map draw names",   draw_map_shiny(left.lim = 1, 
+                                                                 right.lim = 50, 
+                                                                 ch = 1,
+                                                                 d.p1 = viewpoly_obj$map$d.p1,
+                                                                 d.p2 = viewpoly_obj$map$d.p2, 
+                                                                 maps = maps, 
+                                                                 ph.p1 = viewpoly_obj$map$ph.p1, 
+                                                                 ph.p2 = viewpoly_obj$map$ph.p2,
+                                                                 snp.names = TRUE))
+  
+  expect_doppelganger("plot map list", plot_map_list(viewpoly_obj$map))
+  
   # Get max size each chromosome
   expect_equal(map_summary(left.lim = 1, 
                            right.lim = 50, 
@@ -64,6 +76,15 @@ test_that("upload files",{
   expect_equal(sum(as.numeric(summary_table$`Max gap`)), 80.51)
   
   #VIEWqtl tests
+  expect_doppelganger("qtl plot",plot_profile(viewpoly_obj$qtl$profile, 
+                                              viewpoly_obj$qtl$qtl_info, 
+                                              viewpoly_obj$qtl$selected_mks, 
+                                              pheno.col = 2, 
+                                              lgs.id = 2, 
+                                              by_range = FALSE, 
+                                              plot=TRUE, 
+                                              software = NULL))
+  
   # by range
   qtl_profile_data <- plot_profile(viewpoly_obj$qtl$profile, 
                                    viewpoly_obj$qtl$qtl_info, 
@@ -118,6 +139,8 @@ test_that("upload files",{
                     software = "QTLpoly", 
                     design = "circle")
   
+  expect_doppelganger("effects circle", plot_effects(p, "QTLpoly", "circle"))
+  
   expect_equal(sum(p[[1]]$data$Estimates), -0.0436829, tolerance = 0.001)
   expect_equal(names(p[[1]]$data), 
                c("Estimates", "Alleles", "Parent", "Effects", "pheno", "qtl_id", "LG", "Pos", "unique.id"), 
@@ -139,6 +162,8 @@ test_that("upload files",{
                c("x", "y", "z"), 
                tolerance = 0.001)
   
+  expect_doppelganger("effects digenic", plot_effects(p, "QTLpoly", "digenic"))
+  
   p <- data_effects(qtl_info = viewpoly_obj$qtl$qtl_info, 
                     effects = viewpoly_obj$qtl$effects, 
                     pheno.col = "SG06", 
@@ -154,6 +179,8 @@ test_that("upload files",{
   expect_equal(names(p[[1]]$data), 
                c("Estimates", "Alleles", "Parent", "Effects"), 
                tolerance = 0.001)
+  
+  expect_doppelganger("effects bar", plot_effects(p, "QTLpoly", "bar"))
   
   # breeding values table
   pos <- split(viewpoly_obj$qtl$qtl_info[1:3,]$Pos, viewpoly_obj$qtl$qtl_info[1:3,]$pheno)
