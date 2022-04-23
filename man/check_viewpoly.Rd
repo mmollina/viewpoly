@@ -20,3 +20,4 @@ Viewpoly object sanity check
 \author{
 Cristiane Taniguti, \email{chtaniguti@tamu.edu}
 }
+\keyword{internal}

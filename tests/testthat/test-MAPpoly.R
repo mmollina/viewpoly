@@ -36,7 +36,7 @@ test_that("Tests uploaded MAPpoly files",{
   expect_equal(sum(as.numeric(summary_table$`Max gap`)), 80.51)
   
   # VIEWgenome tests
-  p <- plot_cm_mb(viewpoly_obj$map, 1, 1,50)
+  p <- plot_cm_mb(viewmap_mappoly, 1, 1,50)
   
   expect_equal(sum(p$data$l.dist), 50502.07, tolerance = 0.001)
   

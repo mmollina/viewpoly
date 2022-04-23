@@ -645,7 +645,7 @@ check_viewmap <- function(viewmap_obj){
   test[6] <- is.null(viewmap_obj$software)
   test[7] <- !inherits(viewmap_obj, "viewmap")
   
-  if(any(test))
+  if(any(as.logical(test)))
     return(test)
   else return(0)
 }
@@ -694,7 +694,7 @@ check_viewqtl <- function(viewqtl_obj){
   
   test[10] <- !inherits(viewqtl_obj, "viewqtl")
   
-  if(any(test))
+  if(any(as.logical(test)))
     return(test)
   else return(0)
 }
@@ -724,7 +724,7 @@ check_viewpoly <- function(viewpoly_obj){
   
   if(is.null(viewpoly_obj$qtl)) test[11:19] <- FALSE  else test[11:19] <- check_viewqtl(viewpoly_obj$qtl)
   
-  if(any(test))
+  if(any(as.logical(test)))
     return(test)
   else return(0)
 }
