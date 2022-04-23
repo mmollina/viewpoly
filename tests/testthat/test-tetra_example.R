@@ -38,6 +38,16 @@ test_that("upload files",{
     y
   })
   
+  expect_doppelganger("linkage map draw",   draw_map_shiny(left.lim = 1, 
+                                                           right.lim = 50, 
+                                                           ch = 1,
+                                                           d.p1 = viewpoly_obj$map$d.p1,
+                                                           d.p2 = viewpoly_obj$map$d.p2, 
+                                                           maps = maps, 
+                                                           ph.p1 = viewpoly_obj$map$ph.p1, 
+                                                           ph.p2 = viewpoly_obj$map$ph.p2,
+                                                           snp.names = FALSE))
+  
   # Get max size each chromosome
   expect_equal(map_summary(left.lim = 1, 
                            right.lim = 50, 
