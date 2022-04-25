@@ -136,8 +136,8 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y = y.dat), colour = "black", na.rm = TRUE)} +
-        geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round") +
-        geom_line(data=lines, aes(y = SIG),  colour = "gray", size=linesize, alpha=0.8, lineend = "round") +
+        geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
+        geom_line(data=lines, aes(y = SIG, group = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
@@ -148,7 +148,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1)) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black", na.rm = TRUE)} +
-        geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round") +
+        geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +

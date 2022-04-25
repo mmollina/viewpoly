@@ -1,34 +1,34 @@
 test_that("upload files",{
   # upload examples
-  viewpoly_obj <- prepare_examples("tetra_map")
+  viewpoly_obj <- viewpoly:::prepare_examples("tetra_map")
   
-  expect_equal(check_viewpoly(viewpoly_obj),0)
+  expect_equal(viewpoly:::check_viewpoly(viewpoly_obj),0)
   
-  check_viewmap_values(viewpoly_obj$map, 
-                       c(14, 132, 139, 157, 34), 
-                       c(36, 167, 164, 109), 
-                       50502.07)
+  viewpoly:::check_viewmap_values(viewpoly_obj$map, 
+                                  c(14, 132, 139, 157, 34), 
+                                  c(36, 167, 164, 109), 
+                                  50502.07)
   
-  check_viewqtl_qtlpoly_values(viewpoly_obj$qtl, 
-                               116504, 
-                               5.418909, 
-                               -1.067457e-11, 
-                               299.6155, 
-                               0.000160791, 
-                               2.340129e-12, 
-                               1)
+  viewpoly:::check_viewqtl_qtlpoly_values(viewpoly_obj$qtl, 
+                                          116504, 
+                                          5.418909, 
+                                          -1.067457e-11, 
+                                          299.6155, 
+                                          0.000160791, 
+                                          2.340129e-12, 
+                                          1)
   
   # VIEWmap tests 
-  qtl_profile_plot <- plot_profile(viewpoly_obj$qtl$profile, 
-                                   viewpoly_obj$qtl$qtl_info, 
-                                   viewpoly_obj$qtl$selected_mks, 
-                                   pheno.col = 2, 
-                                   lgs.id = 2, 
-                                   by_range = TRUE, 
-                                   range.min = 30, 
-                                   range.max = 120, 
-                                   plot=TRUE, 
-                                   software = NULL)
+  qtl_profile_plot <- viewpoly:::plot_profile(profile = viewpoly_obj$qtl$profile, 
+                                              qtl_info = viewpoly_obj$qtl$qtl_info, 
+                                              selected_mks = viewpoly_obj$qtl$selected_mks, 
+                                              pheno.col = 2:3, 
+                                              lgs.id = 2, 
+                                              by_range = TRUE, 
+                                              range.min = 30, 
+                                              range.max = 120, 
+                                              plot=TRUE, 
+                                              software = NULL)
   
   expect_equal(sum(qtl_profile_plot$data$SIG, na.rm = TRUE), 43.81917, tolerance = 0.0001)
   
