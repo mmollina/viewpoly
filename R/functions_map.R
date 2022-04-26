@@ -335,6 +335,7 @@ plot_one_map <- function(x, i = 0, horiz = FALSE, col = "lightgray")
 #' 
 #' @keywords internal
 plot_cm_mb <- function(viewmap, group, range.min, range.max) {
+  l.dist <- g.dist <- high <- mk.names <- NULL
   map.lg <- viewmap$maps[[as.numeric(group)]]
   
   map.lg$high <- map.lg$g.dist
