@@ -1,3 +1,3 @@
-# library(shinytest)
-# shinytest::testApp(system.file(package = "viewpoly"))
+library(shinytest)
+shinytest::testApp("../")
 

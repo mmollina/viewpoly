@@ -69,6 +69,7 @@ RoxygenNote: 7.1.2
 Suggests: 
     testthat (>= 3.0.0),
     vdiffr,
-    shinytest
+    shinytest,
+    devtools
 Config/testthat/edition: 3
 Language: en-US
