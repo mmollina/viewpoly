@@ -1,4 +1,6 @@
 test_that("upload files",{
+  source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  
   # upload examples
   viewpoly_obj <- prepare_examples("tetra_map")
 

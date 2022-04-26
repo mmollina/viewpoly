@@ -1,4 +1,6 @@
 test_that("Tests uploaded polyqtlR files",{
+  source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  
   # upload polyqtlR
   polyqtlR_QTLscan_list <- polyqtlR_qtl_info <- polyqtlR_effects <- list()
   polyqtlR_QTLscan_list$datapath <- tempfile()

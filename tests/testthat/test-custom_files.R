@@ -1,5 +1,6 @@
 test_that("Tests with custom files",{
-
+  source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  
   # upload custom files
   dosages <- phases <- genetic_map <- mks_pos <- list()
   dosages$datapath <- system.file("ext/dosage.tsv.gz", package = "viewpoly")

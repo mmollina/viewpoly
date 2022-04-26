@@ -1,4 +1,6 @@
 test_that("Tests uploaded diaQTL files",{
+  source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  
   # upload diaQTL
   scan1_list <- scan1_summaries_list <- fitQTL_list <- BayesCI_list <- list()
   scan1_list$datapath <- tempfile()

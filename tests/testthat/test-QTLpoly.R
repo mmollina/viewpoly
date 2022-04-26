@@ -1,5 +1,6 @@
 test_that("Tests uploaded QTLpoly files",{
-
+  source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  
   # upload QTLpoly
   input.data <- remim.mod <- est.effects <- fitted.mod <- list()
   input.data$datapath <- tempfile()

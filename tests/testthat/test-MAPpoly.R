@@ -1,4 +1,6 @@
 test_that("Tests uploaded MAPpoly files",{
+  source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  
   # upload MAPpoly
   temp <- tempfile()
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_MAPpoly_maps.RData", destfile = temp)
