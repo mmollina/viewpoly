@@ -80,7 +80,7 @@ import_data_from_polymapR <- function(input.data,
   } 
   else {
     if(is.null(pardose)) 
-      stop("provide parental dosage.")
+      stop(safeError("provide parental dosage."))
     rownames(pardose) <- pardose$MarkerName
     dat <- input.data[,c("MarkerName", "SampleName",paste0("P", 0:ploidy))]
     p1 <- unique(sapply(parent1, function(x) unique(grep(pattern = x, dat[,"SampleName"], value = TRUE))))
@@ -211,7 +211,7 @@ import_data_from_polymapR <- function(input.data,
 filter_non_conforming_classes <- function(input.data, prob.thres = NULL)
 {
   if (!inherits(input.data, "mappoly.data")) {
-    stop(deparse(substitute(input.data)), " is not an object of class 'mappoly.data'")
+    stop(safeError(deparse(substitute(input.data)), " is not an object of class 'mappoly.data'"))
   }
   ploidy <- input.data$ploidy
   dp <- input.data$dosage.p1
@@ -410,7 +410,7 @@ dist_prob_to_class <- function(geno, prob.thres = 0.9) {
 #' @keywords internal
 segreg_poly <- function(ploidy, d.p1, d.p2) {
   if (ploidy%%2 != 0)
-    stop("m must be an even number")
+    stop(safeError("m must be an even number"))
   p.dose <- numeric((ploidy + 1))
   p.names <- character((ploidy + 1))
   seg.p1 <- dhyper(x = c(0:(ploidy + 1)), m = d.p1, n = (ploidy - d.p1), k = ploidy/2)
@@ -462,7 +462,7 @@ import_phased_maplist_from_polymapR <- function(maplist,
                                                 ploidy = NULL){
   input_classes <- c("list")
   if (!inherits(maplist, input_classes)) {
-    stop(deparse(substitute(maplist)), " is not a list of phased maps.")
+    stop(safeError(deparse(substitute(maplist)), " is not a list of phased maps."))
   }
   X <- maplist[[1]]
   if(is.null(ploidy))
@@ -510,7 +510,7 @@ import_phased_maplist_from_polymapR <- function(maplist,
 #' @keywords internal
 prepare_map <- function(input.map, config = "best"){
   if (!inherits(input.map, "mappoly.map")) {
-    stop(deparse(substitute(input.map)), " is not an object of class 'mappoly.map'")
+    stop(safeError(deparse(substitute(input.map)), " is not an object of class 'mappoly.map'"))
   }
   ## Choosing the linkage phase configuration
   LOD.conf <- get_LOD(input.map, sorted = FALSE)
@@ -518,7 +518,7 @@ prepare_map <- function(input.map, config = "best"){
     i.lpc <- which.min(LOD.conf)
   } else if(config  ==  "all"){
     i.lpc <- seq_along(LOD.conf) } else if (config > length(LOD.conf)) {
-      stop("invalid linkage phase configuration")
+      stop(safeError("invalid linkage phase configuration"))
     } else i.lpc <- config
   ## Gathering marker positions
   map <- data.frame(mk.names = input.map$info$mrk.names,
@@ -594,6 +594,7 @@ get_LOD <- function(x, sorted = TRUE) {
 #' @param L a list of configuration phases
 #'
 #' @param ploidy ploidy level
+#' 
 #'
 #' @return a matrix whose columns represent homologous chromosomes and
 #'     the rows represent markers
@@ -606,20 +607,6 @@ ph_list_to_matrix <- function(L, ploidy) {
     M[i, L[[i]]] <- 1
   M
 }
-
-button_mod <- function (outputId, label = "Download", style = "unite", 
-                        color = "primary", size = "md", block = FALSE, 
-                        no_outline = TRUE) 
-{
-  bttn <- actionBttn(inputId = paste0(outputId, "_bttn"), 
-                     label = tagList(tags$a(id = outputId, class = "shiny-download-link", 
-                                            href = "", target = "_blank", download = TRUE), 
-                                     label), color = color, style = style, size = size, 
-                     block = block, no_outline = no_outline, icon = icon("download"))
-  htmltools::tagAppendAttributes(bttn, onclick = sprintf("getElementById('%s').click()", 
-                                                         outputId), )
-}
-
 
 #' Viewmap object sanity check 
 #' 

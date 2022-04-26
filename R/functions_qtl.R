@@ -419,7 +419,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     }
   } else if(software == "polyqtlR"){
     if(design == "circle" | design == "digenic"){
-      stop("Design option not available for: polyqtlR")
+      stop(safeError("Design option not available for: polyqtlR"))
     } else {
       effects.df <- effects %>% filter(.data$pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>% 
         filter(.data$LG %in% groups) %>% pivot_longer(cols = 4:ncol(.), names_to = "haplo", values_to = "effect") 
@@ -671,13 +671,13 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
     df.pr1 <- subset(x$homoprob, individual  ==  ind)  
   } else if(is.numeric(ind)) {
     if(ind > length(all.ind))
-      stop("Please chose an individual number between 1 and ", length(all.ind))
+      stop(safeError("Please chose an individual number between 1 and ", length(all.ind)))
     ind <- as.character(all.ind[ind])
     df.pr1 <- subset(x$homoprob, individual  ==  ind)  
   } else if (is.character(ind)){
     if(!ind%in%all.ind)
-      stop("Invalid individual name")
-  } else stop("Invalid individual name")
+      stop(safeError("Invalid individual name"))
+  } else stop(safeError("Invalid individual name"))
   
   #### LG handling ####
   if(is.null(lg))
@@ -761,7 +761,7 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
     like.ind.all[[i]] <-  like.ind
   }
   like.intersect <- Reduce(intersect, like.ind.all)
-  if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop("No individual in the progeny was found containing the combination of all the selected homolog/s. Please, select another combination of homolog/s.")
+  if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop(safeError("No individual in the progeny was found containing the combination of all the selected homolog/s. Please, select another combination of homolog/s."))
   idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% paste0(round(as.numeric(pos),2), "_", lgs))
   homo.dat$homoprob$qtl <- NA
   homo.dat$homoprob$qtl[idx] <- homo.dat$homoprob$map.position[idx] # vertical lines

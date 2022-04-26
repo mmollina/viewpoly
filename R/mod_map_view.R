@@ -59,7 +59,7 @@ mod_map_view_ui <- function(id){
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
             column(2,
-                   button_mod(ns('bn_download'), style = "gradient", color = "royal")
+                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
             column(10,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -246,7 +246,7 @@ mod_map_view_server <- function(input, output, session,
       
       ggplotly(source = "qtl_profile", pl, tooltip=c("Trait", "Position (cM)")) %>% layout(legend = list(orientation = 'h', y = -0.3))
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   # Plot map
@@ -278,7 +278,7 @@ mod_map_view_server <- function(input, output, session,
         updateSliderInput(inputId = "range", max = round(max_updated(),2))
       })
     } else 
-      stop("Upload map information in the upload session to access this feature.")
+      stop(safeError("Upload map information in the upload session to access this feature."))
   })
   
   output$parents_haplo  <- DT::renderDataTable(server = FALSE, {
@@ -300,7 +300,7 @@ mod_map_view_server <- function(input, output, session,
                 ),
                 class = "display")
     } else 
-      stop("Upload map information in the upload session to access this feature.")
+      stop(safeError("Upload map information in the upload session to access this feature."))
   })
   
   # Map summary
@@ -315,14 +315,14 @@ mod_map_view_server <- function(input, output, session,
                 ),
                 class = "display")
     } else 
-      stop("Upload map information in the upload session to access this feature.")
+      stop(safeError("Upload map information in the upload session to access this feature."))
   })
   
   output$map_summary <- renderPlot({
     if(!is.null(loadMap()$ph.p1)) {
       plot_map_list(loadMap())
     } else 
-      stop("Upload map information in the upload session to access this feature.")
+      stop(safeError("Upload map information in the upload session to access this feature."))
   })
   
   ### Downloads
