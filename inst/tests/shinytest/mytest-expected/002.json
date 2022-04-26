@@ -1,46 +1,5 @@
 {
   "output": {
-    "qtl_view_ui_1-plot_qtl": {
-      "src": "[image data sha1: 6094f3a4215d8e3ef63938ce887642dcccbbc75b]",
-      "width": 790,
-      "height": 400,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "panel": 1,
-            "row": 1,
-            "col": 1,
-            "panel_vars": {
 
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "domain": {
-              "left": -9.3,
-              "right": 217.3,
-              "bottom": -1.39380550904656,
-              "top": 7.32500110619526
-            },
-            "mapping": {
-              "x": "x.int",
-              "y": "y.dat"
-            },
-            "range": {
-              "left": 42.1506795959771,
-              "right": 663.604299561089,
-              "bottom": 378.041001380137,
-              "top": 5.47945068493151
-            }
-          }
-        ],
-        "dims": {
-          "width": 790,
-          "height": 400
-        }
-      }
-    }
   }
 }
