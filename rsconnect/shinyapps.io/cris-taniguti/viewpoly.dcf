@@ -5,7 +5,9 @@ account: cris-taniguti
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6168763
-bundleId: 5835536
+bundleId: 5840059
 url: https://cris-taniguti.shinyapps.io/viewpoly/
-when: 1650913239.36764
-lastSyncTime: 1650913239.36764
+when: 1651009954.82461
+lastSyncTime: 1651009954.82461
+asMultiple: FALSE
+asStatic: FALSE

@@ -671,7 +671,7 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
     df.pr1 <- subset(x$homoprob, individual  ==  ind)  
   } else if(is.numeric(ind)) {
     if(ind > length(all.ind))
-      stop(safeError("Please chose an individual number between 1 and ", length(all.ind)))
+      stop("Please chose an individual number between 1 and ", length(all.ind))
     ind <- as.character(all.ind[ind])
     df.pr1 <- subset(x$homoprob, individual  ==  ind)  
   } else if (is.character(ind)){

@@ -211,7 +211,7 @@ import_data_from_polymapR <- function(input.data,
 filter_non_conforming_classes <- function(input.data, prob.thres = NULL)
 {
   if (!inherits(input.data, "mappoly.data")) {
-    stop(safeError(deparse(substitute(input.data)), " is not an object of class 'mappoly.data'"))
+    stop(deparse(substitute(input.data)), " is not an object of class 'mappoly.data'")
   }
   ploidy <- input.data$ploidy
   dp <- input.data$dosage.p1
@@ -462,7 +462,7 @@ import_phased_maplist_from_polymapR <- function(maplist,
                                                 ploidy = NULL){
   input_classes <- c("list")
   if (!inherits(maplist, input_classes)) {
-    stop(safeError(deparse(substitute(maplist)), " is not a list of phased maps."))
+    stop(deparse(substitute(maplist)), " is not a list of phased maps.")
   }
   X <- maplist[[1]]
   if(is.null(ploidy))
@@ -510,7 +510,7 @@ import_phased_maplist_from_polymapR <- function(maplist,
 #' @keywords internal
 prepare_map <- function(input.map, config = "best"){
   if (!inherits(input.map, "mappoly.map")) {
-    stop(safeError(deparse(substitute(input.map)), " is not an object of class 'mappoly.map'"))
+    stop(deparse(substitute(input.map)), " is not an object of class 'mappoly.map'")
   }
   ## Choosing the linkage phase configuration
   LOD.conf <- get_LOD(input.map, sorted = FALSE)
