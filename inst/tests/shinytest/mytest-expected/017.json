@@ -1,39 +1,5 @@
 {
   "output": {
-    "map_view_ui_1-plot_map": {
-      "src": "[image data sha1: ac0cbf87025fa111a2b6a4a5f88316d8ce4ea404]",
-      "width": 790,
-      "height": 500,
-      "alt": "Plot object",
-      "coordmap": {
-        "panels": [
-          {
-            "domain": {
-              "left": -0.795084645457019,
-              "right": 20.6722007818825,
-              "bottom": 0.08,
-              "top": 4.67
-            },
-            "range": {
-              "left": 10.8000013670888,
-              "right": 790,
-              "bottom": 462.999992799999,
-              "top": -1
-            },
-            "log": {
-              "x": null,
-              "y": null
-            },
-            "mapping": {
 
-            }
-          }
-        ],
-        "dims": {
-          "width": 790,
-          "height": 500
-        }
-      }
-    }
   }
 }
