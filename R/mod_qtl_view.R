@@ -217,9 +217,11 @@ mod_qtl_view_server <- function(input, output, session,
   effects.data <- reactive({
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
-        df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+        df <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+        if(inherits(df, "try-error")) 
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       } else {
-        stop(safeError("Select a point or region on QTL profile graphic."))
+        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       }
       withProgress(message = 'Working:', value = 0, {
         incProgress(0.5, detail = paste("Getting data..."))
@@ -242,13 +244,16 @@ mod_qtl_view_server <- function(input, output, session,
       plot_effects(effects.data(), software = loadQTL()$software, design = input$effects_design)
     })
   })
-  breeding_values
+  
+  
   plotHeight <- reactive({
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
-        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+        dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+        if(inherits(dframe, "try-error")) 
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       } else {
-        stop(safeError("Select a point or region on QTL profile graphic."))
+        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       }
       counts <- nrow(dframe)
       counts <- ceiling(counts/4)
@@ -351,9 +356,11 @@ mod_qtl_view_server <- function(input, output, session,
   output$info <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
-        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+        dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+        if(inherits(dframe, "try-error")) 
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       } else {
-        stop(safeError("Select a point or region on graphic."))
+        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       }
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
       if(loadQTL()$software == "QTLpoly"){
@@ -379,9 +386,11 @@ mod_qtl_view_server <- function(input, output, session,
     if(!is.null(loadQTL())){
       if(loadQTL()$software == "QTLpoly"){
         if(!is.null(input$plot_brush)){
-          dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+          dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+          if(inherits(dframe, "try-error")) 
+            stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
         } else {
-          stop(safeError("Select a point or region on graphic."))
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
         }
         
         pos <- split(dframe$`Position (cM)`, dframe$Trait)
