@@ -185,18 +185,25 @@ mod_qtl_view_server <- function(input, output, session,
   qtl.data <- reactive({
     if(!is.null(loadQTL())){
       idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-      pl <- plot_profile(profile = loadQTL()$profile, 
-                         qtl_info = loadQTL()$qtl_info, 
-                         selected_mks = loadQTL()$selected_mks,
-                         pheno.col = idx,
-                         lgs.id = as.numeric(input$group), 
-                         by_range=F, plot = F)
+      
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("building graphic..."))
+        pl <- plot_profile(profile = loadQTL()$profile, 
+                           qtl_info = loadQTL()$qtl_info, 
+                           selected_mks = loadQTL()$selected_mks,
+                           pheno.col = idx,
+                           lgs.id = as.numeric(input$group), 
+                           by_range=F, plot = F)
+      })
     } else
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   output$plot_qtl <- renderPlot({
-    only_plot_profile(pl.in = qtl.data())
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.3, detail = paste("building graphic..."))
+      only_plot_profile(pl.in = qtl.data())
+    })
   })
   
   effects.data <- reactive({
@@ -204,18 +211,21 @@ mod_qtl_view_server <- function(input, output, session,
       if(!is.null(input$plot_brush)){
         df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on QTL profile graphic.") 
+        stop(safeError("Select a point or region on QTL profile graphic."))
       }
-      data <- data_effects(qtl_info = loadQTL()$qtl_info, 
-                           effects = loadQTL()$effects,
-                           pheno.col = as.character(df$Trait), 
-                           lgs = df$LG, 
-                           position = df$`Position (cM)`,
-                           groups = as.numeric(input$group),
-                           software = loadQTL()$software,
-                           design = input$effects_design)
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.5, detail = paste("Getting data..."))
+        data <- data_effects(qtl_info = loadQTL()$qtl_info, 
+                             effects = loadQTL()$effects,
+                             pheno.col = as.character(df$Trait), 
+                             lgs = df$LG, 
+                             position = df$`Position (cM)`,
+                             groups = as.numeric(input$group),
+                             software = loadQTL()$software,
+                             design = input$effects_design)
+      })
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   output$effects <- renderPlot({
@@ -230,7 +240,7 @@ mod_qtl_view_server <- function(input, output, session,
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on QTL profile graphic.")
+        stop(safeError("Select a point or region on QTL profile graphic."))
       }
       counts <- nrow(dframe)
       counts <- ceiling(counts/4)
@@ -247,7 +257,7 @@ mod_qtl_view_server <- function(input, output, session,
       }
       size
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   output$plot.ui <- renderUI({
@@ -305,10 +315,10 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   haplo_data <- eventReactive(input$haplo_submit, {
-    if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(paste0("Feature not implemented for software: ", loadQTL()$software))
-    if(all(input$haplo == "Click on `update available haplotype` to update")) stop("Click on `update available haplotype` to update")
-    if(all(input$haplo == "Select QTL in the profile graphic to update")) stop("Select QTL in the profile graphic to update")
-    if(all(input$haplo == "Select `bar` design to access this feature.")) stop("Select `bar` design to access this feature.")
+    if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(safeError(paste0("Feature not implemented for software: ", loadQTL()$software)))
+    if(all(input$haplo == "Click on `update available haplotype` to update")) stop(safeError("Click on `update available haplotype` to update"))
+    if(all(input$haplo == "Select QTL in the profile graphic to update")) stop(safeError("Select QTL in the profile graphic to update"))
+    if(all(input$haplo == "Select `bar` design to access this feature.")) stop(safeError("Select `bar` design to access this feature."))
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     counts <- ceiling(length(p)/3)
     if(counts == 0) counts <- 1
@@ -335,7 +345,7 @@ mod_qtl_view_server <- function(input, output, session,
       if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else {
-        stop("Select a point or region on graphic.")
+        stop(safeError("Select a point or region on graphic."))
       }
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
       if(loadQTL()$software == "QTLpoly"){
@@ -353,7 +363,7 @@ mod_qtl_view_server <- function(input, output, session,
                     ),
                     class = "display")
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   # Breeding values
@@ -363,7 +373,7 @@ mod_qtl_view_server <- function(input, output, session,
         if(!is.null(input$plot_brush)){
           dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
         } else {
-          stop("Select a point or region on graphic.")
+          stop(safeError("Select a point or region on graphic."))
         }
         
         pos <- split(dframe$`Position (cM)`, dframe$Trait)
@@ -377,9 +387,9 @@ mod_qtl_view_server <- function(input, output, session,
                         buttons = c('copy', 'csv', 'excel', 'pdf')
                       ),
                       class = "display")
-      } else stop(paste("Feature not implemented for software:",loadQTL()$software))
+      } else stop(safeError(paste("Feature not implemented for software:",loadQTL()$software)))
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   # Download profile
@@ -429,7 +439,7 @@ mod_qtl_view_server <- function(input, output, session,
     if(!is.null(input$plot_brush)){
       df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     } else {
-      stop("Select a point or region on QTL profile graphic.") 
+      stop(safeError("Select a point or region on QTL profile graphic."))
     }
     data <- data_effects(qtl_info = loadQTL()$qtl_info, 
                          effects = loadQTL()$effects,

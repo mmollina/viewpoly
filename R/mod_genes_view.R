@@ -254,30 +254,17 @@ mod_genes_view_server <- function(input, output, session,
                          software = loadQTL()$software)
       ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% layout(legend = list(orientation = 'h', y = -0.3))
     } else 
-      stop("Upload the QTL information in upload session to access this feature.")
+      stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
   
   # cM x Mb
   output$plot_pos <- renderPlotly({
     if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.") 
+      if(loadMap()$software == "polymapR") stop(safeError("Feature not implemented for software polymapR."))
     
-    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
+    if(is.null(loadMap()$ph.p1)) stop(safeError("Upload map information in the upload session to access this feature."))
     
-    map.lg <- loadMap()$maps[[as.numeric(input$group)]]
-    
-    map.lg$high <- map.lg$g.dist
-    map.lg$high[round(map.lg$l.dist,5) < input$range[1] | round(map.lg$l.dist,5) > input$range[2]] <- "black"
-    map.lg$high[round(map.lg$l.dist,5) >= input$range[1] & round(map.lg$l.dist,5) <= input$range[2]] <- "red"
-    
-    map.lg$high <- as.factor(map.lg$high)
-    p <- ggplot(map.lg, aes(x=l.dist, y = g.dist/1000, colour = high, text = paste("Marker:", mk.names, "\n", 
-                                                                                   "Genetic:", round(l.dist,2), "cM \n",
-                                                                                   "Genomic:", g.dist/1000, "Mb"))) +
-      geom_point() + scale_color_manual(values=c('black','red')) + 
-      theme(legend.position = "none") + 
-      labs(x = "Linkage map (cM)", y = "Reference genome (Mb)") +
-      theme_bw()
+    p <- plot_cm_mb(loadMap(), input$group, input$range[1], input$range[2])
     
     max_updated = reactive({
       dist <- loadMap()$maps[[as.numeric(input$group)]]$l.dist
@@ -356,7 +343,7 @@ mod_genes_view_server <- function(input, output, session,
       # variants_track <- track_variant()
       # alignments_track <- track_alignments()
     } else if(is.null(loadJBrowse_fasta())){
-      stop("Upload the genome information in upload session to access this feature.")
+      stop(safeError("Upload the genome information in upload session to access this feature."))
     }
     
     if(!grepl("^http", path.fa)){
@@ -386,12 +373,12 @@ mod_genes_view_server <- function(input, output, session,
   
   # Link the UI with the browser widget
   output$browserOutput <- renderJBrowseR({
-    if(reset()) stop("The server is off, you can now submit new files in the upload tab.")
+    if(reset()) stop(safeError("The server is off, you can now submit new files in the upload tab."))
     
     if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")
+      if(loadMap()$software == "polymapR") stop(safeError("Feature not implemented for software polymapR."))
     
-    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
+    if(is.null(loadMap()$ph.p1)) stop(safeError("Upload map information in the upload session to access this feature."))
     
     if(!grepl("^http", button()$path.fa)){
       assembly <- assembly(
@@ -473,7 +460,7 @@ mod_genes_view_server <- function(input, output, session,
     mks.range.1 <- mks$g.dist[mks.range[1]]
     mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
     
-    if(mks.range.1 > mks.range.2) stop("Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`")
+    if(mks.range.1 > mks.range.2) stop(safeError("Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`"))
     
     tracks_set <- c(annotations_track, vcf_track, align_track, wiggle_track)
     
@@ -503,9 +490,9 @@ mod_genes_view_server <- function(input, output, session,
   
   output$genes_ano  <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop("Feature not implemented for software polymapR.")    
+      if(loadMap()$software == "polymapR") stop(safeError("Feature not implemented for software polymapR."))    
     
-    if(is.null(loadMap()$ph.p1)) stop("Upload map information in the upload session to access this feature.")
+    if(is.null(loadMap()$ph.p1)) stop(safeError("Upload map information in the upload session to access this feature."))
     
     if(!is.null(button()$gff)) {
       group <- as.numeric(input$group)
@@ -524,7 +511,7 @@ mod_genes_view_server <- function(input, output, session,
                     ),
                     class = "display")
     } else 
-      stop("Upload annotation file (.gff3) in the upload session to access this feature.")
+      stop(safeError("Upload annotation file (.gff3) in the upload session to access this feature."))
   })
   
   ## Downloads

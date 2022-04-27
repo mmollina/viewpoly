@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - add_tests
 
   pull_request:
     branches:
       - main
+      - add_tests
 
 name: R-CMD-check
 
@@ -21,8 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, r: 'release'}
-          - {os: macOS-latest, r: 'release'}
+          #- {os: windows-latest, r: 'release'} shinytests doesn't work because of small differences in image sizes
+          #- {os: macOS-latest, r: 'release'}
           - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
           - {os: ubuntu-20.04,   r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest", http-user-agent: "R/4.1.0 (ubuntu-20.04) R (4.1.0 x86_64-pc-linux-gnu x86_64 linux-gnu) on GitHub Actions" }
 
@@ -66,6 +68,8 @@ jobs:
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("covr")
+          remotes::install_cran("webshot")
+          webshot::install_phantomjs()
         shell: Rscript {0}
 
       - name: Check

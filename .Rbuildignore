@@ -3,9 +3,10 @@
 ^.*\.github$
 ^\dev$
 ^\www$
-^app\.R$
 ^\.github$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^LICENSE\.md$
 ^paper$
+^rsconnect$
+^app\.R$
