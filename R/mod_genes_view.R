@@ -23,8 +23,11 @@ mod_genes_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"),  br(), br(),
-                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
+                     div(style = "position:absolute;right:1em;",
+                         actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(),  br(), br(),
+                     div(
+                       actionButton(ns("goQTL"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-success"),
+                       actionButton(ns("goMap"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success"))
                  )
           ),
           tags$h2(tags$b("VIEWgenome")), br(), hr(),
@@ -163,6 +166,11 @@ mod_genes_view_server <- function(input, output, session,
   observeEvent(input$goMap, {
     updateTabsetPanel(session = parent_session, inputId = "viewpoly",
                       selected = "map")
+  })
+  
+  observeEvent(input$goQTL, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "qtl")
   })
   
   # Plot QTL bar

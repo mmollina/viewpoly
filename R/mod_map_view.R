@@ -24,7 +24,8 @@ mod_map_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"),
+                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"), br(), br(),
+                     actionButton(ns("goGenes"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-success")
                  )
           ),
           tags$h2(tags$b("VIEWmap")), br(), hr(),
@@ -120,6 +121,11 @@ mod_map_view_server <- function(input, output, session,
   
   observeEvent(input$exit, {
     stopApp()
+  })
+  
+  observeEvent(input$goGenes, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "genes")
   })
   
   observe({

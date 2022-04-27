@@ -13,8 +13,11 @@ mod_upload_ui <- function(id){
     fluidRow(
       column(width = 12,
              div(style = "position:absolute;right:1em;", 
-                 actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"), br(), br(),
-                 actionButton(ns("goQTL"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
+                 div(style = "position:absolute;right:1em;",
+                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(), br(), br(),
+                 div(
+                     actionButton(ns("goAbout"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-success"), 
+                     actionButton(ns("goQTL"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success"))
              ),
              tags$h2(tags$b("Input data")), br(),
              "Use this module to select an example dataset or to upload yours.", br(), br()
@@ -337,6 +340,11 @@ mod_upload_server <- function(input, output, session, parent_session){
   observeEvent(input$goQTL, {
     updateTabsetPanel(session = parent_session, inputId = "viewpoly",
                       selected = "qtl")
+  })
+  
+  observeEvent(input$goAbout, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "about")
   })
   
   # Reset buttons

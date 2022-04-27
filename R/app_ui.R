@@ -73,7 +73,7 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
             title =  "VIEWpoly", 
             id = "viewpoly",
             theme = shinythemes::shinytheme("flatly"),  # <--- Specify theme here
-            tabPanel("About",
+            tabPanel("About", value = "about",
                      includeMarkdown(system.file("ext", "about.Rmd", package = "viewpoly"))
             ),
             tabPanel("Input data", value = "upload",
