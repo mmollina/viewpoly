@@ -71,7 +71,7 @@ mod_genes_view_ui <- function(id){
                    plotlyOutput(ns("plot_qtl"))
             )
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mp)",
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mb)",
             column(2,
                    downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
             ),

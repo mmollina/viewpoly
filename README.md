@@ -14,6 +14,8 @@
 
 ### Quick Start
 
+The quickest way of accessing VIEWpoly is [here](https://cris-taniguti.shinyapps.io/viewpoly/). However, our shinyapps.io does not upload files larger than 1GB. If you have larger datasets, you will need to run VIEWpoly locally.
+
 You can run `VIEWpoly` locally installing the package and accessing the graphical interface through a web browser. To use the stable version, please install the package from CRAN:
 
 ```{r}
