@@ -23,15 +23,18 @@ mod_genes_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"),  br(), br(),
-                     actionButton(ns("goMap"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
+                     div(style = "position:absolute;right:1em;",
+                         actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(),  br(), br(),
+                     div(
+                       actionButton(ns("goQTL"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
+                       actionButton(ns("goMap"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWgenome")), br(), hr(),
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select phenotypes"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select phenotypes",
                             pickerInput(ns("phenotypes"),
                                         label = h4("Phenotypes:"),
                                         choices = "This will be updated",
@@ -45,7 +48,7 @@ mod_genes_view_ui <- function(id){
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group",
                             selectInput(inputId = ns("group"), label = p("Linkage group:"), choices = 1:15, selected = 1),
                         ), br(),
                  )
@@ -56,7 +59,7 @@ mod_genes_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
             column(2,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
@@ -68,7 +71,7 @@ mod_genes_view_ui <- function(id){
                    plotlyOutput(ns("plot_qtl"))
             )
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Linkage Map position (cM) x Physical position (Mp)"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mb)",
             column(2,
                    downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
             ),
@@ -80,7 +83,7 @@ mod_genes_view_ui <- function(id){
                    plotlyOutput(ns("plot_pos"))
             )
         ), br(),
-        box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("JBrowseR"),
+        box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "JBrowseR",
             column(12,
                    column(6,
                           actionButton(ns("create_server"), "Open JBrowseR",icon("power-off", verify_fa = FALSE))
@@ -95,7 +98,7 @@ mod_genes_view_ui <- function(id){
             column(12, br(), hr(),
                    JBrowseROutput(ns("browserOutput"))
             ), br()),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Annotation table"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Annotation table",
             DT::dataTableOutput(ns("genes_ano"))
         )
       )
@@ -163,6 +166,11 @@ mod_genes_view_server <- function(input, output, session,
   observeEvent(input$goMap, {
     updateTabsetPanel(session = parent_session, inputId = "viewpoly",
                       selected = "map")
+  })
+  
+  observeEvent(input$goQTL, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "qtl")
   })
   
   # Plot QTL bar
@@ -252,7 +260,14 @@ mod_genes_view_server <- function(input, output, session,
                          range.max = input$range[2], 
                          by_range=T, 
                          software = loadQTL()$software)
-      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% layout(legend = list(orientation = 'h', y = -0.3))
+      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% 
+        layout(legend = list(orientation = 'h', y = -0.3), 
+               modebar = list(
+                 remove = c("toImage", 
+                            "hovercompare", 
+                            "hoverCompareCartesian")),
+               clickmode ="none",
+               dragmode = FALSE)
     } else 
       stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
@@ -276,7 +291,13 @@ mod_genes_view_server <- function(input, output, session,
       updateSliderInput(inputId = "range", max = round(max_updated(),2))
     })
     
-    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
+    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE, 
+                                           modebar = list(
+                                             remove = c("toImage", 
+                                                        "hovercompare", 
+                                                        "hoverCompareCartesian")),
+                                           clickmode ="none",
+                                           dragmode = FALSE)
   })
   
   # Open JBrowser server 

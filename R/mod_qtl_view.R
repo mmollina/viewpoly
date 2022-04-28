@@ -18,14 +18,17 @@ mod_qtl_view_ui <- function(id){
         fluidRow(
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"), br(), br(),
-                     actionButton(ns("goGenes"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success")
+                     div(style = "position:absolute;right:1em;",
+                         actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(), br(), br(),
+                     div(
+                       actionButton(ns("goUploads"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
+                       actionButton(ns("goGenes"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWqtl")), br(), hr(),
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group/s"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group/s",
                             pickerInput(ns("group"),
                                         label = h6("Linkage group/s:"),
                                         choices = "This will be updated",
@@ -39,7 +42,7 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select phenotype/s"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select phenotype/s",
                             pickerInput(ns("phenotypes"),
                                         label = h6("Phenotype/s:"),
                                         choices = "This will be updated",
@@ -54,7 +57,7 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           column(12,
-                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("QTL profile"),
+                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "QTL profile",
                      column(2,
                             downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
                      ),
@@ -66,7 +69,7 @@ mod_qtl_view_ui <- function(id){
                             plotOutput(ns("plot_qtl"), 
                                        click=ns("plot_click"), brush = ns("plot_brush"))
                      ),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Effects"),
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Effects",
                          div(style = "position:absolute;right:3em;",
                              radioButtons(ns("effects_design"), "Design", 
                                           choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Alleles combination" = "digenic"), 
@@ -83,7 +86,7 @@ mod_qtl_view_ui <- function(id){
                                 uiOutput(ns("plot.ui"))
                          )
                      ), br(),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Progeny haplotypes"),
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Progeny haplotypes",
                          column(12,
                                 actionBttn(ns("haplo_update"), style = "jelly", color = "royal",  size = "sm", label = "update available haplotypes", icon = icon("refresh", verify_fa = FALSE)), 
                                 br(), br(),
@@ -113,10 +116,10 @@ mod_qtl_view_ui <- function(id){
                                 uiOutput(ns("plot_haplo.ui"))
                          )
                      ),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Breeding values"),
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Breeding values",
                          DT::dataTableOutput(ns("breeding_values"))
-                     ),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL summary"),
+                     ), br(), br(),
+                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL summary",
                          DT::dataTableOutput(ns("info"))
                      )
                  )
@@ -182,6 +185,11 @@ mod_qtl_view_server <- function(input, output, session,
                       selected = "genes")
   })
   
+  observeEvent(input$goUploads, {
+    updateTabsetPanel(session = parent_session, inputId = "viewpoly",
+                      selected = "upload")
+  })
+  
   qtl.data <- reactive({
     if(!is.null(loadQTL())){
       idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
@@ -209,9 +217,11 @@ mod_qtl_view_server <- function(input, output, session,
   effects.data <- reactive({
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
-        df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+        df <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+        if(inherits(df, "try-error")) 
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       } else {
-        stop(safeError("Select a point or region on QTL profile graphic."))
+        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       }
       withProgress(message = 'Working:', value = 0, {
         incProgress(0.5, detail = paste("Getting data..."))
@@ -234,13 +244,16 @@ mod_qtl_view_server <- function(input, output, session,
       plot_effects(effects.data(), software = loadQTL()$software, design = input$effects_design)
     })
   })
-  breeding_values
+  
+  
   plotHeight <- reactive({
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
-        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+        dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+        if(inherits(dframe, "try-error")) 
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       } else {
-        stop(safeError("Select a point or region on QTL profile graphic."))
+        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       }
       counts <- nrow(dframe)
       counts <- ceiling(counts/4)
@@ -343,9 +356,11 @@ mod_qtl_view_server <- function(input, output, session,
   output$info <- DT::renderDataTable(server = FALSE, {
     if(!is.null(loadQTL())){
       if(!is.null(input$plot_brush)){
-        dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+        dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+        if(inherits(dframe, "try-error")) 
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       } else {
-        stop(safeError("Select a point or region on graphic."))
+        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
       }
       dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
       if(loadQTL()$software == "QTLpoly"){
@@ -371,9 +386,11 @@ mod_qtl_view_server <- function(input, output, session,
     if(!is.null(loadQTL())){
       if(loadQTL()$software == "QTLpoly"){
         if(!is.null(input$plot_brush)){
-          dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+          dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+          if(inherits(dframe, "try-error")) 
+            stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
         } else {
-          stop(safeError("Select a point or region on graphic."))
+          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
         }
         
         pos <- split(dframe$`Position (cM)`, dframe$Trait)
