@@ -16,8 +16,8 @@ mod_upload_ui <- function(id){
                  div(style = "position:absolute;right:1em;",
                      actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(), br(), br(),
                  div(
-                     actionButton(ns("goAbout"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"), 
-                     actionButton(ns("goQTL"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
+                   actionButton(ns("goAbout"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"), 
+                   actionButton(ns("goQTL"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
              ),
              tags$h2(tags$b("Input data")), br(),
              "Use this module to select an example dataset or to upload yours.", br(), br()
@@ -599,8 +599,11 @@ mod_upload_server <- function(input, output, session, parent_session){
     if(!(is.null(input_map()$polymapR.dataset) & 
          is.null(input_map()$polymapR.map))) {
       req(input_map()$polymapR.dataset, input_map()$polymapR.map)
-      prepare_polymapR(input_map()$polymapR.dataset, input_map()$polymapR.map, 
-                       input$input.type, as.numeric(input$ploidy))
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.1, detail = paste("Uploading polymapR data..."))
+        prepare_polymapR(input_map()$polymapR.dataset, input_map()$polymapR.map, 
+                         input$input.type, as.numeric(input$ploidy))
+      })
     } else NULL
   })
   

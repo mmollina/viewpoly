@@ -141,33 +141,29 @@ prepare_MAPpoly <- function(mappoly_list){
 #' 
 #' @keywords internal
 prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy){ 
-  withProgress(message = 'Working:', value = 0, {
-    incProgress(0.1, detail = paste("Uploading polymapR data..."))
-    temp <- load(polymapR.dataset$datapath)
-    polymapR.dataset <- get(temp)
-    
-    temp <- load(polymapR.map$datapath)
-    polymapR.map <- get(temp)
-    incProgress(0.3, detail = paste("Uploading polymapR data..."))
-    data <- import_data_from_polymapR(input.data = polymapR.dataset, 
-                                      ploidy = ploidy, 
-                                      parent1 = "P1", 
-                                      parent2 = "P2",
-                                      input.type = input.type,
-                                      prob.thres = 0.95,
-                                      pardose = NULL, 
-                                      offspring = NULL,
-                                      filter.non.conforming = TRUE,
-                                      verbose = FALSE)
-    incProgress(0.6, detail = paste("Uploading polymapR data..."))
-    
-    map_seq <- import_phased_maplist_from_polymapR(polymapR.map, data)
-    incProgress(0.8, detail = paste("Uploading polymapR data..."))
-    
-    viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
-    viewmap$software <- "polymapR"
-    incProgress(0.9, detail = paste("Uploading polymapR data..."))
-  })
+  
+  temp <- load(polymapR.dataset$datapath)
+  polymapR.dataset <- get(temp)
+  
+  temp <- load(polymapR.map$datapath)
+  polymapR.map <- get(temp)
+  data <- import_data_from_polymapR(input.data = polymapR.dataset, 
+                                               ploidy = ploidy, 
+                                               parent1 = "P1", 
+                                               parent2 = "P2",
+                                               input.type = ,
+                                               prob.thres = 0.95,
+                                               pardose = NULL, 
+                                               offspring = NULL,
+                                               filter.non.conforming = TRUE,
+                                               verbose = FALSE)
+  
+  map_seq <- import_phased_maplist_from_polymapR(maplist = polymapR.map, 
+                                                            mappoly.data = data)
+  
+  viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
+  viewmap$software <- "polymapR"
+  
   structure(viewmap, class = "viewmap")
 }
 

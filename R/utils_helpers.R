@@ -58,13 +58,16 @@ import_data_from_polymapR <- function(input.data,
   input.type <- match.arg(input.type)
   if(input.type  ==  "discrete"){
     geno.dose <- input.data[,-match(c(parent1, parent2), colnames(input.data)), drop = FALSE]
+    dosage.p1 <- input.data[,parent1]
+    dosage.p2 <- input.data[,parent2]
+    names(dosage.p1) <- names(dosage.p2) <- rownames(input.data)
     mappoly.data <- structure(list(ploidy = ploidy,
                                    n.ind = ncol(geno.dose),
                                    n.mrk = nrow(geno.dose),
                                    ind.names = colnames(geno.dose),
                                    mrk.names = rownames(geno.dose),
-                                   dosage.p1 = input.data[,parent1],
-                                   dosage.p2 = input.data[,parent2],
+                                   dosage.p1 = dosage.p1,
+                                   dosage.p2 = dosage.p2,
                                    chrom = NA,
                                    genome.pos = NA,
                                    seq.ref = NULL,
