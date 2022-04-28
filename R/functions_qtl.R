@@ -143,7 +143,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
         scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
         guides(color = guide_legend("Trait")) + 
         labs(y = y.lab, x = "Position (cM)", subtitle="Linkage group") + 
-        theme_classic()
+        theme_classic() + theme(plot.margin = margin(0.8,1,1.5,1.2, "cm")) 
     } else {
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1)) +
         facet_grid(.~LG, space = "free") +

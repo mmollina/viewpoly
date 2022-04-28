@@ -24,8 +24,10 @@ mod_map_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger"), br(), br(),
-                     actionButton(ns("goGenes"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-success")
+                     div(style = "position:absolute;right:1em;",
+                         actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(), br(), br(),
+                     div(
+                         actionButton(ns("goGenes"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWmap")), br(), hr(),
@@ -250,7 +252,14 @@ mod_map_view_server <- function(input, output, session,
                          range.min = input$range[1],
                          range.max = input$range[2], by_range=T)
       
-      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait", "Position (cM)")) %>% layout(legend = list(orientation = 'h', y = -0.3))
+      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait", "Position (cM)")) %>% 
+        layout(legend = list(orientation = 'h', y = -0.3), 
+               modebar = list(
+                 remove = c("toImage", 
+                            "hovercompare", 
+                            "hoverCompareCartesian")),
+               clickmode ="none",
+               dragmode = FALSE)
     } else 
       stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
@@ -300,11 +309,11 @@ mod_map_view_server <- function(input, output, session,
       p.haplo <- cbind(p1,p2)
       
       DT::datatable(p.haplo, extensions = 'Buttons', 
-                options = list(
-                  dom = 'Bfrtlp',
-                  buttons = c('copy', 'csv', 'excel', 'pdf')
-                ),
-                class = "display")
+                    options = list(
+                      dom = 'Bfrtlp',
+                      buttons = c('copy', 'csv', 'excel', 'pdf')
+                    ),
+                    class = "display")
     } else 
       stop(safeError("Upload map information in the upload session to access this feature."))
   })
@@ -315,11 +324,11 @@ mod_map_view_server <- function(input, output, session,
       summary <- summary_maps(loadMap())
       
       DT::datatable(summary, extensions = 'Buttons', 
-                options = list(
-                  dom = 'Bfrtlp',
-                  buttons = c('copy', 'csv', 'excel', 'pdf') 
-                ),
-                class = "display")
+                    options = list(
+                      dom = 'Bfrtlp',
+                      buttons = c('copy', 'csv', 'excel', 'pdf') 
+                    ),
+                    class = "display")
     } else 
       stop(safeError("Upload map information in the upload session to access this feature."))
   })

@@ -26,8 +26,8 @@ mod_genes_view_ui <- function(id){
                      div(style = "position:absolute;right:1em;",
                          actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(),  br(), br(),
                      div(
-                       actionButton(ns("goQTL"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-success"),
-                       actionButton(ns("goMap"), "Next",icon("arrow-circle-right", verify_fa = FALSE), class = "btn btn-success"))
+                       actionButton(ns("goQTL"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
+                       actionButton(ns("goMap"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWgenome")), br(), hr(),
@@ -260,7 +260,14 @@ mod_genes_view_server <- function(input, output, session,
                          range.max = input$range[2], 
                          by_range=T, 
                          software = loadQTL()$software)
-      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% layout(legend = list(orientation = 'h', y = -0.3))
+      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% 
+        layout(legend = list(orientation = 'h', y = -0.3), 
+               modebar = list(
+                 remove = c("toImage", 
+                            "hovercompare", 
+                            "hoverCompareCartesian")),
+               clickmode ="none",
+               dragmode = FALSE)
     } else 
       stop(safeError("Upload the QTL information in upload session to access this feature."))
   })
@@ -284,7 +291,13 @@ mod_genes_view_server <- function(input, output, session,
       updateSliderInput(inputId = "range", max = round(max_updated(),2))
     })
     
-    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE)
+    ggplotly(p, tooltip="text") %>% layout(showlegend = FALSE, 
+                                           modebar = list(
+                                             remove = c("toImage", 
+                                                        "hovercompare", 
+                                                        "hoverCompareCartesian")),
+                                           clickmode ="none",
+                                           dragmode = FALSE)
   })
   
   # Open JBrowser server 
