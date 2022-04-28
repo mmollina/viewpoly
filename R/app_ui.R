@@ -25,41 +25,56 @@ app_ui <- function(request) {
         .body {
             background-color: #22284c;
         }
+        
+        .box {margin-bottom: 40px;}
+                                  
+        .box.box-solid > .box-header > .box-tools .btn {
+           position: relative;
+           bottom: 5px;
+           box-shadow: none;
+        }
+        
+        .box.box-solid.box-primary > .box-header a,
+        .box.box-solid.box-primary > .box-header .btn {
+            color: #ffffff;
+        }
                               
         .box.box-solid.box-primary>.box-header {
+          height: 50px;
           color:#fff;
           background:#6c81c0
-                            }
+        }
         
         .box.box-solid.box-primary{
-        border-bottom-color:#6c81c0;
-        border-left-color:#6c81c0;
-        border-right-color:#6c81c0;
-        border-top-color:#6c81c0;
+          border-bottom-color:#6c81c0;
+          border-left-color:#6c81c0;
+          border-right-color:#6c81c0;
+          border-top-color:#6c81c0;
         }
         
         .box.box-solid.box-info>.box-header {
-        color:#fff;
-        background:#22284c
+          height: 50px;
+          color:#fff;
+          background:#22284c
         }
         
         .box.box-solid.box-info{
-        border-bottom-color:#22284c;
-        border-left-color:#22284c;
-        border-right-color:#22284c;
-        border-top-color:#22284c;
+          border-bottom-color:#22284c;
+          border-left-color:#22284c;
+          border-right-color:#22284c;
+          border-top-color:#22284c;
         }
         
         .box.box-solid.box-warning>.box-header {
-        color:#fff;
-        background:#a91021ff
+          color:#fff;
+          background:#a91021ff
         }
         
         .box.box-solid.box-warning{
-        border-bottom-color:#a91021ff;
-        border-left-color:#a91021ff;
-        border-right-color:#a91021ff;
-        border-top-color:#a91021ff;
+          border-bottom-color:#a91021ff;
+          border-left-color:#a91021ff;
+          border-right-color:#a91021ff;
+          border-top-color:#a91021ff;
         }
                               '))),
         tags$script(HTML("var header = $('.navbar > .container-fluid');

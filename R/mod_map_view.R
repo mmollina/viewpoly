@@ -32,7 +32,7 @@ mod_map_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = TRUE,  status="info", title = h4("Select phenotypes"),
+                        box(width = 12, solidHeader = TRUE,  status="info", title = "Select phenotypes",
                             pickerInput(ns("phenotypes"),
                                         label = h4("Phenotypes:"),
                                         choices = "This will be updated",
@@ -46,7 +46,7 @@ mod_map_view_ui <- function(id){
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = h4("Select linkage group"),
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group",
                             selectInput(inputId = ns("group"), label = p("Linkage group:"), choices = 1:15, selected = 1),
                             checkboxInput(ns("op"), label = "Show SNP names", value = TRUE)
                         ), br(),
@@ -58,7 +58,7 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("QTL profile"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
             column(2,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
@@ -70,7 +70,7 @@ mod_map_view_ui <- function(id){
                    plotlyOutput(ns("plot_qtl")), 
             )
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = h4("Map"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Map",
             column(2,
                    downloadBttn(ns('bn_download_map'), style = "gradient", color = "royal")
             ),
@@ -81,12 +81,12 @@ mod_map_view_ui <- function(id){
                    hr(),
                    plotOutput(ns("plot_map"), height = "500px"), br(),
                    includeHTML(system.file("ext", "include.html", package = "viewpoly")), br(), br(),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Parents haplotypes table"),
+                   box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Parents haplotypes table",
                        DT::dataTableOutput(ns("parents_haplo"))
                    )
             )
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = h4("Map summary"),
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Map summary",
             column(12,
                    DT::dataTableOutput(ns("summary")), br(), hr()
             ),
