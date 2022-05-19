@@ -59,6 +59,8 @@ Access the [tutorial](https://cristianetaniguti.github.io/viewpoly_vignettes/VIE
 
 We also presented the app main features in [this video](https://www.youtube.com/watch?v=OBt_jebhfeY)
 
+If you would like to contribute to develop `VIEWpoly`, please check our [Contributing Guidelines](https://cristianetaniguti.github.io/viewpoly_vignettes/Contributing_guidelines.html).
+
 ### References
 
 Taniguti CH, Gesteira GS, Lau J, Pereira GS, Zeng ZB, Byrne D, Riera-Lizarazu O, Mollinari M. VIEWpoly: a visualization tool to integrate and explore results of polyploid genetic analysis. Submitted.
