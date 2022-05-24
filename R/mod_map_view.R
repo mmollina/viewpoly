@@ -59,6 +59,12 @@ mod_map_view_ui <- function(id){
           uiOutput(ns("interval"))
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
+            column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", 
+                   )
+            ), 
             column(1,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
@@ -80,6 +86,12 @@ mod_map_view_ui <- function(id){
             )
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Map",
+            column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* Linkage map files or viewpoly object or example dataset (check `Input data` tab)", 
+                   )
+            ), 
             column(1,
                    downloadBttn(ns('bn_download_map'), style = "gradient", color = "royal")
             ),
@@ -105,6 +117,12 @@ mod_map_view_ui <- function(id){
             )
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Map summary",
+            column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* Linkage map files or viewpoly object or example dataset (check `Input data` tab)", 
+                   )
+            ), 
             column(12,
                    DT::dataTableOutput(ns("summary")), br(), hr()
             ),

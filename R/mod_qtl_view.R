@@ -56,27 +56,41 @@ mod_qtl_view_ui <- function(id){
           ),
           column(12,
                  box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "QTL profile",
-                     column(1,
-                            downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
-                     ),
-                     column(3,
-                            radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
-                     ),                     
-                     column(2,
-                            numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
-                     ),
-                     column(2,
-                            numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
-                     ),
-                     column(2,
-                            numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
-                     ), br(), 
+                     column(12,
+                            box(
+                              title = "Required inputs", width = 5, background = "light-blue",
+                              "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)"
+                            )
+                     ), 
+                     column(12,
+                            column(1,
+                                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
+                            ),
+                            column(3,
+                                   radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                            ),                     
+                            column(2,
+                                   numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+                            ),
+                            column(2,
+                                   numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+                            ),
+                            column(2,
+                                   numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
+                            )), br(), 
                      column(12,
                             hr(),
                             plotOutput(ns("plot_qtl"), 
                                        click=ns("plot_click"), brush = ns("plot_brush"))
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Effects",
+                         column(12,
+                                box(
+                                  title = "Required inputs", width = 5, background = "light-blue",
+                                  "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
+                                  "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
+                                )
+                         ), 
                          div(style = "position:absolute;right:3em;",
                              radioButtons(ns("effects_design"), "Design", 
                                           choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Alleles combination" = "digenic"), 
@@ -103,6 +117,13 @@ mod_qtl_view_ui <- function(id){
                          )
                      ), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Progeny haplotypes",
+                         column(12,
+                                box(
+                                  title = "Required inputs", width = 5, background = "light-blue",
+                                  "* QTLpoly analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
+                                  "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
+                                )
+                         ), 
                          column(12,
                                 actionBttn(ns("haplo_update"), style = "jelly", color = "royal",  size = "sm", label = "update available haplotypes", icon = icon("refresh", verify_fa = FALSE)), 
                                 br(), br(),
@@ -142,10 +163,28 @@ mod_qtl_view_ui <- function(id){
                          )
                      ),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Breeding values",
-                         DT::dataTableOutput(ns("breeding_values"))
+                         column(12,
+                                box(
+                                  title = "Required inputs", width = 5, background = "light-blue",
+                                  "* QTLpoly analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
+                                  "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
+                                )
+                         ), 
+                         column(12,
+                                DT::dataTableOutput(ns("breeding_values"))
+                         )
                      ), br(), br(),
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL summary",
-                         DT::dataTableOutput(ns("info"))
+                         column(12,
+                                box(
+                                  title = "Required inputs", width = 5, background = "light-blue",
+                                  "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
+                                  "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
+                                )
+                         ), 
+                         column(12,
+                                DT::dataTableOutput(ns("info"))
+                         )
                      )
                  )
           )

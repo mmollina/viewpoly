@@ -58,6 +58,12 @@ mod_genes_view_ui <- function(id){
           uiOutput(ns("interval"))
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
+            column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)"
+                   )
+            ), 
             column(1,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
@@ -79,6 +85,12 @@ mod_genes_view_ui <- function(id){
             )
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mb)",
+            column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* MAPpoly linkage map files or viewpoly object or example dataset (check `Input data` tab)", 
+                   )
+            ), 
             column(1,
                    downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
             ),
@@ -101,6 +113,12 @@ mod_genes_view_ui <- function(id){
         ), br(),
         box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "JBrowseR",
             column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* Reference genome FASTA (check `Input data` tab)"
+                   )
+            ), 
+            column(12,
                    column(6,
                           actionButton(ns("create_server"), "Open JBrowseR",icon("power-off", verify_fa = FALSE))
                    ),
@@ -115,7 +133,16 @@ mod_genes_view_ui <- function(id){
                    JBrowseROutput(ns("browserOutput"))
             ), br()),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Annotation table",
-            DT::dataTableOutput(ns("genes_ano"))
+            column(12,
+                   box(
+                     title = "Required inputs", width = 5, background = "light-blue",
+                     "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
+                     "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
+                   )
+            ), 
+            column(12,
+                   DT::dataTableOutput(ns("genes_ano"))
+            )
         )
       )
     )
