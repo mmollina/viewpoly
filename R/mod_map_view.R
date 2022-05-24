@@ -59,11 +59,20 @@ mod_map_view_ui <- function(id){
           uiOutput(ns("interval"))
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
-            column(2,
+            column(1,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
-            column(10,
+            column(3,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+            ),                     
+            column(2,
+                   numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
             ), br(),
             column(12,
                    hr(),
@@ -71,11 +80,20 @@ mod_map_view_ui <- function(id){
             )
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Map",
-            column(2,
+            column(1,
                    downloadBttn(ns('bn_download_map'), style = "gradient", color = "royal")
             ),
-            column(10,
+            column(3,
                    radioButtons(ns("fformat_map"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+            ),                     
+            column(2,
+                   numericInput(ns("width_map"), "Width (mm)", value = 180, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("height_map"), "Height (mm)", value = 120, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("dpi_map"), "DPI", value = 300, width = '30%')
             ), br(),
             column(12,
                    hr(),
@@ -90,12 +108,21 @@ mod_map_view_ui <- function(id){
             column(12,
                    DT::dataTableOutput(ns("summary")), br(), hr()
             ),
-            column(2,
+            column(1,
                    downloadBttn(ns('bn_download_summary'), style = "gradient", color = "royal")
             ),
-            column(10,
+            column(3,
                    radioButtons(ns("fformat_summary"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T), br(),
-            ), 
+            ),                     
+            column(2,
+                   numericInput(ns("width_summary"), "Width (mm)", value = 180, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("height_summary"), "Height (mm)", value = 120, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("dpi_summary"), "DPI", value = 300, width = '30%')
+            ), br(),
             column(12,
                    hr(),
                    plotOutput(ns("map_summary"))
@@ -362,7 +389,8 @@ mod_map_view_server <- function(input, output, session,
                        by_range=T, 
                        software = loadQTL()$software)
     ggsave(pl, filename = fn_downloadname(), 
-           width = 12.7, height = 8, units = "in")    
+           width = input$width_profile, height = input$height_profile, 
+           units = "mm", dpi = input$dpi_profile)    
   }
   
   # download handler
@@ -396,13 +424,13 @@ mod_map_view_server <- function(input, output, session,
     })
     
     if(input$fformat_map == "png"){
-      png(fn_downloadname_map(), width = 22, height = 5, units = "in", res = 300)
+      png(fn_downloadname_map(), width = input$width_map, height = input$height_map, units = "mm", res = input$dpi_map)
     } else  if(input$fformat_map == "tiff"){
-      tiff(fn_downloadname_map(), width = 22, height = 5, units = "in", res = 300)
+      tiff(fn_downloadname_map(), width = input$width_map, height = input$height_map, units = "mm", res = input$dpi_map)
     } else  if(input$fformat_map == "jpeg"){
-      jpeg(fn_downloadname_map(), width = 22, height = 5, units = "in", res = 300)
+      jpeg(fn_downloadname_map(), width = input$width_map, height = input$height_map, units = "mm", res = input$dpi_map)
     } else  if(input$fformat_map == "pdf"){
-      pdf(fn_downloadname_map(), width = 22, height = 5, units = "in", res = 300)
+      pdf(fn_downloadname_map(), width = input$width_map, height = input$height_map, units = "mm", res = input$dpi_map)
     }
     
     draw_map_shiny(left.lim = input$range[1], 
@@ -451,13 +479,13 @@ mod_map_view_server <- function(input, output, session,
     })
     
     if(input$fformat_summary == "png"){
-      png(fn_downloadname_summary(),  width = 12.7, height = 8, units = "in", res = 300)
+      png(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
     } else  if(input$fformat_summary == "tiff"){
-      tiff(fn_downloadname_summary(),  width = 12.7, height = 8, units = "in", res = 300)
+      tiff(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
     } else  if(input$fformat_summary == "jpeg"){
-      jpeg(fn_downloadname_summary(),  width = 12.7, height = 8, units = "in", res = 300)
+      jpeg(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
     } else  if(input$fformat_summary == "pdf"){
-      pdf(fn_downloadname_summary(),  width = 12.7, height = 8, units = "in", res = 300)
+      pdf(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
     }
     
     plot_map_list(loadMap())   

@@ -56,11 +56,20 @@ mod_qtl_view_ui <- function(id){
           ),
           column(12,
                  box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "QTL profile",
-                     column(2,
+                     column(1,
                             downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
                      ),
-                     column(10,
+                     column(3,
                             radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                     ),                     
+                     column(2,
+                            numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+                     ),
+                     column(2,
+                            numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+                     ),
+                     column(2,
+                            numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
                      ), br(), 
                      column(12,
                             hr(),
@@ -73,12 +82,21 @@ mod_qtl_view_ui <- function(id){
                                           choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Alleles combination" = "digenic"), 
                                           selected = "bar", inline= T)
                          ), br(), br(), 
-                         column(2,
+                         column(1,
                                 downloadBttn(ns('bn_download_effects'), style = "gradient", color = "royal")
                          ),
-                         column(10,
+                         column(3,
                                 radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
-                         ), br(),
+                         ),                     
+                         column(2,
+                                numericInput(ns("width_effects"), "Width (mm)", value = 180, width = '40%'),
+                         ),
+                         column(2,
+                                numericInput(ns("height_effects"), "Height (mm)", value = 120, width = '40%'),
+                         ),
+                         column(2,
+                                numericInput(ns("dpi_effects"), "DPI", value = 300, width = '30%')
+                         ), br(), 
                          column(12,
                                 hr(),
                                 uiOutput(ns("plot.ui"))
@@ -103,12 +121,21 @@ mod_qtl_view_ui <- function(id){
                                             multiple = TRUE), br(),
                                 actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes", icon = icon("share-square", verify_fa = FALSE)), 
                                 br(), hr()),
-                         column(2,
+                         column(1,
                                 downloadBttn(ns('bn_download_haplo'), style = "gradient", color = "royal")
                          ),
-                         column(10,
+                         column(3,
                                 radioButtons(ns("fformat_haplo"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
-                         ), br(),
+                         ),                     
+                         column(2,
+                                numericInput(ns("width_haplo"), "Width (mm)", value = 180, width = '40%'),
+                         ),
+                         column(2,
+                                numericInput(ns("height_haplo"), "Height (mm)", value = 120, width = '40%'),
+                         ),
+                         column(2,
+                                numericInput(ns("dpi_haplo"), "DPI", value = 300, width = '30%')
+                         ), br(), 
                          column(12,
                                 hr(),
                                 uiOutput(ns("plot_haplo.ui"))
@@ -423,7 +450,7 @@ mod_qtl_view_server <- function(input, output, session,
   {
     p <- only_plot_profile(pl.in = qtl.data())
     ggsave(p, filename = fn_downloadname(), 
-           width = 12.7, height = 8, units = "in")    
+           width = input$width_profile, height = input$height_profile, units = "mm", dpi = input$dpi_profile)    
   }
   
   # download handler
@@ -467,7 +494,8 @@ mod_qtl_view_server <- function(input, output, session,
     
     plots <- plot_effects(data, software = loadQTL()$software, design = input$effects_design)
     
-    ggsave(plots, filename = fn_downloadname_effects(), height = plotHeight()/3, width = plotHeight(),units = "mm", bg = "white")    
+    ggsave(plots, filename = fn_downloadname_effects(), height = input$height_effects, 
+           width = input$width_effects, units = "mm", bg = "white", dpi = input$dpi_effects)    
   }
   
   # download handler
@@ -498,7 +526,8 @@ mod_qtl_view_server <- function(input, output, session,
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     plots <- ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
     
-    ggsave(plots, filename = fn_downloadname_haplo(), height = plotHeight()/2, width = plotHeight(),units = "mm", bg = "white")    
+    ggsave(plots, filename = fn_downloadname_haplo(), height = input$height_haplo, 
+           width = input$width_haplo, units = "mm", bg = "white", dpi = input$dpi_haplo)    
   }
   
   # download handler

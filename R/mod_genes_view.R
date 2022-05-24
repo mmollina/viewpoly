@@ -58,11 +58,20 @@ mod_genes_view_ui <- function(id){
           uiOutput(ns("interval"))
         ),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
-            column(2,
+            column(1,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
-            column(10,
+            column(3,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+            ),                     
+            column(2,
+                   numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
             ), br(),
             column(12,
                    hr(),
@@ -70,11 +79,20 @@ mod_genes_view_ui <- function(id){
             )
         ), br(),
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mb)",
-            column(2,
+            column(1,
                    downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
             ),
-            column(10,
+            column(3,
                    radioButtons(ns("fformat_phi"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+            ),                     
+            column(2,
+                   numericInput(ns("width_phi"), "Width (mm)", value = 180, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("height_phi"), "Height (mm)", value = 120, width = '40%'),
+            ),
+            column(2,
+                   numericInput(ns("dpi_phi"), "DPI", value = 300, width = '30%')
             ), br(),
             column(12,
                    hr(),
@@ -557,7 +575,8 @@ mod_genes_view_server <- function(input, output, session,
                        by_range=T, 
                        software = loadQTL()$software)
     ggsave(pl, filename = fn_downloadname(), 
-           width = 12.7, height = 8, units = "in")    
+           width = input$width_profile, height = input$height_profile, 
+           units = "mm", dpi = input$dpi_profile)    
   }
   
   # download handler
@@ -599,7 +618,8 @@ mod_genes_view_server <- function(input, output, session,
       theme_bw() + theme(legend.position = "none") 
     
     ggsave(p, filename = fn_downloadname_phi(), 
-           width = 12.7, height = 8, units = "in")    
+           width = input$width_phi, height = input$height_phi, 
+           units = "mm", dpi = input$dpi_phi)    
   }
   
   # download handler
