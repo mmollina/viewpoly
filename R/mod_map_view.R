@@ -33,7 +33,7 @@ mod_map_view_ui <- function(id){
           column(6,
                  column(12,
                         box(
-                          width = 3, background = "light-blue",
+                          background = "light-blue",
                           "Required inputs (*)", br(),
                         )
                  ),
@@ -64,65 +64,65 @@ mod_map_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
+        box(id= ns("box_profile"), width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("profileID"), label = "QTL profile"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
                      "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", 
                    )
             ), 
-            column(1,
+            column(3,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
             column(3,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
             ),                     
             column(2,
-                   numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+                   numericInput(ns("width_profile"), "Width (mm)", value = 180),
             ),
             column(2,
-                   numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+                   numericInput(ns("height_profile"), "Height (mm)", value = 120),
             ),
             column(2,
-                   numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
+                   numericInput(ns("dpi_profile"), "DPI", value = 300)
             ), br(),
             column(12,
                    hr(),
                    plotlyOutput(ns("plot_qtl")), 
             )
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Map",
+        box(id = ns("box_map"), width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = actionLink(inputId = ns("mapID"), label = "Map"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
                      "* Linkage map files or viewpoly object or example dataset (check `Input data` tab)", 
                    )
             ), 
-            column(1,
+            column(3,
                    downloadBttn(ns('bn_download_map'), style = "gradient", color = "royal")
             ),
             column(3,
                    radioButtons(ns("fformat_map"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
             ),                     
             column(2,
-                   numericInput(ns("width_map"), "Width (mm)", value = 180, width = '40%'),
+                   numericInput(ns("width_map"), "Width (mm)", value = 180),
             ),
             column(2,
-                   numericInput(ns("height_map"), "Height (mm)", value = 120, width = '40%'),
+                   numericInput(ns("height_map"), "Height (mm)", value = 120),
             ),
             column(2,
-                   numericInput(ns("dpi_map"), "DPI", value = 300, width = '30%')
+                   numericInput(ns("dpi_map"), "DPI", value = 300)
             ), br(),
             column(12,
                    hr(),
                    plotOutput(ns("plot_map"), height = "500px"), br(),
                    includeHTML("www/include.html"), br(), br(),
-                   box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Parents haplotypes table",
+                   box(id = ns("box_phaplo"),width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("phaploID"), label = "Parents haplotypes table"),
                        DT::dataTableOutput(ns("parents_haplo"))
                    )
             )
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Map summary",
+        box(id = ns("box_mapsumm"), width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("mapsummID"), label = "Map summary"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
@@ -132,20 +132,20 @@ mod_map_view_ui <- function(id){
             column(12,
                    DT::dataTableOutput(ns("summary")), br(), hr()
             ),
-            column(1,
+            column(3,
                    downloadBttn(ns('bn_download_summary'), style = "gradient", color = "royal")
             ),
             column(3,
                    radioButtons(ns("fformat_summary"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T), br(),
             ),                     
             column(2,
-                   numericInput(ns("width_summary"), "Width (mm)", value = 180, width = '40%'),
+                   numericInput(ns("width_summary"), "Width (mm)", value = 180),
             ),
             column(2,
-                   numericInput(ns("height_summary"), "Height (mm)", value = 120, width = '40%'),
+                   numericInput(ns("height_summary"), "Height (mm)", value = 120),
             ),
             column(2,
-                   numericInput(ns("dpi_summary"), "DPI", value = 300, width = '30%')
+                   numericInput(ns("dpi_summary"), "DPI", value = 300)
             ), br(),
             column(12,
                    hr(),
@@ -170,10 +170,23 @@ mod_map_view_server <- function(input, output, session,
   
   pheno <- LG <- NULL
   
-  observeEvent(input$exit, {
-    stopApp()
+  #Collapse boxes
+  observeEvent(input$profileID, {
+    js$collapse(ns("box_profile"))
   })
   
+  observeEvent(input$mapID, {
+    js$collapse(ns("box_map"))
+  })
+  
+  observeEvent(input$mapsummID, {
+    js$collapse(ns("box_mapsumm"))
+  })
+  
+  observeEvent(input$phaploID, {
+    js$collapse(ns("box_phaplo"))
+  })
+
   observeEvent(input$goGenes, {
     updateTabsetPanel(session = parent_session, inputId = "viewpoly",
                       selected = "genes")

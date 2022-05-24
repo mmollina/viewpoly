@@ -13,13 +13,15 @@
 mod_qtl_view_ui <- function(id){
   ns <- NS(id)
   tagList(
+    useShinyjs(),
+    extendShinyjs(text = jscode, functions = "collapse"),
     fluidPage(
       verticalLayout(
         fluidRow(
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
                      div(
-                       actionButton(ns("goUploads"), "Go to Input data",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
+                       actionButton(ns("goUploads"), "Go to Input data", icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
                        actionButton(ns("goGenes"), label = div("Go to Genome", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
                  )
           ),
@@ -27,7 +29,7 @@ mod_qtl_view_ui <- function(id){
           column(6,
                  column(12,
                         box(
-                          width = 3, background = "light-blue",
+                          background = "light-blue",
                           "Required inputs (*)", br(),
                         )
                  ),
@@ -61,38 +63,38 @@ mod_qtl_view_ui <- function(id){
                  )
           ),
           column(12,
-                 box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "QTL profile",
+                 box(id = ns("box_profile"), width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = actionLink(inputId = ns("profileID"), label = "QTL profile"),
                      column(12,
                             box(
-                              width = 5, background = "light-blue",
+                              background = "light-blue",
                               "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)"
                             )
                      ), 
                      column(12,
-                            column(1,
+                            column(3,
                                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
                             ),
                             column(3,
                                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
                             ),                     
                             column(2,
-                                   numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+                                   numericInput(ns("width_profile"), "Width (mm)", value = 180),
                             ),
                             column(2,
-                                   numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+                                   numericInput(ns("height_profile"), "Height (mm)", value = 120),
                             ),
                             column(2,
-                                   numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
+                                   numericInput(ns("dpi_profile"), "DPI", value = 300)
                             )), br(), 
                      column(12,
                             hr(),
                             plotOutput(ns("plot_qtl"), 
                                        click=ns("plot_click"), brush = ns("plot_brush"))
                      ),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Effects",
+                     box(id = ns("box_effects"), width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("effectsID"), label = "Effects"),
                          column(12,
                                 box(
-                                  width = 5, background = "light-blue",
+                                  background = "light-blue",
                                   "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -100,32 +102,32 @@ mod_qtl_view_ui <- function(id){
                          div(style = "position:absolute;right:3em;",
                              radioButtons(ns("effects_design"), "Design", 
                                           choices = c("Additive (bar)" = "bar", "Additive (circle)" = "circle", "Alleles combination" = "digenic"), 
-                                          selected = "bar", inline= T)
+                                          selected = "bar")
                          ), br(), br(), 
-                         column(1,
+                         column(3,
                                 downloadBttn(ns('bn_download_effects'), style = "gradient", color = "royal")
                          ),
                          column(3,
                                 radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
                          ),                     
                          column(2,
-                                numericInput(ns("width_effects"), "Width (mm)", value = 180, width = '40%'),
+                                numericInput(ns("width_effects"), "Width (mm)", value = 180),
                          ),
                          column(2,
-                                numericInput(ns("height_effects"), "Height (mm)", value = 120, width = '40%'),
+                                numericInput(ns("height_effects"), "Height (mm)", value = 120),
                          ),
                          column(2,
-                                numericInput(ns("dpi_effects"), "DPI", value = 300, width = '30%')
+                                numericInput(ns("dpi_effects"), "DPI", value = 300)
                          ), br(), 
                          column(12,
                                 hr(),
                                 uiOutput(ns("plot.ui"))
                          )
                      ), br(),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Progeny haplotypes",
+                     box(id = ns("box_haplo"),width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("haploID"), label = "Progeny haplotypes"),
                          column(12,
                                 box(
-                                  width = 5, background = "light-blue",
+                                  background = "light-blue",
                                   "* QTLpoly analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -148,30 +150,30 @@ mod_qtl_view_ui <- function(id){
                                             multiple = TRUE), br(),
                                 actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes*", icon = icon("share-square", verify_fa = FALSE)), 
                                 br(), hr()),
-                         column(1,
+                         column(3,
                                 downloadBttn(ns('bn_download_haplo'), style = "gradient", color = "royal")
                          ),
                          column(3,
                                 radioButtons(ns("fformat_haplo"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
                          ),                     
                          column(2,
-                                numericInput(ns("width_haplo"), "Width (mm)", value = 180, width = '40%'),
+                                numericInput(ns("width_haplo"), "Width (mm)", value = 180),
                          ),
                          column(2,
-                                numericInput(ns("height_haplo"), "Height (mm)", value = 120, width = '40%'),
+                                numericInput(ns("height_haplo"), "Height (mm)", value = 120),
                          ),
                          column(2,
-                                numericInput(ns("dpi_haplo"), "DPI", value = 300, width = '30%')
+                                numericInput(ns("dpi_haplo"), "DPI", value = 300)
                          ), br(), 
                          column(12,
                                 hr(),
                                 uiOutput(ns("plot_haplo.ui"))
                          )
                      ),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Breeding values",
+                     box(id = ns("box_bree"), width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("breeID"), label = "Breeding values"),
                          column(12,
                                 box(
-                                  width = 5, background = "light-blue",
+                                  background = "light-blue",
                                   "* QTLpoly analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -180,10 +182,10 @@ mod_qtl_view_ui <- function(id){
                                 DT::dataTableOutput(ns("breeding_values"))
                          )
                      ), br(), br(),
-                     box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL summary",
+                     box(id = ns("box_summary"),width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("summaryID"), label = "QTL summary"),
                          column(12,
                                 box(
-                                  width = 5, background = "light-blue",
+                                  background = "light-blue",
                                   "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -211,8 +213,25 @@ mod_qtl_view_server <- function(input, output, session,
                                 parent_session){
   ns <- session$ns
   
-  observeEvent(input$exit, {
-    stopApp()
+  #Collapse boxes
+  observeEvent(input$profileID, {
+    js$collapse(ns("box_profile"))
+  })
+  
+  observeEvent(input$effectsID, {
+    js$collapse(ns("box_effects"))
+  })
+  
+  observeEvent(input$haploID, {
+    js$collapse(ns("box_haplo"))
+  })
+  
+  observeEvent(input$breeID, {
+    js$collapse(ns("box_bree"))
+  })
+  
+  observeEvent(input$summaryID, {
+    js$collapse(ns("box_summary"))
   })
   
   observe({

@@ -33,7 +33,7 @@ mod_genes_view_ui <- function(id){
           column(6,
                  column(12,
                         box(
-                          width = 3, background = "light-blue",
+                          background = "light-blue",
                           "Required inputs (*)", br(),
                         )
                  ),
@@ -63,61 +63,61 @@ mod_genes_view_ui <- function(id){
                       value = c(0, 20), step = 1), 
           uiOutput(ns("interval"))
         ),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
+        box(id = ns("box_profile"),width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("profileID"), label = "QTL profile"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
                      "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)"
                    )
             ), 
-            column(1,
+            column(3,
                    downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
             ),
             column(3,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
             ),                     
             column(2,
-                   numericInput(ns("width_profile"), "Width (mm)", value = 180, width = '40%'),
+                   numericInput(ns("width_profile"), "Width (mm)", value = 180),
             ),
             column(2,
-                   numericInput(ns("height_profile"), "Height (mm)", value = 120, width = '40%'),
+                   numericInput(ns("height_profile"), "Height (mm)", value = 120),
             ),
             column(2,
-                   numericInput(ns("dpi_profile"), "DPI", value = 300, width = '30%')
+                   numericInput(ns("dpi_profile"), "DPI", value = 300)
             ), br(),
             column(12,
                    hr(),
                    plotlyOutput(ns("plot_qtl"))
             )
         ), br(),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mb)",
+        box(id = ns("box_phi"),width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = actionLink(inputId = ns("phiID"), label = "Linkage Map position (cM) x Physical position (Mb)"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
                      "* MAPpoly linkage map files or viewpoly object or example dataset (check `Input data` tab)", 
                    )
             ), 
-            column(1,
+            column(3,
                    downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
             ),
             column(3,
                    radioButtons(ns("fformat_phi"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
             ),                     
             column(2,
-                   numericInput(ns("width_phi"), "Width (mm)", value = 180, width = '40%'),
+                   numericInput(ns("width_phi"), "Width (mm)", value = 180),
             ),
             column(2,
-                   numericInput(ns("height_phi"), "Height (mm)", value = 120, width = '40%'),
+                   numericInput(ns("height_phi"), "Height (mm)", value = 120),
             ),
             column(2,
-                   numericInput(ns("dpi_phi"), "DPI", value = 300, width = '30%')
+                   numericInput(ns("dpi_phi"), "DPI", value = 300)
             ), br(),
             column(12,
                    hr(),
                    plotlyOutput(ns("plot_pos"))
             )
         ), br(),
-        box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "JBrowseR",
+        box(id = ns("box_jbrowser"), width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = actionLink(inputId = ns("jbrowserID"), label = "JBrowseR"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
@@ -138,7 +138,7 @@ mod_genes_view_ui <- function(id){
             column(12, br(), hr(),
                    JBrowseROutput(ns("browserOutput"))
             ), br()),
-        box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Annotation table",
+        box(id = ns("box_anno"),width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = actionLink(inputId = ns("annoID"), label = "Annotation table"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
@@ -173,8 +173,21 @@ mod_genes_view_server <- function(input, output, session,
   pheno <- LG <- l.dist <- g.dist <- high <- mk.names <- track_variant <- track_alignments <- track_wiggle <- NULL
   start <- end <- seqid <- NULL
   
-  observeEvent(input$exit, {
-    stopApp()
+  #Collapse boxes
+  observeEvent(input$profileID, {
+    js$collapse(ns("box_profile"))
+  })
+  
+  observeEvent(input$phiID, {
+    js$collapse(ns("box_phi"))
+  })
+  
+  observeEvent(input$jbrowserID, {
+    js$collapse(ns("box_jbrowser"))
+  })
+  
+  observeEvent(input$annoID, {
+    js$collapse(ns("box_anno"))
   })
   
   observe({

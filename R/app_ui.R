@@ -6,11 +6,13 @@
 #' @import shinydashboard
 #' @import markdown
 #' @importFrom shiny NS tagList 
+#' @importFrom shinyjs extendShinyjs useShinyjs
 #' @noRd
 app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
+    
     # Your application UI logic 
     dashboardPage(
       dashboardHeader(disable = TRUE),
@@ -18,6 +20,13 @@ app_ui <- function(request) {
       dashboardBody(
         # Lab colors
         tags$head(tags$style(HTML('
+        
+         a.action-button {
+                color: #6c81c0;
+         }
+         a.action-button.red {
+                color: #6c81c0;
+         }
         .navbar-static-top {background-color: green;}
         
         .navbar-default .navbar-nav>.active>a {background-color: green;}
@@ -99,7 +108,7 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
                      mod_genes_view_ui("genes_view_ui_1")),
             tabPanel("Map", value = "map",
                      mod_map_view_ui("map_view_ui_1"))
-            )
+          )
         )
       )
     )
@@ -130,4 +139,3 @@ golem_add_external_resources <- function(){
     # for example, you can add shinyalert::useShinyalert() 
   )
 }
-

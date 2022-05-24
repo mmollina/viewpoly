@@ -719,3 +719,9 @@ check_viewpoly <- function(viewpoly_obj){
   else return(0)
 }
 
+# Collapse box
+jscode <- "
+shinyjs.collapse = function(boxid) {
+$('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+}
+"
