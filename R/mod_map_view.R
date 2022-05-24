@@ -24,10 +24,8 @@ mod_map_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     div(style = "position:absolute;right:1em;",
-                         actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(), br(), br(),
                      div(
-                         actionButton(ns("goGenes"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"))
+                         actionButton(ns("goGenes"), "Go to Genome",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWmap")), br(), hr(),
@@ -82,7 +80,7 @@ mod_map_view_ui <- function(id){
             column(12,
                    hr(),
                    plotOutput(ns("plot_map"), height = "500px"), br(),
-                   includeHTML(system.file("ext", "include.html", package = "viewpoly")), br(), br(),
+                   includeHTML("www/include.html"), br(), br(),
                    box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Parents haplotypes table",
                        DT::dataTableOutput(ns("parents_haplo"))
                    )

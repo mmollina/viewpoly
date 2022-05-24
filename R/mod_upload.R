@@ -13,11 +13,11 @@ mod_upload_ui <- function(id){
     fluidRow(
       column(width = 12,
              div(style = "position:absolute;right:1em;", 
-                 div(style = "position:absolute;right:1em;",
-                     actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(), br(), br(),
                  div(
-                   actionButton(ns("goAbout"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"), 
-                   actionButton(ns("goQTL"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
+                   actionButton(ns("goAbout"), "Go to About",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"), 
+                   actionButton(ns("goQTL"), label = div("Go to QTL", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary")), br(),
+                 div(style = "position:absolute;right:0em;",
+                     actionButton(ns("reset_all"), "Reset all",icon("undo-alt", verify_fa = FALSE), class = "btn btn-danger"))
              ),
              tags$h2(tags$b("Input data")), br(),
              "Use this module to select an example dataset or to upload yours.", br(), br()
@@ -360,6 +360,20 @@ mod_upload_server <- function(input, output, session, parent_session){
     upload_state_qtl_custom = 0,
     upload_state_genome = 0
   )
+  
+  observeEvent(input$reset_all, {
+    values$upload_state_viewpoly <- 'reset'
+    values$upload_state_map <- 'reset'
+    values$upload_state_mappoly = 0
+    values$upload_state_polymapR = 0
+    values$upload_state_map_custom = 0
+    values$upload_state_qtl <- 'reset'
+    values$upload_state_qtlpoly = 0
+    values$upload_state_diaQTL = 0
+    values$upload_state_polyqtlR = 0
+    values$upload_state_qtl_custom = 0
+    values$upload_state_genome <- 'reset'
+  })
   
   observeEvent(input$reset_viewpoly, {
     values$upload_state_viewpoly <- 'reset'

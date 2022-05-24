@@ -77,10 +77,6 @@ app_ui <- function(request) {
           border-top-color:#a91021ff;
         }
                               '))),
-        tags$script(HTML("var header = $('.navbar > .container-fluid');
-header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"www/logo_white.png\" alt=\"alt\" style=\"float:right;width:120px;height:80px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
-    console.log(header)")
-        ),
         tags$head(tags$style(HTML('.navbar-static-top {background-color: #22284c;}',
                                   '.navbar-default .navbar-nav>.active>a {background-color: #22284c;}'))),
         fluidPage(
@@ -89,7 +85,11 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
             id = "viewpoly",
             theme = shinythemes::shinytheme("flatly"),  # <--- Specify theme here
             tabPanel("About", value = "about",
-                     includeMarkdown(system.file("ext", "about.Rmd", package = "viewpoly"))
+                     includeMarkdown(system.file("ext", "about.Rmd", package = "viewpoly")),
+                     tags$script(HTML("var header = $('.navbar > .container-fluid');
+header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\"><img src=\"www/logo_white.png\" alt=\"alt\" style=\"float:right;width:120px;height:80px;padding-top:10px;padding-bottom:10px;\"> </a>`</div>');
+    console.log(header)")
+                     ),
             ),
             tabPanel("Input data", value = "upload",
                      mod_upload_ui("upload_ui_1")),
@@ -99,7 +99,7 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
                      mod_genes_view_ui("genes_view_ui_1")),
             tabPanel("Map", value = "map",
                      mod_map_view_ui("map_view_ui_1"))
-          )
+            )
         )
       )
     )

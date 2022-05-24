@@ -23,11 +23,9 @@ mod_genes_view_ui <- function(id){
           ),
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
-                     div(style = "position:absolute;right:1em;",
-                         actionButton(ns("exit"), "Exit",icon("times-circle", verify_fa = FALSE), class = "btn btn-danger")), br(),  br(), br(),
                      div(
-                       actionButton(ns("goQTL"), "Previous",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
-                       actionButton(ns("goMap"), label = div("Next", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
+                       actionButton(ns("goQTL"), "Go to QTL",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"),
+                       actionButton(ns("goMap"), label = div("Go to Map", icon("arrow-circle-right", verify_fa = FALSE)), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWgenome")), br(), hr(),
