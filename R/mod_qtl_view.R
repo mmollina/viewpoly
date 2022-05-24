@@ -25,8 +25,14 @@ mod_qtl_view_ui <- function(id){
           ),
           tags$h2(tags$b("VIEWqtl")), br(), hr(),
           column(6,
+                 column(12,
+                        box(
+                          width = 3, background = "light-blue",
+                          "Required inputs (*)", br(),
+                        )
+                 ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group/s*",
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group/s *",
                             pickerInput(ns("group"),
                                         label = h6("Linkage group/s:"),
                                         choices = "This will be updated",
@@ -40,7 +46,7 @@ mod_qtl_view_ui <- function(id){
                         )
                  ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = "Select phenotype/s*",
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select phenotype/s *",
                             pickerInput(ns("phenotypes"),
                                         label = h6("Phenotype/s:"),
                                         choices = "This will be updated",
@@ -58,7 +64,7 @@ mod_qtl_view_ui <- function(id){
                  box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "QTL profile",
                      column(12,
                             box(
-                              title = "Required inputs (*)", width = 5, background = "light-blue",
+                              width = 5, background = "light-blue",
                               "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)"
                             )
                      ), 
@@ -86,7 +92,7 @@ mod_qtl_view_ui <- function(id){
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Effects",
                          column(12,
                                 box(
-                                  title = "Required inputs (*)", width = 5, background = "light-blue",
+                                  width = 5, background = "light-blue",
                                   "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -119,7 +125,7 @@ mod_qtl_view_ui <- function(id){
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Progeny haplotypes",
                          column(12,
                                 box(
-                                  title = "Required inputs (*)", width = 5, background = "light-blue",
+                                  width = 5, background = "light-blue",
                                   "* QTLpoly analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -165,7 +171,7 @@ mod_qtl_view_ui <- function(id){
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "Breeding values",
                          column(12,
                                 box(
-                                  title = "Required inputs (*)", width = 5, background = "light-blue",
+                                  width = 5, background = "light-blue",
                                   "* QTLpoly analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
@@ -177,7 +183,7 @@ mod_qtl_view_ui <- function(id){
                      box(width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL summary",
                          column(12,
                                 box(
-                                  title = "Required inputs (*)", width = 5, background = "light-blue",
+                                  width = 5, background = "light-blue",
                                   "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
                                   "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
                                 )
