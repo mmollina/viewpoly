@@ -32,7 +32,7 @@ mod_genes_view_ui <- function(id){
           
           column(6,
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = "Select phenotypes",
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select phenotypes*",
                             pickerInput(ns("phenotypes"),
                                         label = h4("Phenotypes:"),
                                         choices = "This will be updated",
@@ -46,7 +46,7 @@ mod_genes_view_ui <- function(id){
                         ), br(),
                  ),
                  column(6,
-                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group",
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select linkage group*",
                             selectInput(inputId = ns("group"), label = p("Linkage group:"), choices = 1:15, selected = 1),
                         ), br(),
                  )
@@ -60,7 +60,7 @@ mod_genes_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = "QTL profile",
             column(12,
                    box(
-                     title = "Required inputs", width = 5, background = "light-blue",
+                     title = "Required inputs (*)", width = 5, background = "light-blue",
                      "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)"
                    )
             ), 
@@ -87,7 +87,7 @@ mod_genes_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Linkage Map position (cM) x Physical position (Mb)",
             column(12,
                    box(
-                     title = "Required inputs", width = 5, background = "light-blue",
+                     title = "Required inputs (*)", width = 5, background = "light-blue",
                      "* MAPpoly linkage map files or viewpoly object or example dataset (check `Input data` tab)", 
                    )
             ), 
@@ -114,7 +114,7 @@ mod_genes_view_ui <- function(id){
         box(width = 12, height = 1000, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "JBrowseR",
             column(12,
                    box(
-                     title = "Required inputs", width = 5, background = "light-blue",
+                     title = "Required inputs (*)", width = 5, background = "light-blue",
                      "* Reference genome FASTA (check `Input data` tab)"
                    )
             ), 
@@ -135,9 +135,9 @@ mod_genes_view_ui <- function(id){
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = "Annotation table",
             column(12,
                    box(
-                     title = "Required inputs", width = 5, background = "light-blue",
-                     "* QTL analysis files or viewpoly object or example dataset (check `Input data` tab)", br(),
-                     "* Selection of QTL/s (triangle/s at the bottom of QTL profile graphic)"
+                     title = "Required inputs (*)", width = 5, background = "light-blue",
+                     "* Reference genome FASTA (check `Input data` tab)", br(),
+                     "* Genome annotation GFF (check `Input data` tab)"
                    )
             ), 
             column(12,
