@@ -24,4 +24,3 @@ app$setInputs(`genes_view_ui_1-phenotypes` = c("PY06", "SG06", "DM06", "ST06", "
 app$snapshot(list(output = "genes_view_ui_1-plot_qtl"))
 app$setInputs(viewpoly = "map")
 app$snapshot(list(output = "map_view_ui_1-plot_qtl"))
-app$snapshot(list(output = "map_view_ui_1-parents_haplo"))
