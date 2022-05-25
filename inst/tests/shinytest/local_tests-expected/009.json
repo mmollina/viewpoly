@@ -14,42 +14,208 @@
 
       ]
     },
+    "genes_view_ui_1-annoID": 0,
     "genes_view_ui_1-bn_download_bttn": 0,
     "genes_view_ui_1-bn_download_phi_bttn": 0,
     "genes_view_ui_1-create_server": 0,
-    "genes_view_ui_1-exit": 0,
+    "genes_view_ui_1-dpi_phi": 300,
+    "genes_view_ui_1-dpi_profile": 300,
     "genes_view_ui_1-fformat": "png",
     "genes_view_ui_1-fformat_phi": "png",
     "genes_view_ui_1-goMap": 0,
     "genes_view_ui_1-goQTL": 0,
     "genes_view_ui_1-group": "5",
+    "genes_view_ui_1-height_phi": 120,
+    "genes_view_ui_1-height_profile": 120,
+    "genes_view_ui_1-jbrowserID": 0,
     "genes_view_ui_1-phenotypes": "PY06",
+    "genes_view_ui_1-phiID": 0,
+    "genes_view_ui_1-profileID": 0,
     "genes_view_ui_1-range": [
       19,
       39
     ],
     "genes_view_ui_1-reset_server": true,
+    "genes_view_ui_1-width_phi": 180,
+    "genes_view_ui_1-width_profile": 180,
     "map_view_ui_1-bn_download_bttn": 0,
     "map_view_ui_1-bn_download_map_bttn": 0,
     "map_view_ui_1-bn_download_summary_bttn": 0,
-    "map_view_ui_1-exit": 0,
+    "map_view_ui_1-dpi_map": 300,
+    "map_view_ui_1-dpi_profile": 300,
+    "map_view_ui_1-dpi_summary": 300,
     "map_view_ui_1-fformat": "png",
     "map_view_ui_1-fformat_map": "png",
     "map_view_ui_1-fformat_summary": "png",
     "map_view_ui_1-goGenes": 0,
     "map_view_ui_1-group": "5",
+    "map_view_ui_1-height_map": 120,
+    "map_view_ui_1-height_profile": 120,
+    "map_view_ui_1-height_summary": 120,
+    "map_view_ui_1-mapID": 0,
+    "map_view_ui_1-mapsummID": 0,
     "map_view_ui_1-op": true,
+    "map_view_ui_1-phaploID": 0,
     "map_view_ui_1-phenotypes": "PY06",
+    "map_view_ui_1-profileID": 0,
     "map_view_ui_1-range": [
       20,
       40
     ],
+    "map_view_ui_1-summary_cell_clicked": {
+
+    },
+    "map_view_ui_1-summary_cells_selected": [
+
+    ],
+    "map_view_ui_1-summary_columns_selected": null,
+    "map_view_ui_1-summary_rows_all": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "map_view_ui_1-summary_rows_current": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "map_view_ui_1-summary_rows_selected": null,
+    "map_view_ui_1-summary_search": "",
+    "map_view_ui_1-summary_state": {
+      "start": 0,
+      "length": 10,
+      "order": [
+
+      ],
+      "search": {
+        "search": "",
+        "smart": true,
+        "regex": false,
+        "caseInsensitive": true
+      },
+      "columns": [
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        },
+        {
+          "visible": true,
+          "search": {
+            "search": "",
+            "smart": true,
+            "regex": false,
+            "caseInsensitive": true
+          }
+        }
+      ]
+    },
+    "map_view_ui_1-width_map": 180,
+    "map_view_ui_1-width_profile": 180,
+    "map_view_ui_1-width_summary": 180,
     "plotly_afterplot-A": "\"genes_view_ui_1-plot_pos\"",
     "qtl_view_ui_1-bn_download_bttn": 0,
     "qtl_view_ui_1-bn_download_effects_bttn": 0,
     "qtl_view_ui_1-bn_download_haplo_bttn": 0,
+    "qtl_view_ui_1-breeID": 0,
+    "qtl_view_ui_1-dpi_effects": 300,
+    "qtl_view_ui_1-dpi_haplo": 300,
+    "qtl_view_ui_1-dpi_profile": 300,
     "qtl_view_ui_1-effects_design": "bar",
-    "qtl_view_ui_1-exit": 0,
+    "qtl_view_ui_1-effectsID": 0,
     "qtl_view_ui_1-fformat": "png",
     "qtl_view_ui_1-fformat_effects": "png",
     "qtl_view_ui_1-fformat_haplo": "png",
@@ -62,6 +228,10 @@
     "qtl_view_ui_1-haplo": null,
     "qtl_view_ui_1-haplo_submit": 1,
     "qtl_view_ui_1-haplo_update": 1,
+    "qtl_view_ui_1-haploID": 0,
+    "qtl_view_ui_1-height_effects": 120,
+    "qtl_view_ui_1-height_haplo": 120,
+    "qtl_view_ui_1-height_profile": 120,
     "qtl_view_ui_1-phenotypes": [
       "PY06",
       "SG06",
@@ -92,6 +262,11 @@
       "NI14"
     ],
     "qtl_view_ui_1-plot_click": null,
+    "qtl_view_ui_1-profileID": 0,
+    "qtl_view_ui_1-summaryID": 0,
+    "qtl_view_ui_1-width_effects": 180,
+    "qtl_view_ui_1-width_haplo": 180,
+    "qtl_view_ui_1-width_profile": 180,
     "sidebarCollapsed": true,
     "sidebarItemExpanded": null,
     "upload_ui_1-align": null,
@@ -103,37 +278,48 @@
     "upload_ui_1-diaQTL_fitQTL": null,
     "upload_ui_1-diaQTL_scan1": null,
     "upload_ui_1-diaQTL_scan1.summaries": null,
+    "upload_ui_1-diaqtlID": 0,
     "upload_ui_1-dosages": null,
     "upload_ui_1-downloadType_map": "dosages",
     "upload_ui_1-downloadType_qtl": "selected_mks",
     "upload_ui_1-effects": null,
     "upload_ui_1-example_map": "tetra_map",
-    "upload_ui_1-exit": 0,
+    "upload_ui_1-exampleID": 0,
     "upload_ui_1-export_viewpoly_bttn": 0,
     "upload_ui_1-fasta": null,
     "upload_ui_1-fasta_server": "",
     "upload_ui_1-genetic_map": null,
+    "upload_ui_1-genomeID": 0,
     "upload_ui_1-gff3": null,
     "upload_ui_1-gff3_server": "",
     "upload_ui_1-goAbout": 0,
     "upload_ui_1-goQTL": 0,
     "upload_ui_1-input.type": "discrete",
+    "upload_ui_1-mapID": 0,
     "upload_ui_1-mappoly_in": null,
+    "upload_ui_1-mappolyID": 0,
+    "upload_ui_1-mapstID": 0,
     "upload_ui_1-mks.pos": null,
     "upload_ui_1-phases": null,
     "upload_ui_1-ploidy": "4",
+    "upload_ui_1-polymapID": 0,
     "upload_ui_1-polymapR.dataset": null,
     "upload_ui_1-polymapR.map": null,
-    "upload_ui_1-polyqtlR_QTLscan_list": null,
+    "upload_ui_1-polyqtlID": 0,
     "upload_ui_1-polyqtlR_effects": null,
     "upload_ui_1-polyqtlR_qtl_info": null,
+    "upload_ui_1-polyqtlR_QTLscan_list": null,
     "upload_ui_1-probs": null,
     "upload_ui_1-profile": null,
     "upload_ui_1-qtl_info": null,
+    "upload_ui_1-qtlID": 0,
     "upload_ui_1-qtlpoly_data": null,
     "upload_ui_1-qtlpoly_est.effects": null,
     "upload_ui_1-qtlpoly_fitted.mod": null,
     "upload_ui_1-qtlpoly_remim.mod": null,
+    "upload_ui_1-qtlpolyID": 0,
+    "upload_ui_1-qtlstID": 0,
+    "upload_ui_1-reset_all": 0,
     "upload_ui_1-reset_genome": 0,
     "upload_ui_1-reset_map": 0,
     "upload_ui_1-reset_qtl": 0,
@@ -152,6 +338,8 @@
     "upload_ui_1-vcf_server": "",
     "upload_ui_1-viewpoly_env": null,
     "upload_ui_1-viewpoly_input": null,
+    "upload_ui_1-viewpolyID": 0,
+    "upload_ui_1-viewpolyupID": 0,
     "upload_ui_1-wig": null,
     "upload_ui_1-wig_server": "",
     "viewpoly": "map"
@@ -1344,7 +1532,16 @@
             }
           },
           "hovermode": "closest",
-          "barmode": "relative"
+          "barmode": "relative",
+          "modebar": {
+            "remove": [
+              "toImage",
+              "hovercompare",
+              "hoverCompareCartesian"
+            ]
+          },
+          "clickmode": "none",
+          "dragmode": false
         },
         "config": {
           "doubleClick": "reset",
@@ -1474,6 +1671,41 @@
 
       ]
     },
+    "map_view_ui_1-map_summary": {
+      "src": "[image data sha1: 49e25b662814a365bbf6bbddc2911017a6eef236]",
+      "width": 790,
+      "height": 400,
+      "alt": "Plot object",
+      "coordmap": {
+        "panels": [
+          {
+            "domain": {
+              "left": -8.23503014948764,
+              "right": 214.110783886679,
+              "bottom": -0.52,
+              "top": 13.52
+            },
+            "range": {
+              "left": 59.0400074734187,
+              "right": 759.759996172151,
+              "bottom": 325.559981639995,
+              "top": 58.0400147600037
+            },
+            "log": {
+              "x": null,
+              "y": null
+            },
+            "mapping": {
+
+            }
+          }
+        ],
+        "dims": {
+          "width": 790,
+          "height": 400
+        }
+      }
+    },
     "map_view_ui_1-plot_map": {
       "src": "[image data sha1: 72648ef4f9809a6a2392919f3f1586865bd12612]",
       "width": 790,
@@ -1508,6 +1740,295 @@
           "height": 500
         }
       }
+    },
+    "map_view_ui_1-summary": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "extensions": [
+          "Buttons"
+        ],
+        "data": [
+          [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13"
+          ],
+          [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "Total"
+          ],
+          [
+            "ST4.03ch01",
+            "ST4.03ch02",
+            "ST4.03ch03",
+            "ST4.03ch04",
+            "ST4.03ch05",
+            "ST4.03ch06",
+            "ST4.03ch07",
+            "ST4.03ch08",
+            "ST4.03ch09",
+            "ST4.03ch10",
+            "ST4.03ch11",
+            "ST4.03ch12",
+            null
+          ],
+          [
+            "205.88",
+            "125.11",
+            "134.07",
+            "165.9",
+            "106.2",
+            "142.7",
+            "126.09",
+            "136.68",
+            "144.49",
+            "114.67",
+            "110.66",
+            "117.54",
+            "1629.99"
+          ],
+          [
+            "2.31",
+            "3.44",
+            "2.85",
+            "2.56",
+            "2.93",
+            "2.78",
+            "3.28",
+            "2.5",
+            "2.46",
+            "1.81",
+            "2.89",
+            "1.91",
+            "2.64"
+          ],
+          [
+            "102",
+            "131",
+            "151",
+            "114",
+            "124",
+            "73",
+            "136",
+            "61",
+            "76",
+            "47",
+            "95",
+            "115",
+            "1225"
+          ],
+          [
+            "122",
+            "139",
+            "21",
+            "87",
+            "53",
+            "75",
+            "94",
+            "98",
+            "101",
+            "36",
+            "52",
+            "32",
+            "910"
+          ],
+          [
+            "252",
+            "160",
+            "210",
+            "224",
+            "134",
+            "249",
+            "184",
+            "183",
+            "179",
+            "124",
+            "173",
+            "78",
+            "2150"
+          ],
+          [
+            "476",
+            "430",
+            "382",
+            "425",
+            "311",
+            "397",
+            "414",
+            "342",
+            "356",
+            "207",
+            "320",
+            "225",
+            "4285"
+          ],
+          [
+            "9.01",
+            "4.9",
+            "9.09",
+            "5.74",
+            "4.22",
+            "3.83",
+            "5.65",
+            "7.32",
+            "7.79",
+            "5.27",
+            "5.41",
+            "6.09",
+            "6.19"
+          ]
+        ],
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>LG<\/th>\n      <th>Genomic sequence<\/th>\n      <th>Map length (cM)<\/th>\n      <th>Markers/cM<\/th>\n      <th>Simplex<\/th>\n      <th>Double-simplex<\/th>\n      <th>Multiplex<\/th>\n      <th>Total<\/th>\n      <th>Max gap<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "Bfrtlp",
+          "buttons": [
+            "copy",
+            "csv",
+            "excel",
+            "pdf"
+          ],
+          "columnDefs": [
+            {
+              "orderable": false,
+              "targets": 0
+            }
+          ],
+          "order": [
+
+          ],
+          "autoWidth": false,
+          "orderClasses": false
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.11.3",
+          "src": {
+            "href": "dt-core-1.11.3"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "jszip",
+          "version": "1.11.3",
+          "src": {
+            "href": "jszip-1.11.3"
+          },
+          "meta": null,
+          "script": "jszip.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "pdfmake",
+          "version": "1.11.3",
+          "src": {
+            "href": "pdfmake-1.11.3"
+          },
+          "meta": null,
+          "script": [
+            "pdfmake.js",
+            "vfs_fonts.js"
+          ],
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "dt-ext-buttons",
+          "version": "1.11.3",
+          "src": {
+            "href": "dt-ext-buttons-1.11.3"
+          },
+          "meta": null,
+          "script": [
+            "js/dataTables.buttons.min.js",
+            "js/buttons.html5.min.js",
+            "js/buttons.colVis.min.js",
+            "js/buttons.print.min.js"
+          ],
+          "stylesheet": "css/buttons.dataTables.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.0",
+          "src": {
+            "href": "crosstalk-1.2.0"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
     },
     "qtl_view_ui_1-plot_qtl": {
       "src": "[image data sha1: 3fe530a201b3033034949e291fa9a1eb91d67a8b]",

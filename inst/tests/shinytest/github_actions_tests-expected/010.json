@@ -1,5 +1,293 @@
 {
   "output": {
+    "map_view_ui_1-summary": {
+      "x": {
+        "filter": "none",
+        "vertical": false,
+        "extensions": [
+          "Buttons"
+        ],
+        "data": [
+          [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13"
+          ],
+          [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "Total"
+          ],
+          [
+            "ST4.03ch01",
+            "ST4.03ch02",
+            "ST4.03ch03",
+            "ST4.03ch04",
+            "ST4.03ch05",
+            "ST4.03ch06",
+            "ST4.03ch07",
+            "ST4.03ch08",
+            "ST4.03ch09",
+            "ST4.03ch10",
+            "ST4.03ch11",
+            "ST4.03ch12",
+            null
+          ],
+          [
+            "205.88",
+            "125.11",
+            "134.07",
+            "165.9",
+            "106.2",
+            "142.7",
+            "126.09",
+            "136.68",
+            "144.49",
+            "114.67",
+            "110.66",
+            "117.54",
+            "1629.99"
+          ],
+          [
+            "2.31",
+            "3.44",
+            "2.85",
+            "2.56",
+            "2.93",
+            "2.78",
+            "3.28",
+            "2.5",
+            "2.46",
+            "1.81",
+            "2.89",
+            "1.91",
+            "2.64"
+          ],
+          [
+            "102",
+            "131",
+            "151",
+            "114",
+            "124",
+            "73",
+            "136",
+            "61",
+            "76",
+            "47",
+            "95",
+            "115",
+            "1225"
+          ],
+          [
+            "122",
+            "139",
+            "21",
+            "87",
+            "53",
+            "75",
+            "94",
+            "98",
+            "101",
+            "36",
+            "52",
+            "32",
+            "910"
+          ],
+          [
+            "252",
+            "160",
+            "210",
+            "224",
+            "134",
+            "249",
+            "184",
+            "183",
+            "179",
+            "124",
+            "173",
+            "78",
+            "2150"
+          ],
+          [
+            "476",
+            "430",
+            "382",
+            "425",
+            "311",
+            "397",
+            "414",
+            "342",
+            "356",
+            "207",
+            "320",
+            "225",
+            "4285"
+          ],
+          [
+            "9.01",
+            "4.9",
+            "9.09",
+            "5.74",
+            "4.22",
+            "3.83",
+            "5.65",
+            "7.32",
+            "7.79",
+            "5.27",
+            "5.41",
+            "6.09",
+            "6.19"
+          ]
+        ],
+        "container": "<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>LG<\/th>\n      <th>Genomic sequence<\/th>\n      <th>Map length (cM)<\/th>\n      <th>Markers/cM<\/th>\n      <th>Simplex<\/th>\n      <th>Double-simplex<\/th>\n      <th>Multiplex<\/th>\n      <th>Total<\/th>\n      <th>Max gap<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>",
+        "options": {
+          "dom": "Bfrtlp",
+          "buttons": [
+            "copy",
+            "csv",
+            "excel",
+            "pdf"
+          ],
+          "columnDefs": [
+            {
+              "orderable": false,
+              "targets": 0
+            }
+          ],
+          "order": [
 
+          ],
+          "autoWidth": false,
+          "orderClasses": false
+        },
+        "selection": {
+          "mode": "multiple",
+          "selected": null,
+          "target": "row",
+          "selectable": null
+        }
+      },
+      "evals": [
+
+      ],
+      "jsHooks": [
+
+      ],
+      "deps": [
+        {
+          "name": "jquery",
+          "version": "3.6.0",
+          "src": {
+            "href": "jquery-3.6.0"
+          },
+          "meta": null,
+          "script": "jquery-3.6.0.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        },
+        {
+          "name": "dt-core",
+          "version": "1.11.3",
+          "src": {
+            "href": "dt-core-1.11.3"
+          },
+          "meta": null,
+          "script": "js/jquery.dataTables.min.js",
+          "stylesheet": [
+            "css/jquery.dataTables.min.css",
+            "css/jquery.dataTables.extra.css"
+          ],
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "jszip",
+          "version": "1.11.3",
+          "src": {
+            "href": "jszip-1.11.3"
+          },
+          "meta": null,
+          "script": "jszip.min.js",
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "pdfmake",
+          "version": "1.11.3",
+          "src": {
+            "href": "pdfmake-1.11.3"
+          },
+          "meta": null,
+          "script": [
+            "pdfmake.js",
+            "vfs_fonts.js"
+          ],
+          "stylesheet": null,
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "dt-ext-buttons",
+          "version": "1.11.3",
+          "src": {
+            "href": "dt-ext-buttons-1.11.3"
+          },
+          "meta": null,
+          "script": [
+            "js/dataTables.buttons.min.js",
+            "js/buttons.html5.min.js",
+            "js/buttons.colVis.min.js",
+            "js/buttons.print.min.js"
+          ],
+          "stylesheet": "css/buttons.dataTables.min.css",
+          "head": null,
+          "attachment": null,
+          "package": null,
+          "all_files": false
+        },
+        {
+          "name": "crosstalk",
+          "version": "1.2.0",
+          "src": {
+            "href": "crosstalk-1.2.0"
+          },
+          "meta": null,
+          "script": "js/crosstalk.min.js",
+          "stylesheet": "css/crosstalk.min.css",
+          "head": null,
+          "attachment": null,
+          "all_files": true
+        }
+      ]
+    }
   }
 }

@@ -116,7 +116,7 @@ mod_map_view_ui <- function(id){
             column(12,
                    hr(),
                    plotOutput(ns("plot_map"), height = "500px"), br(),
-                   includeHTML("www/include.html"), br(), br(),
+                   includeHTML(system.file(package = "viewpoly", "ext/include.html")), br(), br(),
                    box(id = ns("box_phaplo"),width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("phaploID"), label = "Parents haplotypes table"),
                        DT::dataTableOutput(ns("parents_haplo"))
                    )

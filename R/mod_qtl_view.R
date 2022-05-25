@@ -246,10 +246,13 @@ mod_qtl_view_server <- function(input, output, session,
       group_choices <- as.list("Upload map or QTL data in `upload` session.")
       names(group_choices) <-  "Upload map or QTL data in `upload` session."
     }
+    
+    if(length(group_choices) < 5) the_choice <- group_choices[[1]] else the_choice <- group_choices[[5]]
+    
     updatePickerInput(session, "group",
                       label="Linkage group/s:",
                       choices = group_choices,
-                      selected= group_choices[[1]])
+                      selected= the_choice)
     
     
     # Dynamic QTL
