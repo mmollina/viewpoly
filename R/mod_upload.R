@@ -500,12 +500,25 @@ mod_upload_server <- function(input, output, session, parent_session){
     } else if (values$upload_state_map == 'reset') {
       return(NULL)
     } else if(values$upload_state_mappoly == "uploaded"){
+      validate(
+        need(!is.null(input$mappoly_in), "Upload mappoly file before submit")
+      )
       return(list(mappoly_in = input$mappoly_in))
     } else if(values$upload_state_polymapR == "uploaded"){
+      validate(
+        need(!is.null(input$polymapR.dataset), "Upload polymapR dataset file before submit"),
+        need(!is.null(input$polymapR.map), "Upload polymapR map file before submit")
+      )
       return(list(polymapR.dataset = input$polymapR.dataset,
                   polymapR.map = input$polymapR.map, 
-                  input.type = input$input.type, ploidy = as.numeric(input$ploidy)))
+                  input.type = input$input.type, 
+                  ploidy = as.numeric(input$ploidy)))
     } else if(values$upload_state_map_custom == "uploaded"){
+      validate(
+        need(!is.null(input$dosages), "Upload custom dosages file before submit"),
+        need(!is.null(input$phases), "Upload custom phases file before submit"),
+        need(!is.null(input$genetic_map), "Upload custom genetic map file before submit")
+      )
       return(list(dosages = input$dosages,
                   phases = input$phases,
                   genetic_map = input$genetic_map))
@@ -522,6 +535,15 @@ mod_upload_server <- function(input, output, session, parent_session){
     } else if (values$upload_state_qtl == 'reset') {
       return(NULL)
     } else if(values$upload_state_qtl_custom == "uploaded"){
+      validate(
+        need(!is.null(input$dosages), "Upload custom selected markers file before submit"),
+        need(!is.null(input$phases), "Upload custom QTL info file before submit"),
+        need(!is.null(input$blups), "Upload custom BLUPs file before submit"),
+        need(!is.null(input$beta.hat), "Upload custom beta hat file before submit"),
+        need(!is.null(input$profile), "Upload custom QTL profile file before submit"),
+        need(!is.null(input$effects), "Upload custom effects file before submit"),
+        need(!is.null(input$probs), "Upload custom genotype probabilities file before submit")
+      )
       return(list(selected_mks = input$selected_mks,
                   qtl_info = input$qtl_info,
                   blups = input$blups,
@@ -530,12 +552,25 @@ mod_upload_server <- function(input, output, session, parent_session){
                   effects = input$effects,
                   probs = input$probs))
     } else if(values$upload_state_qtlpoly == "uploaded"){
+      validate(
+        need(!is.null(input$qtlpoly_data), "Upload QTLpoly data file before submit"),
+        need(!is.null(input$qtlpoly_remim.mod), "Upload QTLpoly remim.mod file before submit"),
+        need(!is.null(input$qtlpoly_est.effects), "Upload QTLpoly estimated effects file before submit"),
+        need(!is.null(input$qtlpoly_fitted.mod), "Upload QTLpoly fitted.mod file before submit")
+      )
       return(list(
         qtlpoly_data = input$qtlpoly_data,
         qtlpoly_remim.mod = input$qtlpoly_remim.mod,
         qtlpoly_est.effects = input$qtlpoly_est.effects,
         qtlpoly_fitted.mod = input$qtlpoly_fitted.mod))
     } else if(values$upload_state_diaQTL == "uploaded"){
+      validate(
+        need(!is.null(input$qtlpoly_data), "Upload diaQTL data file before submit"),
+        need(!is.null(input$qtlpoly_remim.mod), "Upload diaQTL scan1 file before submit"),
+        need(!is.null(input$qtlpoly_est.effects), "Upload diaQTL scan1.summaries file before submit"),
+        need(!is.null(input$qtlpoly_fitted.mod), "Upload diaQTL fitQTL file before submit"),
+        need(!is.null(input$qtlpoly_fitted.mod), "Upload diaQTL BayesCI file before submit")
+      )
       return(list(
         diaQTL_data = input$diaQTL_data,
         diaQTL_scan1 = input$diaQTL_scan1,
@@ -544,6 +579,11 @@ mod_upload_server <- function(input, output, session, parent_session){
         diaQTL_BayesCI = input$diaQTL_BayesCI
       ))
     } else if(values$upload_state_polyqtlR == "uploaded"){
+      validate(
+        need(!is.null(input$qtlpoly_data), "Upload polyqtlR scan list file before submit"),
+        need(!is.null(input$qtlpoly_remim.mod), "Upload polyqtlR QTL info file before submit"),
+        need(!is.null(input$qtlpoly_est.effects), "Upload polyqtlR estimated effects file before submit")
+      )
       return(list(
         polyqtlR_QTLscan_list = input$polyqtlR_QTLscan_list,
         polyqtlR_qtl_info = input$polyqtlR_qtl_info,
@@ -560,6 +600,9 @@ mod_upload_server <- function(input, output, session, parent_session){
       } else if (values$upload_state_genome == 'reset') {
         return(NULL)
       } else if(values$upload_state_genome == "uploaded"){
+        validate(
+          need(!is.null(input$fasta), "Upload reference genome (FASTA) file before submit.")
+        )
         return(list(fasta = input$fasta,
                     fasta_server = input$fasta_server,
                     gff3 = input$gff3,
@@ -626,6 +669,10 @@ mod_upload_server <- function(input, output, session, parent_session){
       } else if (values$upload_state_viewpoly == 'reset') {
         return(NULL)
       } else if(values$upload_state_viewpoly == "uploaded"){
+        validate(
+          need(!is.null(input$viewpoly_input) | !is.null(input$viewpoly_env), 
+               "Upload a viewpoly dataset or select one available in your R environment before submit.")
+        )
         if(!is.null(input$viewpoly_input)){
           temp <- load(input$viewpoly_input$datapath)
           viewpoly.obj <- get(temp)

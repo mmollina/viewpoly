@@ -25,7 +25,7 @@ mod_map_view_ui <- function(id){
           column(width = 12,
                  div(style = "position:absolute;right:1em;", 
                      div(
-                         actionButton(ns("goGenes"), "Go to Genome",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"))
+                       actionButton(ns("goGenes"), "Go to Genome",icon("arrow-circle-left", verify_fa = FALSE), class = "btn btn-primary"))
                  )
           ),
           tags$h2(tags$b("VIEWmap")), br(), hr(),
@@ -122,7 +122,7 @@ mod_map_view_ui <- function(id){
                    )
             )
         ),
-        box(id = ns("box_mapsumm"), width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("mapsummID"), label = "Map summary"),
+        box(id = ns("box_mapsumm"), width = 12, solidHeader = TRUE, collapsible = TRUE,  collapsed = FALSE, status="primary", title = actionLink(inputId = ns("mapsummID"), label = "Map summary"),
             column(12,
                    box(
                      width = 5, background = "light-blue",
@@ -186,7 +186,7 @@ mod_map_view_server <- function(input, output, session,
   observeEvent(input$phaploID, {
     js$collapse(ns("box_phaplo"))
   })
-
+  
   observeEvent(input$goGenes, {
     updateTabsetPanel(session = parent_session, inputId = "viewpoly",
                       selected = "genes")
@@ -304,102 +304,101 @@ mod_map_view_server <- function(input, output, session,
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
-    if(!is.null(loadQTL())){
-      idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-      pl <- plot_profile(profile = loadQTL()$profile, 
-                         qtl_info = loadQTL()$qtl_info, 
-                         selected_mks = loadQTL()$selected_mks,
-                         pheno.col = idx,
-                         lgs.id = as.numeric(input$group),
-                         range.min = input$range[1],
-                         range.max = input$range[2], by_range=T)
-      
-      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait", "Position (cM)")) %>% 
-        layout(legend = list(orientation = 'h', y = -0.3), 
-               modebar = list(
-                 remove = c("toImage", 
-                            "hovercompare", 
-                            "hoverCompareCartesian")),
-               clickmode ="none",
-               dragmode = FALSE)
-    } else 
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+    validate(
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature.")
+    )
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+    pl <- plot_profile(profile = loadQTL()$profile, 
+                       qtl_info = loadQTL()$qtl_info, 
+                       selected_mks = loadQTL()$selected_mks,
+                       pheno.col = idx,
+                       lgs.id = as.numeric(input$group),
+                       range.min = input$range[1],
+                       range.max = input$range[2], by_range=T)
+    
+    ggplotly(source = "qtl_profile", pl, tooltip=c("Trait", "Position (cM)")) %>% 
+      layout(legend = list(orientation = 'h', y = -0.3), 
+             modebar = list(
+               remove = c("toImage", 
+                          "hovercompare", 
+                          "hoverCompareCartesian")),
+             clickmode ="none",
+             dragmode = FALSE)
   })
   
   # Plot map
   output$plot_map <- renderPlot({
-    if(!is.null(loadMap()$ph.p1)) {
-      maps <- lapply(loadMap()$maps, function(x) {
-        y <- x$l.dist
-        names(y) <- x$mk.names
-        y
-      })
-      draw_map_shiny(left.lim = input$range[1], 
-                     right.lim = input$range[2], 
-                     ch = input$group,
-                     d.p1 = loadMap()$d.p1,
-                     d.p2 = loadMap()$d.p2, 
-                     maps = maps, 
-                     ph.p1 = loadMap()$ph.p1, 
-                     ph.p2 = loadMap()$ph.p2,
-                     snp.names = input$op)
-      
-      max_updated = reactive({
-        map_summary(left.lim = input$range[1], right.lim = input$range[2], 
-                    ch = input$group, maps = maps, 
-                    d.p1 = loadMap()$d.p1, 
-                    d.p2 = loadMap()$d.p2)[[5]]
-      })
-      
-      observeEvent(max_updated, {
-        updateSliderInput(inputId = "range", max = round(max_updated(),2))
-      })
-    } else 
-      stop(safeError("Upload map information in the upload session to access this feature."))
+    validate(
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
+    )
+    maps <- lapply(loadMap()$maps, function(x) {
+      y <- x$l.dist
+      names(y) <- x$mk.names
+      y
+    })
+    draw_map_shiny(left.lim = input$range[1], 
+                   right.lim = input$range[2], 
+                   ch = input$group,
+                   d.p1 = loadMap()$d.p1,
+                   d.p2 = loadMap()$d.p2, 
+                   maps = maps, 
+                   ph.p1 = loadMap()$ph.p1, 
+                   ph.p2 = loadMap()$ph.p2,
+                   snp.names = input$op)
+    
+    max_updated = reactive({
+      map_summary(left.lim = input$range[1], right.lim = input$range[2], 
+                  ch = input$group, maps = maps, 
+                  d.p1 = loadMap()$d.p1, 
+                  d.p2 = loadMap()$d.p2)[[5]]
+    })
+    
+    observeEvent(max_updated, {
+      updateSliderInput(inputId = "range", max = round(max_updated(),2))
+    })
   })
   
   output$parents_haplo  <- DT::renderDataTable(server = FALSE, {
-    if(!is.null(loadMap()$ph.p1)) {
-      group <- as.numeric(input$group)
-      mks<- loadMap()$maps[[group]]
-      mks <- mks[order(mks$l.dist),]
-      mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
-      p1 <- loadMap()$ph.p1[[group]][mks.range,]
-      #colnames(p1) <- paste0("p1.",1:dim(p1)[2])
-      p2 <- loadMap()$ph.p2[[group]][mks.range,]
-      #colnames(p2) <- paste0("p2.",1:dim(p2)[2])
-      p.haplo <- cbind(p1,p2)
-      
-      DT::datatable(p.haplo, extensions = 'Buttons', 
-                    options = list(
-                      dom = 'Bfrtlp',
-                      buttons = c('copy', 'csv', 'excel', 'pdf')
-                    ),
-                    class = "display")
-    } else 
-      stop(safeError("Upload map information in the upload session to access this feature."))
+    validate(
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
+    )
+    group <- as.numeric(input$group)
+    mks<- loadMap()$maps[[group]]
+    mks <- mks[order(mks$l.dist),]
+    mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+    p1 <- loadMap()$ph.p1[[group]][mks.range,]
+    #colnames(p1) <- paste0("p1.",1:dim(p1)[2])
+    p2 <- loadMap()$ph.p2[[group]][mks.range,]
+    #colnames(p2) <- paste0("p2.",1:dim(p2)[2])
+    p.haplo <- cbind(p1,p2)
+    
+    DT::datatable(p.haplo, extensions = 'Buttons', 
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf')
+                  ),
+                  class = "display")
   })
   
   # Map summary
   output$summary  <- DT::renderDataTable(server = FALSE, {
-    if(!is.null(loadMap()$ph.p1)) {
-      summary <- summary_maps(loadMap())
-      
-      DT::datatable(summary, extensions = 'Buttons', 
-                    options = list(
-                      dom = 'Bfrtlp',
-                      buttons = c('copy', 'csv', 'excel', 'pdf') 
-                    ),
-                    class = "display")
-    } else 
-      stop(safeError("Upload map information in the upload session to access this feature."))
+    validate(
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
+    )
+    summary <- summary_maps(loadMap())
+    DT::datatable(summary, extensions = 'Buttons', 
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf') 
+                  ),
+                  class = "display")
   })
   
   output$map_summary <- renderPlot({
-    if(!is.null(loadMap()$ph.p1)) {
-      plot_map_list(loadMap())
-    } else 
-      stop(safeError("Upload map information in the upload session to access this feature."))
+    validate(
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
+    )
+    plot_map_list(loadMap())
   })
   
   ### Downloads

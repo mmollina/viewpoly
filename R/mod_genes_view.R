@@ -313,34 +313,33 @@ mod_genes_view_server <- function(input, output, session,
   
   # Plot QTL profile
   output$plot_qtl <- renderPlotly({
-    if(!is.null(loadQTL())){
-      idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-      pl <- plot_profile(profile = loadQTL()$profile, qtl_info = loadQTL()$qtl_info, selected_mks = loadQTL()$selected_mks,
-                         pheno.col = idx,
-                         lgs.id = as.numeric(input$group),
-                         range.min = input$range[1],
-                         range.max = input$range[2], 
-                         by_range=T, 
-                         software = loadQTL()$software)
-      ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% 
-        layout(legend = list(orientation = 'h', y = -0.3), 
-               modebar = list(
-                 remove = c("toImage", 
-                            "hovercompare", 
-                            "hoverCompareCartesian")),
-               clickmode ="none",
-               dragmode = FALSE)
-    } else 
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+    validate(
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature.")
+    )
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+    pl <- plot_profile(profile = loadQTL()$profile, qtl_info = loadQTL()$qtl_info, selected_mks = loadQTL()$selected_mks,
+                       pheno.col = idx,
+                       lgs.id = as.numeric(input$group),
+                       range.min = input$range[1],
+                       range.max = input$range[2], 
+                       by_range=T, 
+                       software = loadQTL()$software)
+    ggplotly(source = "qtl_profile", pl, tooltip=c("Trait","Position (cM)")) %>% 
+      layout(legend = list(orientation = 'h', y = -0.3), 
+             modebar = list(
+               remove = c("toImage", 
+                          "hovercompare", 
+                          "hoverCompareCartesian")),
+             clickmode ="none",
+             dragmode = FALSE)
   })
   
   # cM x Mb
   output$plot_pos <- renderPlotly({
-    if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop(safeError("Feature not implemented for software polymapR."))
-    
-    if(is.null(loadMap()$ph.p1)) stop(safeError("Upload map information in the upload session to access this feature."))
-    
+    validate(
+      need(!(!is.null(loadMap()) & loadMap()$software == "polymapR"), "Feature not implemented for software polymapR."),
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
+    )
     p <- plot_cm_mb(loadMap(), input$group, input$range[1], input$range[2])
     
     max_updated = reactive({
@@ -402,32 +401,32 @@ mod_genes_view_server <- function(input, output, session,
       } else path.wig <- NULL
     } else path.wig <- NULL
     
-    if(is.null(loadJBrowse_fasta()) & !is.null(loadExample())){
-      path.fa <- loadExample()$fasta
-      path.gff <- loadExample()$gff3
-      
-      ext.list <- strsplit(c(loadExample()$fasta,loadExample()$gff3), "[.]")
-      
-      ext <- sapply(ext.list, function(x) {
-        if(x[length(x)] == "gz") paste0(x[length(x)-1], ".",x[length(x)])
-      })
-      
-      # fasta.dir <- paste0(tempfile(),".", ext[1])
-      # download.file(loadExample()$fasta, destfile = fasta.dir)
-      # download.file(paste0(loadExample()$fasta, ".fai"), destfile = paste0(fasta.dir, ".fai"))
-      # path.fa <- fasta.dir
-      
-      gff.dir <- paste0(tempfile(),".", ext[2])
-      download.file(loadExample()$gff3, destfile = gff.dir)
-      #path.gff <- gff.dir
-      
-      gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
-      # Add other tracks
-      # variants_track <- track_variant()
-      # alignments_track <- track_alignments()
-    } else if(is.null(loadJBrowse_fasta())){
-      stop(safeError("Upload the genome information in upload session to access this feature."))
-    }
+    validate(
+      need(is.null(loadJBrowse_fasta()) & !is.null(loadExample()), "Upload the genome information in upload session to access this feature.")
+    )
+    
+    path.fa <- loadExample()$fasta
+    path.gff <- loadExample()$gff3
+    
+    ext.list <- strsplit(c(loadExample()$fasta,loadExample()$gff3), "[.]")
+    
+    ext <- sapply(ext.list, function(x) {
+      if(x[length(x)] == "gz") paste0(x[length(x)-1], ".",x[length(x)])
+    })
+    
+    # fasta.dir <- paste0(tempfile(),".", ext[1])
+    # download.file(loadExample()$fasta, destfile = fasta.dir)
+    # download.file(paste0(loadExample()$fasta, ".fai"), destfile = paste0(fasta.dir, ".fai"))
+    # path.fa <- fasta.dir
+    
+    gff.dir <- paste0(tempfile(),".", ext[2])
+    download.file(loadExample()$gff3, destfile = gff.dir)
+    #path.gff <- gff.dir
+    
+    gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
+    # Add other tracks
+    # variants_track <- track_variant()
+    # alignments_track <- track_alignments()
     
     if(!grepl("^http", path.fa)){
       data_server <- serve_data(dirname(path.fa), port = 5000)
@@ -458,10 +457,10 @@ mod_genes_view_server <- function(input, output, session,
   output$browserOutput <- renderJBrowseR({
     if(reset()) stop(safeError("The server is off, you can now submit new files in the upload tab."))
     
-    if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop(safeError("Feature not implemented for software polymapR."))
-    
-    if(is.null(loadMap()$ph.p1)) stop(safeError("Upload map information in the upload session to access this feature."))
+    validate(
+      need(!(!is.null(loadMap()) & loadMap()$software == "polymapR"), "Feature not implemented for software polymapR."),
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.") 
+    )
     
     if(!grepl("^http", button()$path.fa)){
       assembly <- assembly(
@@ -543,7 +542,9 @@ mod_genes_view_server <- function(input, output, session,
     mks.range.1 <- mks$g.dist[mks.range[1]]
     mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
     
-    if(mks.range.1 > mks.range.2) stop(safeError("Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`"))
+    validate(
+      need(mks.range.1 < mks.range.2, "Inverted region. Check graphic `Genomic position (bp) x Linkage Map position (cM)`")
+    )
     
     tracks_set <- c(annotations_track, vcf_track, align_track, wiggle_track)
     
@@ -572,29 +573,27 @@ mod_genes_view_server <- function(input, output, session,
   })
   
   output$genes_ano  <- DT::renderDataTable(server = FALSE, {
-    if(!is.null(loadMap()))
-      if(loadMap()$software == "polymapR") stop(safeError("Feature not implemented for software polymapR."))    
+    validate(
+      need(!(!is.null(loadMap()) & loadMap()$software == "polymapR"), "Feature not implemented for software polymapR."),
+      need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature."),
+      need(!is.null(button()$gff), "Upload annotation file (.gff3) in the upload session to access this feature.")
+    )
     
-    if(is.null(loadMap()$ph.p1)) stop(safeError("Upload map information in the upload session to access this feature."))
-    
-    if(!is.null(button()$gff)) {
-      group <- as.numeric(input$group)
-      mks<- loadMap()$maps[[group]]
-      mks <- mks[order(mks$l.dist),]
-      mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
-      mks.range.1 <- mks$g.dist[mks.range[1]]
-      mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
-      df <- button()$gff
-      colnames(df) <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase", "attributes")
-      df <- df %>% filter(seqid == unique(mks$g.chr) & start > mks.range.1 & end < mks.range.2)
-      DT::datatable(df, extensions = 'Buttons',
-                    options = list(
-                      dom = 'Bfrtlp',
-                      buttons = c('copy', 'csv', 'excel', 'pdf')
-                    ),
-                    class = "display")
-    } else 
-      stop(safeError("Upload annotation file (.gff3) in the upload session to access this feature."))
+    group <- as.numeric(input$group)
+    mks<- loadMap()$maps[[group]]
+    mks <- mks[order(mks$l.dist),]
+    mks.range <- which(mks$l.dist >= input$range[1] &  mks$l.dist <= input$range[2])
+    mks.range.1 <- mks$g.dist[mks.range[1]]
+    mks.range.2 <- mks$g.dist[mks.range[length(mks.range)]]
+    df <- button()$gff
+    colnames(df) <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase", "attributes")
+    df <- df %>% filter(seqid == unique(mks$g.chr) & start > mks.range.1 & end < mks.range.2)
+    DT::datatable(df, extensions = 'Buttons',
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf')
+                  ),
+                  class = "display")
   })
   
   ## Downloads

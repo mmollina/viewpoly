@@ -280,20 +280,22 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   qtl.data <- reactive({
-    if(!is.null(loadQTL())){
-      idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
-      
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.3, detail = paste("building graphic..."))
-        pl <- plot_profile(profile = loadQTL()$profile, 
-                           qtl_info = loadQTL()$qtl_info, 
-                           selected_mks = loadQTL()$selected_mks,
-                           pheno.col = idx,
-                           lgs.id = as.numeric(input$group), 
-                           by_range=F, plot = F)
-      })
-    } else
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+    validate(
+      need(length(input$phenotypes) != 0, "Select at least one phenotype"),
+      need(length(input$group) != 0, "Select at least one linkage group"),
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature.")
+    )
+    idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
+    
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.3, detail = paste("building graphic..."))
+      pl <- plot_profile(profile = loadQTL()$profile, 
+                         qtl_info = loadQTL()$qtl_info, 
+                         selected_mks = loadQTL()$selected_mks,
+                         pheno.col = idx,
+                         lgs.id = as.numeric(input$group), 
+                         by_range=F, plot = F)
+    })
   })
   
   output$plot_qtl <- renderPlot({
@@ -304,27 +306,26 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   effects.data <- reactive({
-    if(!is.null(loadQTL())){
-      if(!is.null(input$plot_brush)){
-        df <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
-        if(inherits(df, "try-error")) 
-          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-      } else {
-        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-      }
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.5, detail = paste("Getting data..."))
-        data <- data_effects(qtl_info = loadQTL()$qtl_info, 
-                             effects = loadQTL()$effects,
-                             pheno.col = as.character(df$Trait), 
-                             lgs = df$LG, 
-                             position = df$`Position (cM)`,
-                             groups = as.numeric(input$group),
-                             software = loadQTL()$software,
-                             design = input$effects_design)
-      })
-    } else 
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+    validate(
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature."),
+      need(!is.null(input$plot_brush), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    df <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+    
+    validate(
+      need(!inherits(df, "try-error"), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.5, detail = paste("Getting data..."))
+      data <- data_effects(qtl_info = loadQTL()$qtl_info, 
+                           effects = loadQTL()$effects,
+                           pheno.col = as.character(df$Trait), 
+                           lgs = df$LG, 
+                           position = df$`Position (cM)`,
+                           groups = as.numeric(input$group),
+                           software = loadQTL()$software,
+                           design = input$effects_design)
+    })
   })
   
   output$effects <- renderPlot({
@@ -336,30 +337,29 @@ mod_qtl_view_server <- function(input, output, session,
   
   
   plotHeight <- reactive({
-    if(!is.null(loadQTL())){
-      if(!is.null(input$plot_brush)){
-        dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
-        if(inherits(dframe, "try-error")) 
-          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-      } else {
-        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-      }
-      counts <- nrow(dframe)
-      counts <- ceiling(counts/4)
+    
+    validate(
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature."),
+      need(!is.null(input$plot_brush), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+    validate(
+      need(!inherits(dframe, "try-error"), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    counts <- nrow(dframe)
+    counts <- ceiling(counts/4)
+    if(counts == 0) counts <- 1
+    if(loadQTL()$software == "polyqtlR") {
+      size <- counts*650 
+    } else if(input$effects_design == "bar" | input$effects_design == "digenic"){ 
+      size <- counts*350
+    } else if(input$effects_design == "circle"){
+      counts <- length(unique(dframe$LG))
+      counts <- ceiling(counts/2)
       if(counts == 0) counts <- 1
-      if(loadQTL()$software == "polyqtlR") {
-        size <- counts*650 
-      } else if(input$effects_design == "bar" | input$effects_design == "digenic"){ 
-        size <- counts*350
-      } else if(input$effects_design == "circle"){
-        counts <- length(unique(dframe$LG))
-        counts <- ceiling(counts/2)
-        if(counts == 0) counts <- 1
-        size <- counts*500
-      }
-      size
-    } else 
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+      size <- counts*500
+    }
+    size
   })
   
   output$plot.ui <- renderUI({
@@ -417,10 +417,12 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   haplo_data <- eventReactive(input$haplo_submit, {
-    if(all(input$haplo == paste0("Feature not implemented for software: ", loadQTL()$software))) stop(safeError(paste0("Feature not implemented for software: ", loadQTL()$software)))
-    if(all(input$haplo == "Click on `update available haplotype` to update")) stop(safeError("Click on `update available haplotype` to update"))
-    if(all(input$haplo == "Select QTL in the profile graphic to update")) stop(safeError("Select QTL in the profile graphic to update"))
-    if(all(input$haplo == "Select `bar` design to access this feature.")) stop(safeError("Select `bar` design to access this feature."))
+    validate(
+      need(all(input$haplo != paste0("Feature not implemented for software: ", loadQTL()$software)), paste0("Feature not implemented for software: ", loadQTL()$software)),
+      need(all(input$haplo != "Click on `update available haplotype` to update"), "Click on `update available haplotype` to update"),
+      need(all(input$haplo != "Select QTL in the profile graphic to update"), "Select QTL in the profile graphic to update"),
+      need(all(input$haplo != "Select `bar` design to access this feature."), "Select `bar` design to access this feature.")
+    )
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     counts <- ceiling(length(p)/3)
     if(counts == 0) counts <- 1
@@ -443,59 +445,53 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$info <- DT::renderDataTable(server = FALSE, {
-    if(!is.null(loadQTL())){
-      if(!is.null(input$plot_brush)){
-        dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
-        if(inherits(dframe, "try-error")) 
-          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-      } else {
-        stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-      }
-      dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
-      if(loadQTL()$software == "QTLpoly"){
-        colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
-      } else if(loadQTL()$software == "diaQTL") {
-        colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "LL")
-      } else if(loadQTL()$software == "polyqtlR"){
-        dframe <- dframe[,-c(4,5)]
-        colnames(dframe)[c(2,4)] <- c("Linkage group", "Threshold")
-      }
-      DT::datatable(dframe, extensions = 'Buttons',
-                    options = list(
-                      dom = 'Bfrtlp',
-                      buttons = c('copy', 'csv', 'excel', 'pdf')
-                    ),
-                    class = "display")
-    } else 
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+    validate(
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature."),
+      need(!is.null(input$plot_brush), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+    validate(
+      need(!inherits(dframe, "try-error"), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    dframe <- dframe[,-c(dim(dframe)[2]-1,dim(dframe)[2])]
+    if(loadQTL()$software == "QTLpoly"){
+      colnames(dframe)[c(2,4,5,6,7)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "p-value", "h2")
+    } else if(loadQTL()$software == "diaQTL") {
+      colnames(dframe)[c(2,4,5,6)] <- c("Linkage group", "Lower interval (cM)", "Upper interval (cM)", "LL")
+    } else if(loadQTL()$software == "polyqtlR"){
+      dframe <- dframe[,-c(4,5)]
+      colnames(dframe)[c(2,4)] <- c("Linkage group", "Threshold")
+    }
+    DT::datatable(dframe, extensions = 'Buttons',
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf')
+                  ),
+                  class = "display")
   })
   
   # Breeding values
   output$breeding_values <- DT::renderDataTable(server = FALSE, {
-    if(!is.null(loadQTL())){
-      if(loadQTL()$software == "QTLpoly"){
-        if(!is.null(input$plot_brush)){
-          dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
-          if(inherits(dframe, "try-error")) 
-            stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-        } else {
-          stop(safeError("Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one."))
-        }
-        
-        pos <- split(dframe$`Position (cM)`, dframe$Trait)
-        dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
-                              loadQTL()$selected_mks, loadQTL()$blups, 
-                              loadQTL()$beta.hat, pos)
-        rownames(dt) <- NULL
-        DT::datatable(dt, extensions = 'Buttons',
-                      options = list(
-                        dom = 'Bfrtlp',
-                        buttons = c('copy', 'csv', 'excel', 'pdf')
-                      ),
-                      class = "display")
-      } else stop(safeError(paste("Feature not implemented for software:",loadQTL()$software)))
-    } else 
-      stop(safeError("Upload the QTL information in upload session to access this feature."))
+    validate(
+      need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature."),
+      need(loadQTL()$software == "QTLpoly", paste("Feature not implemented for software:",loadQTL()$software)),
+      need(!is.null(input$plot_brush), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    dframe <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
+    validate(
+      need(!inherits(dframe, "try-error"), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+    )
+    pos <- split(dframe$`Position (cM)`, dframe$Trait)
+    dt <- breeding_values(loadQTL()$qtl_info, loadQTL()$probs, 
+                          loadQTL()$selected_mks, loadQTL()$blups, 
+                          loadQTL()$beta.hat, pos)
+    rownames(dt) <- NULL
+    DT::datatable(dt, extensions = 'Buttons',
+                  options = list(
+                    dom = 'Bfrtlp',
+                    buttons = c('copy', 'csv', 'excel', 'pdf')
+                  ),
+                  class = "display")
   })
   
   # Download profile
@@ -542,11 +538,12 @@ mod_qtl_view_server <- function(input, output, session,
   # download 
   fn_download_effects <- function()
   {
-    if(!is.null(input$plot_brush)){
-      df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
-    } else {
-      stop(safeError("Select a point or region on QTL profile graphic."))
-    }
+    validate(
+      need(!is.null(input$plot_brush), "Select a point or region on QTL profile graphic.")
+    )
+    
+    df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+    
     data <- data_effects(qtl_info = loadQTL()$qtl_info, 
                          effects = loadQTL()$effects,
                          pheno.col = as.character(df$Trait), 
