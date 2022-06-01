@@ -161,7 +161,7 @@ mod_map_view_ui <- function(id){
 #'
 #' @importFrom plotly ggplotly renderPlotly
 #' @importFrom dplyr `%>%`
-#'
+#' @importFrom shinyjs js
 #' @noRd 
 mod_map_view_server <- function(input, output, session, 
                                 loadMap, loadQTL,

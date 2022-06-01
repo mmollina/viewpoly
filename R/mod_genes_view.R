@@ -159,7 +159,7 @@ mod_genes_view_ui <- function(id){
 #'
 #' @importFrom JBrowseR serve_data renderJBrowseR assembly track_feature tracks default_session JBrowseR JBrowseROutput 
 #' @importFrom plotly event_data layout
-#' @importFrom shinyjs inlineCSS
+#' @importFrom shinyjs inlineCSS js
 #' @importFrom dplyr `%>%`
 #'
 #' @noRd 

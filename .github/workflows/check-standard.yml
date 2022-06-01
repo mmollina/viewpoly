@@ -4,12 +4,10 @@ on:
   push:
     branches:
       - main
-      - add_tests
 
   pull_request:
     branches:
       - main
-      - add_tests
 
 name: R-CMD-check
 

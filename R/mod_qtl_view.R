@@ -206,6 +206,7 @@ mod_qtl_view_ui <- function(id){
 #'
 #' @importFrom ggpubr ggarrange
 #' @import shinydashboard
+#' @importFrom shinyjs js
 #' 
 #' @noRd 
 mod_qtl_view_server <- function(input, output, session, 
