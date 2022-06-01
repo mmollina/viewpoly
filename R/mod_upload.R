@@ -270,6 +270,7 @@ mod_upload_ui <- function(id){
 #' upload Server Functions
 #'
 #' @import vroom
+#' @import shinyjs
 #' @importFrom utils packageVersion
 #' 
 #' @noRd 
