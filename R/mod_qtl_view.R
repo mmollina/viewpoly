@@ -6,6 +6,7 @@
 #'
 #' @import shinydashboard
 #' @import shinyWidgets
+#' @importFrom shinyjs inlineCSS useShinyjs
 #' 
 #' @noRd 
 #'
@@ -72,7 +73,9 @@ mod_qtl_view_ui <- function(id){
                      ), 
                      column(12,
                             column(3,
-                                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
+                                   useShinyjs(),
+                                   tags$head(tags$style(".butt{background-color:#add8e6; border-color: #add8e6; color: #337ab7;}")),
+                                   downloadButton(ns('bn_download'), "Download", class = "butt")
                             ),
                             column(3,
                                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -105,7 +108,7 @@ mod_qtl_view_ui <- function(id){
                                           selected = "bar")
                          ), br(), br(), 
                          column(3,
-                                downloadBttn(ns('bn_download_effects'), style = "gradient", color = "royal")
+                                downloadButton(ns('bn_download_effects'), "Download", class = "butt")
                          ),
                          column(3,
                                 radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -151,7 +154,7 @@ mod_qtl_view_ui <- function(id){
                                 actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes*", icon = icon("share-square", verify_fa = FALSE)), 
                                 br(), hr()),
                          column(3,
-                                downloadBttn(ns('bn_download_haplo'), style = "gradient", color = "royal")
+                                downloadButton(ns('bn_download_haplo'), "Download", class = "butt")
                          ),
                          column(3,
                                 radioButtons(ns("fformat_haplo"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -315,9 +318,8 @@ mod_qtl_view_server <- function(input, output, session,
       need(!is.null(input$plot_brush), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
     )
     df <- try(brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat"))
-    
     validate(
-      need(!inherits(df, "try-error"), "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
+      need(dim(df)[1] > 0, "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
     )
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Getting data..."))
@@ -517,6 +519,16 @@ mod_qtl_view_server <- function(input, output, session,
            width = input$width_profile, height = input$height_profile, units = "mm", dpi = input$dpi_profile)    
   }
   
+  observe({
+    if (!is.null(loadQTL()) & input$width_profile > 1 & input$height_profile > 1 & input$dpi_profile > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download")
+    } else {
+      shinyjs::disable("bn_download")
+    }
+  })
+  
   # download handler
   output$bn_download <- downloadHandler(
     filename = fn_downloadname,
@@ -563,6 +575,25 @@ mod_qtl_view_server <- function(input, output, session,
            width = input$width_effects, units = "mm", bg = "white", dpi = input$dpi_effects)    
   }
   
+  shinyjs::disable("bn_download_effects")
+  
+  # To make observeEvent watch more than one input
+  toListen <- reactive({
+    list(input$plot_brush, input$plot_brush, input$width_effects, input$height_effects, input$dpi_effects)
+  })
+  
+  observeEvent(toListen(),{
+    df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
+    
+    if (dim(df)[1] > 0 & !is.null(loadQTL()) & !is.null(input$plot_brush) & input$width_effects > 1 & input$height_effects > 1 & input$dpi_effects > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download_effects")
+    } else {
+      shinyjs::disable("bn_download_effects")
+    }
+  })
+  
   # download handler
   output$bn_download_effects <- downloadHandler(
     filename = fn_downloadname_effects,
@@ -574,6 +605,7 @@ mod_qtl_view_server <- function(input, output, session,
   )
   
   # Download haplotypes
+  shinyjs::disable("bn_download_haplo")
   # create filename
   fn_downloadname_haplo <- reactive({
     
@@ -594,6 +626,16 @@ mod_qtl_view_server <- function(input, output, session,
     ggsave(plots, filename = fn_downloadname_haplo(), height = input$height_haplo, 
            width = input$width_haplo, units = "mm", bg = "white", dpi = input$dpi_haplo)    
   }
+  
+  observe({
+    if (input$haplo_submit & length(grep("Trait",input$haplo)) > 0 & !is.null(input$plot_brush) & input$height_haplo > 1 & input$width_haplo > 1 & input$dpi_haplo > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download_haplo")
+    } else {
+      shinyjs::disable("bn_download_haplo")
+    }
+  })
   
   # download handler
   output$bn_download_haplo <- downloadHandler(

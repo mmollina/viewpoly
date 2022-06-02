@@ -19,8 +19,9 @@ app_ui <- function(request) {
       dashboardSidebar(disable = TRUE),
       dashboardBody(
         # Lab colors
-        tags$head(tags$style(HTML('
-        
+        tags$head(
+          tags$style(
+            HTML('
          a.action-button {
                 color: #6c81c0;
          }

@@ -4,7 +4,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @importFrom shinyjs inlineCSS
+#' @importFrom shinyjs inlineCSS useShinyjs
 #' @importFrom plotly plotlyOutput
 #' @importFrom shiny NS tagList  
 #' 
@@ -72,7 +72,9 @@ mod_map_view_ui <- function(id){
                    )
             ), 
             column(3,
-                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
+                   tags$head(tags$style(".butt{background-color:#add8e6; border-color: #add8e6; color: #337ab7;}")),
+                   useShinyjs(),
+                   downloadButton(ns('bn_download'), "Download", class = "butt")
             ),
             column(3,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -99,7 +101,7 @@ mod_map_view_ui <- function(id){
                    )
             ), 
             column(3,
-                   downloadBttn(ns('bn_download_map'), style = "gradient", color = "royal")
+                   downloadButton(ns('bn_download_map'), "Download", class = "butt")
             ),
             column(3,
                    radioButtons(ns("fformat_map"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -133,7 +135,7 @@ mod_map_view_ui <- function(id){
                    DT::dataTableOutput(ns("summary")), br(), hr()
             ),
             column(3,
-                   downloadBttn(ns('bn_download_summary'), style = "gradient", color = "royal")
+                   downloadButton(ns('bn_download_summary'), "Download", class = "butt")
             ),
             column(3,
                    radioButtons(ns("fformat_summary"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T), br(),
@@ -429,6 +431,16 @@ mod_map_view_server <- function(input, output, session,
            units = "mm", dpi = input$dpi_profile)    
   }
   
+  observe({
+    if (!is.null(loadQTL()) & input$width_profile > 1 & input$height_profile > 1 & input$dpi_profile > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download")
+    } else {
+      shinyjs::disable("bn_download")
+    }
+  })
+  
   # download handler
   output$bn_download <- downloadHandler(
     filename = fn_downloadname,
@@ -482,6 +494,16 @@ mod_map_view_server <- function(input, output, session,
     dev.off()
   }
   
+  observe({
+    if (!is.null(loadMap()) & input$width_map > 1 & input$height_map > 1 & input$dpi_map > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download_map")
+    } else {
+      shinyjs::disable("bn_download_map")
+    }
+  })
+  
   # download handler
   output$bn_download_map <- downloadHandler(
     filename = fn_downloadname_map,
@@ -528,6 +550,16 @@ mod_map_view_server <- function(input, output, session,
     
     dev.off()
   }
+  
+  observe({
+    if (!is.null(loadMap()) & input$width_summary > 1 & input$height_summary > 1 & input$dpi_summary > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download_summary")
+    } else {
+      shinyjs::disable("bn_download_summary")
+    }
+  })
   
   # download handler
   output$bn_download_summary <- downloadHandler(

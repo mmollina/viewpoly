@@ -5,7 +5,8 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd 
-#'
+#' 
+#' @importFrom shinyjs inlineCSS useShinyjs
 #' @importFrom shiny NS tagList 
 mod_upload_ui <- function(id){
   ns <- NS(id)
@@ -236,8 +237,9 @@ mod_upload_ui <- function(id){
                box(id = ns("box_viewpoly"),width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = actionLink(inputId = ns("viewpolyID"), label = tags$b("Download VIEWpoly dataset")),
                    p("The uploaded data are converted to the viewpoly format. It keeps the map and the QTL information. Genome information is not stored."), br(),
                    textInput(ns("data.name"), label = p("Define the dataset name. Do not use spaces between words."), value = "dataset_name"), br(),
-                   
-                   downloadBttn(ns('export_viewpoly'), style = "gradient", color = "royal")
+                   tags$head(tags$style(".butt{background-color:#add8e6; border-color: #add8e6; color: #337ab7;}")),
+                   useShinyjs(),
+                   downloadButton(ns('export_viewpoly'), "Download", class = "butt")
                )
              )
       ),
@@ -924,6 +926,16 @@ loadQTL = reactive({
     return(loadQTL_polyqtlR())
   } else if(!is.null(loadExample())){
     return(loadExample()$qtl)
+  }
+})
+
+observe({
+  if (!is.null(loadMap()) | !is.null(loadQTL())) {
+    Sys.sleep(1)
+    # enable the download button
+    shinyjs::enable("export_viewpoly")
+  } else {
+    shinyjs::disable("export_viewpoly")
   }
 })
 

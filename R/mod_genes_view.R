@@ -4,7 +4,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @importFrom shinyjs inlineCSS
+#' @importFrom shinyjs inlineCSS useShinyjs
 #' 
 #' @noRd 
 #'
@@ -71,7 +71,9 @@ mod_genes_view_ui <- function(id){
                    )
             ), 
             column(3,
-                   downloadBttn(ns('bn_download'), style = "gradient", color = "royal")
+                   useShinyjs(),
+                   tags$head(tags$style(".butt{background-color:#add8e6; border-color: #add8e6; color: #337ab7;}")),
+                   downloadButton(ns('bn_download'), "Download", class = "butt")
             ),
             column(3,
                    radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -98,7 +100,7 @@ mod_genes_view_ui <- function(id){
                    )
             ), 
             column(3,
-                   downloadBttn(ns('bn_download_phi'), style = "gradient", color = "royal")
+                   downloadButton(ns('bn_download_phi'), "Download", class = "butt")
             ),
             column(3,
                    radioButtons(ns("fformat_phi"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
@@ -624,6 +626,16 @@ mod_genes_view_server <- function(input, output, session,
            units = "mm", dpi = input$dpi_profile)    
   }
   
+  observe({
+    if (!is.null(loadQTL()) & input$width_profile > 1 & input$height_profile > 1 & input$dpi_profile > 1) {
+      Sys.sleep(1)
+      # enable the download button
+      shinyjs::enable("bn_download")
+    } else {
+      shinyjs::disable("bn_download")
+    }
+  })
+  
   # download handler
   output$bn_download <- downloadHandler(
     filename = fn_downloadname,
@@ -666,6 +678,18 @@ mod_genes_view_server <- function(input, output, session,
            width = input$width_phi, height = input$height_phi, 
            units = "mm", dpi = input$dpi_phi)    
   }
+  
+  observe({
+    if (!is.null(loadMap()) & input$width_phi > 1 & input$height_phi > 1 & input$dpi_phi > 1) {
+      if (loadMap()$software != "polymapR" ) {
+        Sys.sleep(1)
+        # enable the download button
+        shinyjs::enable("bn_download_phi")
+      } else {
+        shinyjs::disable("bn_download_phi")
+      }
+    } else shinyjs::disable("bn_download_phi")
+  })
   
   # download handler
   output$bn_download_phi <- downloadHandler(
