@@ -330,7 +330,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   observeEvent(input$viewpolyupID, {
     js$collapse(ns("box_viewpolyup"))
   })
-
+  
   # Check environment
   observe({
     Objs <- Filter(function(x) inherits(get(x), 'viewpoly' ), ls(envir = .GlobalEnv) )
@@ -670,296 +670,299 @@ mod_upload_server <- function(input, output, session, parent_session){
       } else if (values$upload_state_viewpoly == 'reset') {
         return(NULL)
       } else if(values$upload_state_viewpoly == "uploaded"){
-        validate(
-          need(!is.null(input$viewpoly_input) | !is.null(input$viewpoly_env), 
-               "Upload a viewpoly dataset or select one available in your R environment before submit.")
-        )
-        if(!is.null(input$viewpoly_input)){
+        if(!is.null(input$viewpoly_input) | !is.null(input$viewpoly_env)){ 
+          warning("Upload a viewpoly dataset or select one available in your R environment before submit.")
+          viewpoly.obj <- NULL
+        } else if(!is.null(input$viewpoly_input)){
           temp <- load(input$viewpoly_input$datapath)
           viewpoly.obj <- get(temp)
         } else if(!is.null(input$viewpoly_env)) {
           viewpoly.obj = get(input$viewpoly_env)
-        }
+        }  
         return(viewpoly.obj)
       } 
     })
   })
+
+loadMap_custom = reactive({
+  if(!(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map))){
+    req(input_map()$dosages, input_map()$phases, input_map()$genetic_map)
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.5, detail = paste("Uploading custom map data..."))
+      prepare_map_custom_files(input_map()$dosages,
+                               input_map()$phases,
+                               input_map()$genetic_map)
+    })
+  } else NULL
+})
+
+loadMap_mappoly =  reactive({
   
-  loadMap_custom = reactive({
-    if(!(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map))){
-      req(input_map()$dosages, input_map()$phases, input_map()$genetic_map)
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.5, detail = paste("Uploading custom map data..."))
-        prepare_map_custom_files(input_map()$dosages,
-                                 input_map()$phases,
-                                 input_map()$genetic_map)
-      })
-    } else NULL
-  })
-  
-  loadMap_mappoly =  reactive({
+  if(!is.null(input_map()$mappoly_in)){
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.3, detail = paste("Uploading MAPpoly data..."))
+      prepare_MAPpoly(input_map()$mappoly_in)
+    })
+  } else NULL
+})
+
+loadMap_polymapR =  reactive({
+  if(!(is.null(input_map()$polymapR.dataset) & 
+       is.null(input_map()$polymapR.map))) {
+    req(input_map()$polymapR.dataset, input_map()$polymapR.map)
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.1, detail = paste("Uploading polymapR data..."))
+      prepare_polymapR(input_map()$polymapR.dataset, input_map()$polymapR.map, 
+                       input$input.type, as.numeric(input$ploidy))
+    })
+  } else NULL
+})
+
+loadQTL_custom = reactive({
+  if(!(is.null(input_qtl()$selected_mks) & 
+       is.null(input_qtl()$qtl_info) & 
+       is.null(input_qtl()$blups) & 
+       is.null(input_qtl()$beta.hat) & 
+       is.null(input_qtl()$profile) & 
+       is.null(input_qtl()$effects) & 
+       is.null(input_qtl()$probs))) {
+    req(input_qtl()$selected_mks, input_qtl()$qtl_info, input_qtl()$blups,
+        input_qtl()$beta.hat, input_qtl()$profile, input_qtl()$effects,
+        input_qtl()$probs)
+    withProgress(message = 'Working:', value = 0, {
+      incProgress(0.5, detail = paste("Uploading custom QTL data..."))
+      prepare_qtl_custom_files(input_qtl()$selected_mks,
+                               input_qtl()$qtl_info,
+                               input_qtl()$blups,
+                               input_qtl()$beta.hat,
+                               input_qtl()$profile,
+                               input_qtl()$effects,
+                               input_qtl()$probs)
+    })
+  } else NULL
+})
+
+loadQTL_qtlpoly = reactive({
+  if(!(is.null(input_qtl()$qtlpoly_data) & 
+       is.null(input_qtl()$qtlpoly_remim.mod) &
+       is.null(input_qtl()$qtlpoly_est.effects) &
+       is.null(input_qtl()$qtlpoly_fitted.mod))) {
     
-    if(!is.null(input_map()$mappoly_in)){
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.3, detail = paste("Uploading MAPpoly data..."))
-        prepare_MAPpoly(input_map()$mappoly_in)
-      })
-    } else NULL
-  })
-  
-  loadMap_polymapR =  reactive({
-    if(!(is.null(input_map()$polymapR.dataset) & 
-         is.null(input_map()$polymapR.map))) {
-      req(input_map()$polymapR.dataset, input_map()$polymapR.map)
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.1, detail = paste("Uploading polymapR data..."))
-        prepare_polymapR(input_map()$polymapR.dataset, input_map()$polymapR.map, 
-                         input$input.type, as.numeric(input$ploidy))
-      })
-    } else NULL
-  })
-  
-  loadQTL_custom = reactive({
-    if(!(is.null(input_qtl()$selected_mks) & 
-         is.null(input_qtl()$qtl_info) & 
-         is.null(input_qtl()$blups) & 
-         is.null(input_qtl()$beta.hat) & 
-         is.null(input_qtl()$profile) & 
-         is.null(input_qtl()$effects) & 
-         is.null(input_qtl()$probs))) {
-      req(input_qtl()$selected_mks, input_qtl()$qtl_info, input_qtl()$blups,
-          input_qtl()$beta.hat, input_qtl()$profile, input_qtl()$effects,
-          input_qtl()$probs)
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.5, detail = paste("Uploading custom QTL data..."))
-        prepare_qtl_custom_files(input_qtl()$selected_mks,
-                                 input_qtl()$qtl_info,
-                                 input_qtl()$blups,
-                                 input_qtl()$beta.hat,
-                                 input_qtl()$profile,
-                                 input_qtl()$effects,
-                                 input_qtl()$probs)
-      })
-    } else NULL
-  })
-  
-  loadQTL_qtlpoly = reactive({
-    if(!(is.null(input_qtl()$qtlpoly_data) & 
-         is.null(input_qtl()$qtlpoly_remim.mod) &
-         is.null(input_qtl()$qtlpoly_est.effects) &
-         is.null(input_qtl()$qtlpoly_fitted.mod))) {
-      
-      req(input_qtl()$qtlpoly_data, 
-          input_qtl()$qtlpoly_remim.mod,
-          input_qtl()$qtlpoly_est.effects,
-          input_qtl()$qtlpoly_fitted.mod)
-      
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.3, detail = paste("Uploading QTLpoly data..."))
-        prepare_QTLpoly(input_qtl()$qtlpoly_data,
-                        input_qtl()$qtlpoly_remim.mod,
-                        input_qtl()$qtlpoly_est.effects,
-                        input_qtl()$qtlpoly_fitted.mod)
-      })
-    } else NULL
-  })
-  
-  loadQTL_diaQTL = reactive({
-    if(!(is.null(input_qtl()$diaQTL_scan1) &
-         is.null(input_qtl()$diaQTL_scan1.summaries) &
-         is.null(input_qtl()$diaQTL_fitQTL) &
-         is.null(input_qtl()$diaQTL_BayesCI))) {
-      
-      req(input_qtl()$diaQTL_scan1,
-          input_qtl()$diaQTL_scan1.summaries,
-          input_qtl()$diaQTL_fitQTL,
-          input_qtl()$diaQTL_BayesCI)
-      
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.3, detail = paste("Uploading diaQTL data..."))
-        prepare_diaQTL(input_qtl()$diaQTL_scan1,
-                       input_qtl()$diaQTL_scan1.summaries,
-                       input_qtl()$diaQTL_fitQTL,
-                       input_qtl()$diaQTL_BayesCI)
-      })
-    } else NULL
-  })
-  
-  loadQTL_polyqtlR = reactive({
-    if(!(is.null(input_qtl()$polyqtlR_QTLscan_list) & 
-         is.null(input_qtl()$polyqtlR_qtl_info) &
-         is.null(input_qtl()$polyqtlR_effects))) {
-      
-      req(input_qtl()$polyqtlR_QTLscan_list,
-          input_qtl()$polyqtlR_qtl_info,
-          input_qtl()$polyqtlR_effects)
-      
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.3, detail = paste("Uploading polyqtlR data..."))
-        prepare_polyqtlR(input_qtl()$polyqtlR_QTLscan_list,
-                         input_qtl()$polyqtlR_qtl_info,
-                         input_qtl()$polyqtlR_effects)
-      })
-    } else NULL
-  })
-  
-  temp_dir <- reactive(tempdir())
-  
-  loadJBrowse_fasta = reactive({
+    req(input_qtl()$qtlpoly_data, 
+        input_qtl()$qtlpoly_remim.mod,
+        input_qtl()$qtlpoly_est.effects,
+        input_qtl()$qtlpoly_fitted.mod)
+    
     withProgress(message = 'Working:', value = 0, {
-      incProgress(0.1, detail = paste("Uploading fasta path..."))
-      if(!is.null(input_genome()$fasta) & !is.null(loadMap())){
-        # keep fasta name
-        for(i in 1:length(input_genome()$fasta$datapath)){
-          file.rename(input_genome()$fasta$datapath[i], 
-                      file.path(temp_dir(), input_genome()$fasta$name[i]))
-        }
-        file.path(temp_dir(), input_genome()$fasta$name[1]) 
-      } else if(!is.null(input_genome()$fasta_server) & !is.null(loadMap())) {
-        input_genome()$fasta_server
-      } else if(!is.null(input_genome()$fasta) | !is.null(input_genome()$fasta_server)) {
-        warning("Load map data first to use this feature.")
-      } else NULL
+      incProgress(0.3, detail = paste("Uploading QTLpoly data..."))
+      prepare_QTLpoly(input_qtl()$qtlpoly_data,
+                      input_qtl()$qtlpoly_remim.mod,
+                      input_qtl()$qtlpoly_est.effects,
+                      input_qtl()$qtlpoly_fitted.mod)
     })
-  })
-  
-  loadJBrowse_gff3 = reactive({
+  } else NULL
+})
+
+loadQTL_diaQTL = reactive({
+  if(!(is.null(input_qtl()$diaQTL_scan1) &
+       is.null(input_qtl()$diaQTL_scan1.summaries) &
+       is.null(input_qtl()$diaQTL_fitQTL) &
+       is.null(input_qtl()$diaQTL_BayesCI))) {
+    
+    req(input_qtl()$diaQTL_scan1,
+        input_qtl()$diaQTL_scan1.summaries,
+        input_qtl()$diaQTL_fitQTL,
+        input_qtl()$diaQTL_BayesCI)
+    
     withProgress(message = 'Working:', value = 0, {
-      incProgress(0.1, detail = paste("Uploading gff3 path..."))
-      if(!is.null(input_genome()$gff3)){
-        for(i in 1:length(input_genome()$gff3$datapath)){
-          file.rename(input_genome()$gff3$datapath[i], 
-                      file.path(temp_dir(), input_genome()$gff3$name[i]))
-        }
-        file.path(temp_dir(), input_genome()$gff3$name[1]) 
-      } else if(!is.null(input_genome()$gff3_server)) { 
-        input_genome()$gff3_server
-      } else NULL
+      incProgress(0.3, detail = paste("Uploading diaQTL data..."))
+      prepare_diaQTL(input_qtl()$diaQTL_scan1,
+                     input_qtl()$diaQTL_scan1.summaries,
+                     input_qtl()$diaQTL_fitQTL,
+                     input_qtl()$diaQTL_BayesCI)
     })
-  })
-  
-  loadJBrowse_vcf = reactive({
+  } else NULL
+})
+
+loadQTL_polyqtlR = reactive({
+  if(!(is.null(input_qtl()$polyqtlR_QTLscan_list) & 
+       is.null(input_qtl()$polyqtlR_qtl_info) &
+       is.null(input_qtl()$polyqtlR_effects))) {
+    
+    req(input_qtl()$polyqtlR_QTLscan_list,
+        input_qtl()$polyqtlR_qtl_info,
+        input_qtl()$polyqtlR_effects)
+    
     withProgress(message = 'Working:', value = 0, {
-      incProgress(0.1, detail = paste("Uploading VCF path..."))
-      if(!is.null(input_genome()$vcf)) {
-        for(i in 1:length(input_genome()$vcf$datapath)){
-          file.rename(input_genome()$vcf$datapath[i], 
-                      file.path(temp_dir(), input_genome()$vcf$name[i]))
-        }
-        file.path(temp_dir(), input_genome()$vcf$name[1]) 
-      } else if(!is.null(input_genome()$vcf_server)) {
-        input_genome()$vcf_server
-      } else NULL
+      incProgress(0.3, detail = paste("Uploading polyqtlR data..."))
+      prepare_polyqtlR(input_qtl()$polyqtlR_QTLscan_list,
+                       input_qtl()$polyqtlR_qtl_info,
+                       input_qtl()$polyqtlR_effects)
     })
+  } else NULL
+})
+
+temp_dir <- reactive(tempdir())
+
+loadJBrowse_fasta = reactive({
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading fasta path..."))
+    if(!is.null(input_genome()$fasta) & !is.null(loadMap())){
+      # keep fasta name
+      for(i in 1:length(input_genome()$fasta$datapath)){
+        file.rename(input_genome()$fasta$datapath[i], 
+                    file.path(temp_dir(), input_genome()$fasta$name[i]))
+      }
+      file.path(temp_dir(), input_genome()$fasta$name[1]) 
+    } else if(!is.null(input_genome()$fasta_server) & !is.null(loadMap())) {
+      input_genome()$fasta_server
+    } else if(!is.null(input_genome()$fasta) | !is.null(input_genome()$fasta_server)) {
+      warning("Load map data first to use this feature.")
+    } else NULL
   })
-  
-  loadJBrowse_align = reactive({
+})
+
+loadJBrowse_gff3 = reactive({
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading gff3 path..."))
+    if(!is.null(input_genome()$gff3)){
+      for(i in 1:length(input_genome()$gff3$datapath)){
+        file.rename(input_genome()$gff3$datapath[i], 
+                    file.path(temp_dir(), input_genome()$gff3$name[i]))
+      }
+      file.path(temp_dir(), input_genome()$gff3$name[1]) 
+    } else if(!is.null(input_genome()$gff3_server)) { 
+      input_genome()$gff3_server
+    } else NULL
+  })
+})
+
+loadJBrowse_vcf = reactive({
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading VCF path..."))
+    if(!is.null(input_genome()$vcf)) {
+      for(i in 1:length(input_genome()$vcf$datapath)){
+        file.rename(input_genome()$vcf$datapath[i], 
+                    file.path(temp_dir(), input_genome()$vcf$name[i]))
+      }
+      file.path(temp_dir(), input_genome()$vcf$name[1]) 
+    } else if(!is.null(input_genome()$vcf_server)) {
+      input_genome()$vcf_server
+    } else NULL
+  })
+})
+
+loadJBrowse_align = reactive({
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading BAM or CRAM alignment data path..."))
+    if(!is.null(input_genome()$align)) {
+      for(i in 1:length(input_genome()$align$datapath)){
+        file.rename(input_genome()$align$datapath[i], 
+                    file.path(temp_dir(), input_genome()$align$name[i]))
+      }
+      file.path(temp_dir(), input_genome()$align$name[1]) 
+    } else if(!is.null(input_genome()$align_server)) {
+      input_genome()$align_server
+    } else NULL
+  })
+})
+
+loadJBrowse_wig = reactive({
+  withProgress(message = 'Working:', value = 0, {
+    incProgress(0.1, detail = paste("Uploading bigWig data path..."))
+    if(!is.null(input_genome()$wig)) {
+      for(i in 1:length(input_genome()$wig$datapath)){
+        file.rename(input_genome()$wig$datapath[i], 
+                    file.path(temp_dir(), input_genome()$wig$name[i]))
+      }
+      file.path(temp_dir(), input_genome()$wig$name[1]) 
+    } else if(!is.null(input_genome()$wig_server)) {
+      input_genome()$wig_server
+    } else NULL
+  })
+})
+
+loadMap = reactive({
+  if(is.null(loadExample()) & 
+     is.null(loadMap_custom()) & 
+     is.null(loadMap_mappoly()) &
+     is.null(loadMap_polymapR()) &
+     is.null(loadViewpoly())){
+    warning("Select one of the options in `upload` session")
+    return(NULL)
+  } else if(!is.null(loadViewpoly())){
+    return(loadViewpoly()$map)
+  } else if(!is.null(loadMap_custom())){
+    return(loadMap_custom())
+  } else if(!is.null(loadMap_mappoly())){
+    return(loadMap_mappoly())
+  } else if(!is.null(loadMap_polymapR())){
+    return(loadMap_polymapR())
+  } else if(!is.null(loadExample())){
+    return(loadExample()$map)
+  }
+})
+
+loadQTL = reactive({
+  if(is.null(loadExample()) & 
+     is.null(loadQTL_custom()) & 
+     is.null(loadQTL_qtlpoly()) & 
+     is.null(loadQTL_diaQTL()) &
+     is.null(loadQTL_polyqtlR()) &
+     is.null(loadViewpoly())){
+    warning("Select one of the options in `upload` session")
+    return(NULL)
+  } else if(!is.null(loadViewpoly())){
+    return(loadViewpoly()$qtl)
+  } else if(!is.null(loadQTL_custom())){
+    return(loadQTL_custom())
+  } else if(!is.null(loadQTL_qtlpoly())){
+    return(loadQTL_qtlpoly())
+  } else if(!is.null(loadQTL_diaQTL())){
+    return(loadQTL_diaQTL())
+  } else if(!is.null(loadQTL_polyqtlR())){
+    return(loadQTL_polyqtlR())
+  } else if(!is.null(loadExample())){
+    return(loadExample()$qtl)
+  }
+})
+
+output$export_viewpoly <- downloadHandler(
+  filename = function() {
+    paste0("viewpoly.RData")
+  },
+  content = function(file) {
     withProgress(message = 'Working:', value = 0, {
-      incProgress(0.1, detail = paste("Uploading BAM or CRAM alignment data path..."))
-      if(!is.null(input_genome()$align)) {
-        for(i in 1:length(input_genome()$align$datapath)){
-          file.rename(input_genome()$align$datapath[i], 
-                      file.path(temp_dir(), input_genome()$align$name[i]))
-        }
-        file.path(temp_dir(), input_genome()$align$name[1]) 
-      } else if(!is.null(input_genome()$align_server)) {
-        input_genome()$align_server
-      } else NULL
+      incProgress(0.1, detail = paste("Saving viewpoly object..."))
+      validate(
+        need(!is.null(loadMap()) | !is.null(loadQTL()), "For exporting VIEWpoly dataset it is required to load 
+               linkage map or QTL data in the above boxes."),
+      )
+      obj <- structure(list(map = loadMap(), 
+                            qtl = loadQTL(), 
+                            fasta = NULL, # It would save only the temporary path
+                            gff3 = NULL, 
+                            vcf = NULL,
+                            align = NULL,
+                            wig = NULL,
+                            version = packageVersion("viewpoly")), 
+                       class = "viewpoly")
+      assign(input$data.name, obj)
+      incProgress(0.5, detail = paste("Saving viewpoly object..."))
     })
-  })
-  
-  loadJBrowse_wig = reactive({
-    withProgress(message = 'Working:', value = 0, {
-      incProgress(0.1, detail = paste("Uploading bigWig data path..."))
-      if(!is.null(input_genome()$wig)) {
-        for(i in 1:length(input_genome()$wig$datapath)){
-          file.rename(input_genome()$wig$datapath[i], 
-                      file.path(temp_dir(), input_genome()$wig$name[i]))
-        }
-        file.path(temp_dir(), input_genome()$wig$name[1]) 
-      } else if(!is.null(input_genome()$wig_server)) {
-        input_genome()$wig_server
-      } else NULL
-    })
-  })
-  
-  loadMap = reactive({
-    if(is.null(loadExample()) & 
-       is.null(loadMap_custom()) & 
-       is.null(loadMap_mappoly()) &
-       is.null(loadMap_polymapR()) &
-       is.null(loadViewpoly())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadViewpoly())){
-      return(loadViewpoly()$map)
-    } else if(!is.null(loadMap_custom())){
-      return(loadMap_custom())
-    } else if(!is.null(loadMap_mappoly())){
-      return(loadMap_mappoly())
-    } else if(!is.null(loadMap_polymapR())){
-      return(loadMap_polymapR())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$map)
-    }
-  })
-  
-  loadQTL = reactive({
-    if(is.null(loadExample()) & 
-       is.null(loadQTL_custom()) & 
-       is.null(loadQTL_qtlpoly()) & 
-       is.null(loadQTL_diaQTL()) &
-       is.null(loadQTL_polyqtlR()) &
-       is.null(loadViewpoly())){
-      warning("Select one of the options in `upload` session")
-      return(NULL)
-    } else if(!is.null(loadViewpoly())){
-      return(loadViewpoly()$qtl)
-    } else if(!is.null(loadQTL_custom())){
-      return(loadQTL_custom())
-    } else if(!is.null(loadQTL_qtlpoly())){
-      return(loadQTL_qtlpoly())
-    } else if(!is.null(loadQTL_diaQTL())){
-      return(loadQTL_diaQTL())
-    } else if(!is.null(loadQTL_polyqtlR())){
-      return(loadQTL_polyqtlR())
-    } else if(!is.null(loadExample())){
-      return(loadExample()$qtl)
-    }
-  })
-  
-  output$export_viewpoly <- downloadHandler(
-    filename = function() {
-      paste0("viewpoly.RData")
-    },
-    content = function(file) {
-      withProgress(message = 'Working:', value = 0, {
-        incProgress(0.1, detail = paste("Saving viewpoly object..."))
-        obj <- structure(list(map = loadMap(), 
-                              qtl = loadQTL(), 
-                              fasta = NULL, # It would save only the temporary path
-                              gff3 = NULL, 
-                              vcf = NULL,
-                              align = NULL,
-                              wig = NULL,
-                              version = packageVersion("viewpoly")), 
-                         class = "viewpoly")
-        assign(input$data.name, obj)
-        incProgress(0.5, detail = paste("Saving viewpoly object..."))
-        save(list = input$data.name, file = file)
-      })
-    }
-  )  
-  
-  return(list(loadMap = reactive(loadMap()), 
-              loadQTL = reactive(loadQTL()), 
-              loadJBrowse_fasta = reactive(loadJBrowse_fasta()), 
-              loadJBrowse_gff3 = reactive(loadJBrowse_gff3()), 
-              loadJBrowse_vcf = reactive(loadJBrowse_vcf()),
-              loadJBrowse_align = reactive(loadJBrowse_align()),
-              loadJBrowse_wig = reactive(loadJBrowse_wig()),
-              loadExample = reactive(loadExample())
-  ))
+    save(list = input$data.name, file = file)
+  }
+)  
+
+return(list(loadMap = reactive(loadMap()), 
+            loadQTL = reactive(loadQTL()), 
+            loadJBrowse_fasta = reactive(loadJBrowse_fasta()), 
+            loadJBrowse_gff3 = reactive(loadJBrowse_gff3()), 
+            loadJBrowse_vcf = reactive(loadJBrowse_vcf()),
+            loadJBrowse_align = reactive(loadJBrowse_align()),
+            loadJBrowse_wig = reactive(loadJBrowse_wig()),
+            loadExample = reactive(loadExample())
+))
 }
 
 ## To be copied in the UI
