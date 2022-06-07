@@ -7,24 +7,32 @@ tags:
 - Linkage map
 - QTL
 - Polyploid
-date: "18 February 2021"
+date: "21 February 2022"
 output: pdf_document
 authors:
 - name: Cristiane Hayumi Taniguti
+  orcid: 0000-0002-2021-6883
   affiliation: 1
-- name: Gabriel Gesteira
+- name: Gabriel de Siqueira Gesteira
+  orcid: 0000-0002-4106-7346
   affiliation: 2
 - name: Jeekin Lau
+  orcid: 0000-0003-1114-6892
   affiliation: 1
 - name: Guilherme da Silva Pereira
+  orcid: 0000-0002-7106-8630
   affiliation: 3
 - name: Zhao-Bang Zeng
+  orcid: 0000-0002-3115-1149
   affiliation: 2
 - name: David Byrne
+  orcid: 0000-0001-5460-2419
   affiliation: 1
 - name: Oscar Riera-Lizarazu
+  orcid: 0000-0002-7477-4063
   affiliation: 1
 - name: Marcelo Mollinari
+  orcid: 0000-0002-7001-8498
   affiliation: 2
 bibliography: paper.bib
 affiliations:
