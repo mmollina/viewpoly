@@ -14,7 +14,7 @@ Authors@R: c(
                   family = "Lau",
                   role = c("ctb")),
            person(given = "Guilherme",
-                  family = "Pereira",
+                  family = "da Silva Pereira",
                   role = c("ctb")),
            person(given = "David",
                   family = "Byrne",
