@@ -5,6 +5,7 @@
 [![R-universe PolyVerse Status Badge](https://polyploids.r-universe.dev/badges/viewpoly)](https://polyploids.r-universe.dev/badges/viewpoly)
 [![codecov](https://codecov.io/github/mmollina/viewpoly/branch/main/graphs/badge.svg)](https://codecov.io/github/mmollina/viewpoly)
 [![CRAN_monthly_downloads](https://cranlogs.r-pkg.org/badges/viewpoly)](https://cranlogs.r-pkg.org/badges/viewpoly)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04242/status.svg)](https://doi.org/10.21105/joss.04242)
 <!-- badges: end -->
   
 # VIEWpoly <img src="https://user-images.githubusercontent.com/7572527/145726577-7b01d48b-ca1d-446b-b9c8-aff8c3c9877b.png" align="right" width="230"/>
@@ -63,7 +64,7 @@ If you would like to contribute to develop `VIEWpoly`, please check our [Contrib
 
 ### References
 
-Taniguti CH, Gesteira GS, Lau J, Pereira GS, Zeng ZB, Byrne D, Riera-Lizarazu O, Mollinari M. VIEWpoly: a visualization tool to integrate and explore results of polyploid genetic analysis. Submitted.
+Taniguti CH, Gesteira GS, Lau J, Pereira GS, Zeng ZB, Byrne D, Riera-Lizarazu O, Mollinari M. "VIEWpoly: a visualization tool to integrate and explore results of polyploid genetic analysis". Journal of Open Source Software. doi: 10.21105/joss.04242.
 
 Mollinari M, Garcia AAF. 2019. “Linkage analysis and haplotype phasing in experimental autopolyploid populations with high ploidy level using hidden Markov models.” G3: Genes, Genomes, Genetics 9 (10): 3297-3314. doi:10.1534/g3.119.400378.
 
