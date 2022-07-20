@@ -64,7 +64,7 @@ If you would like to contribute to develop `VIEWpoly`, please check our [Contrib
 
 ### References
 
-Taniguti CH, Gesteira GS, Lau J, Pereira GS, Zeng ZB, Byrne D, Riera-Lizarazu O, Mollinari M. "VIEWpoly: a visualization tool to integrate and explore results of polyploid genetic analysis". Journal of Open Source Software. doi: 10.21105/joss.04242.
+Taniguti CH, Gesteira GS, Lau J, Pereira GS, Zeng ZB, Byrne D, Riera-Lizarazu O, Mollinari M. "VIEWpoly: a visualization tool to integrate and explore results of polyploid genetic analysis". Journal of Open Source Software, 7(74), 4242. doi: 10.21105/joss.04242.
 
 Mollinari M, Garcia AAF. 2019. “Linkage analysis and haplotype phasing in experimental autopolyploid populations with high ploidy level using hidden Markov models.” G3: Genes, Genomes, Genetics 9 (10): 3297-3314. doi:10.1534/g3.119.400378.
 
