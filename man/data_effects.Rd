@@ -8,8 +8,7 @@ data_effects(
   qtl_info,
   effects,
   pheno.col = NULL,
-  p1 = "P1",
-  p2 = "P2",
+  parents = NULL,
   lgs = NULL,
   groups = NULL,
   position = NULL,
@@ -26,9 +25,7 @@ Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - 
 
 \item{pheno.col}{integer identifying phenotype}
 
-\item{p1}{character with parent 1 ID}
-
-\item{p2}{character with parent 2 ID}
+\item{parents}{vector with parents ID}
 
 \item{lgs}{vector of integers with linkage group ID of selected QTL/s}
 

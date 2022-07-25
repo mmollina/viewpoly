@@ -148,18 +148,18 @@ prepare_polymapR <- function(polymapR.dataset, polymapR.map, input.type, ploidy)
   temp <- load(polymapR.map$datapath)
   polymapR.map <- get(temp)
   data <- import_data_from_polymapR(input.data = polymapR.dataset, 
-                                               ploidy = ploidy, 
-                                               parent1 = "P1", 
-                                               parent2 = "P2",
-                                               input.type = ,
-                                               prob.thres = 0.95,
-                                               pardose = NULL, 
-                                               offspring = NULL,
-                                               filter.non.conforming = TRUE,
-                                               verbose = FALSE)
+                                    ploidy = ploidy, 
+                                    parent1 = "P1", 
+                                    parent2 = "P2",
+                                    input.type = ,
+                                    prob.thres = 0.95,
+                                    pardose = NULL, 
+                                    offspring = NULL,
+                                    filter.non.conforming = TRUE,
+                                    verbose = FALSE)
   
   map_seq <- import_phased_maplist_from_polymapR(maplist = polymapR.map, 
-                                                            mappoly.data = data)
+                                                 mappoly.data = data)
   
   viewmap <- prepare_MAPpoly(mappoly_list = map_seq)
   viewmap$software <- "polymapR"
@@ -315,6 +315,9 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
     profile_temp <- data.frame(pheno = trait, deltaDIC = scan1_list[[which(names(scan1_list) == trait)]]$deltaDIC)
     profile <- rbind(profile, profile_temp)
     
+    # Sometimes there is a graphic about epistasis that is not described anywhere yet. We ignored it here by now.
+    if(any(grepl("epistasis", names(fitQTL_list[[i]]$plots)))) fitQTL_list[[i]]$plots <- fitQTL_list[[i]]$plots[-grep("epistasis", names(fitQTL_list[[i]]$plots))]
+    
     for(j in 1:length(fitQTL_list[[i]]$plots)){
       # aditive effect
       temp <- fitQTL_list[[i]]$plots[[j]]$additive$data
@@ -344,10 +347,37 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
     }
   }
   
-  CI <- lapply(BayesCI_list, function(x) {
+  # Ordering Bayes info according to qtl info
+  BayesCI_list_ord <- list()
+  for(i in 1:dim(qtl_info2)[1]){
+    for(j in 1:length(BayesCI_list)){
+      if(any(paste0(BayesCI_list[[j]]$pheno, BayesCI_list[[j]]$marker, BayesCI_list[[j]]$chrom) %in% 
+             paste0(qtl_info2$pheno[i], qtl_info2$marker[i], qtl_info2$chrom[i]))){
+        BayesCI_list_ord[[i]] <- BayesCI_list[[j]]
+      }
+    }
+  }
+  
+  if(length(BayesCI_list_ord) != dim(qtl_info2)[1]) BayesCI_list_ord[[length(BayesCI_list_ord) + 1]] <- NULL
+  idx <- which(sapply(BayesCI_list_ord, is.null))
+  if(length(idx) != 0 | length(BayesCI_list_ord) != dim(qtl_info2)[1]){
+    warning(paste0("Bayes confidence interval information (from diaQTL function BayesCI) was not provided for the QTL in chromosome:", qtl_info2[idx, 3], 
+                   "; phenotype: ", qtl_info2[idx, 1]))
+  }
+  
+  CI <- lapply(BayesCI_list_ord, function(x) {
     y = c(Pos_lower = x$cM[1], Pos_upper = x$cM[length(x$cM)])
     return(y)
   })
+  
+  
+  idx <- which(sapply(CI, is.null))
+  if(length(idx) != 0 | length(BayesCI_list_ord) != dim(qtl_info2)[1]){
+    if(length(idx) != 0)
+    CI[[idx]] <- c(NA, NA)
+    else  CI[[length(CI) + 1]] <- c(NA, NA)
+
+  }
   
   CI <- do.call(rbind, CI)
   

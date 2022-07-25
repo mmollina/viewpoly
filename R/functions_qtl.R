@@ -212,8 +212,7 @@ only_plot_profile <- function(pl.in){
 #' Pos_upper - upper position of the confidence interval; Pval - QTL p-value; h2 - herdability
 #' @param effects data.frame with: pheno - phenotype ID; qtl.id - QTL ID; haplo - haplotype ID; effect - haplotype effect value
 #' @param pheno.col integer identifying phenotype  
-#' @param p1 character with parent 1 ID
-#' @param p2 character with parent 2 ID
+#' @param parents vector with parents ID
 #' @param lgs vector of integers with linkage group ID of selected QTL/s
 #' @param groups vector of integers with selected linkage group ID
 #' @param position vector of centimorgan positions of selected QTL/s
@@ -231,9 +230,10 @@ only_plot_profile <- function(pl.in){
 #' 
 #' @keywords internal
 data_effects <- function(qtl_info, effects, pheno.col = NULL, 
-                         p1 = "P1", p2 = "P2",  
+                         parents = NULL,
                          lgs = NULL, groups = NULL, position = NULL, 
                          software, design = c("bar", "circle", "digenic")) {
+  
   
   CI.lower <- CI.upper <- x <- y <- z <- Estimates <- LG <- unique.id <- NULL
   x.axis <- haplo <- effect <- qtl.id <- Alleles <- . <- NULL
@@ -244,15 +244,43 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     pheno.col.n <- which(unique(qtl_info$pheno) %in% pheno.col)
   }
   
+  
   if(software == "QTLpoly" | software == "diaQTL"){
     
     if(software == "QTLpoly"){
       ploidy <- max(nchar(effects$haplo))
+      if(is.null(parents)) {# Multi-population still not implemented
+        p1 <- "P1"
+        p2 <- "P2" 
+      } else {
+        p1 <- parents[1]
+        p2 <- parents[2]
+      }
     } else if(software == "diaQTL") {
       get.size <-  filter(effects, .data$pheno == unique(qtl_info$pheno)[1] & .data$qtl.id == 1 & !grepl("x",.data$haplo)) # issue if parents name has x: fixme!
-      ploidy = nrow(get.size)/2
+      ploidy = as.numeric(table(substring(unique(get.size$haplo), 1, nchar(unique(get.size$haplo)) -2))[1])
+      
+      old.parents.names <- unique(substr(get.size$haplo,1,nchar(get.size$haplo)-2))
+      n.parents <- length(old.parents.names)
+      if(is.null(parents))  {
+        parents <- paste0("P", 1:n.parents)
+      } else {
+        if(length(parents) != n.parents)
+          stop(safeError(paste0("Your data set has", n.parents, " parental genotyopes. Please, provide a name for each one.")))
+      }
+      
+      # Update parents names in effects data
+      for(z in 1:n.parents)
+        effects$haplo <- gsub(old.parents.names[z], parents[z], effects$haplo)
     } else if(software == "polyqtlR"){
       ploidy <- (dim(effects)[2] - 3)/2
+      if(is.null(parents)) {# Multi-population still not implemented
+        p1 <- "P1"
+        p2 <- "P2" 
+      } else {
+        p1 <- parents[1]
+        p2 <- parents[2]
+      }    
     }
     
     qtl_info.sub <- qtl_info %>% filter(.data$pheno %in% unique(qtl_info$pheno)[pheno.col.n]) %>%
@@ -287,9 +315,9 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
           if(ploidy == 4) {
             if(software == "diaQTL"){
               if(any(data$type == "Digenic")){
-                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(parents, each = ploidy),rep(NA,dim(data)[1]-n.parents*ploidy)), Effects=c(rep("Additive",n.parents*ploidy),rep("Digenic",dim(data)[1]-n.parents*ploidy)))
               } else  {
-                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4)), Effects=c(rep("Additive",8)))
+                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=rep(parents, each = ploidy), Effects="Additive")
               }
             } else {
               data <- data[1:36,]
@@ -326,7 +354,9 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
           if(design == "bar"){
             if(software == "QTLpoly"){
               lim <- max(abs(data[which(data$Effects == "Additive"),]$Estimates))
-            } else lim <- max(abs(c(data[which(data$Effects == "Additive"),]$CI.lower, data[which(data$Effects == "Additive"),]$CI.upper)))
+            } else 
+              lim <- max(abs(c(data[which(data$Effects == "Additive"),]$CI.lower, data[which(data$Effects == "Additive"),]$CI.upper)))
+            
             plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
               geom_bar(stat="identity") + ylim(c(-lim, lim)) +
               {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
@@ -339,6 +369,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                     plot.subtitle = element_text(hjust = 0.5), 
                     axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
             plots1[[q]] <- plot
+            
           } else if(design == "digenic"){
             if(!all(is.na(data[which(data$Effects == "Digenic"),]$Estimates))){
               temp <- do.call(rbind, strsplit(data$Alleles, "x"))
@@ -358,6 +389,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                                                additive.effects$Estimates[match(digenic.effects$x, additive.effects$Alleles)] + 
                                                additive.effects$Estimates[match(digenic.effects$y, additive.effects$Alleles)]))
               }
+              
               plot = ggplot(data= plot.data,aes(x= x, y= y, fill= z)) + 
                 geom_tile() + scale_fill_gradient2(name="") + 
                 labs(title = paste("Trait:", unique(qtl_info$pheno)[p]),
@@ -368,6 +400,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
                 coord_fixed(ratio=1)
               plots1[[q]] <- plot
             } else plots1[[q]] <- NULL
+            
           } else if(design == "circle"){
             additive.effects <- data[which(data$Effects == "Additive"),]
             additive.effects$pheno <- unique(qtl_info$pheno)[p]

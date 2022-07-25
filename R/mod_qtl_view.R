@@ -78,7 +78,7 @@ mod_qtl_view_ui <- function(id){
                                    downloadButton(ns('bn_download'), "Download", class = "butt")
                             ),
                             column(3,
-                                   radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                                   radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf", "RData"), selected = "png", inline = T)
                             ),                     
                             column(2,
                                    numericInput(ns("width_profile"), "Width (mm)", value = 180),
@@ -110,18 +110,24 @@ mod_qtl_view_ui <- function(id){
                          column(3,
                                 downloadButton(ns('bn_download_effects'), "Download", class = "butt")
                          ),
+                         
                          column(3,
-                                radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
-                         ),                     
-                         column(2,
                                 numericInput(ns("width_effects"), "Width (mm)", value = 180),
                          ),
-                         column(2,
+                         column(3,
                                 numericInput(ns("height_effects"), "Height (mm)", value = 120),
                          ),
-                         column(2,
+                         column(3,
                                 numericInput(ns("dpi_effects"), "DPI", value = 300)
                          ), br(), 
+                         column(12, 
+                                column(6,
+                                       radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf", "RData"), selected = "png", inline = T)
+                                ),
+                                column(6,
+                                       textInput(ns("parents_name"), "Parents name", value = "Example: P1, P2")
+                                ),
+                         ),
                          column(12,
                                 hr(),
                                 uiOutput(ns("plot.ui"))
@@ -157,7 +163,7 @@ mod_qtl_view_ui <- function(id){
                                 downloadButton(ns('bn_download_haplo'), "Download", class = "butt")
                          ),
                          column(3,
-                                radioButtons(ns("fformat_haplo"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                                radioButtons(ns("fformat_haplo"), "File type", choices=c("png","tiff","jpeg","pdf", "RData"), selected = "png", inline = T)
                          ),                     
                          column(2,
                                 numericInput(ns("width_haplo"), "Width (mm)", value = 180),
@@ -321,6 +327,11 @@ mod_qtl_view_server <- function(input, output, session,
     validate(
       need(dim(df)[1] > 0, "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
     )
+    
+    if(!grepl("Example" ,input$parents_name)) {
+      parents <- unlist(strsplit(input$parents_name, ","))
+    } else parents <- NULL
+    
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Getting data..."))
       data <- data_effects(qtl_info = loadQTL()$qtl_info, 
@@ -330,7 +341,8 @@ mod_qtl_view_server <- function(input, output, session,
                            position = df$`Position (cM)`,
                            groups = as.numeric(input$group),
                            software = loadQTL()$software,
-                           design = input$effects_design)
+                           design = input$effects_design,
+                           parents = parents)
     })
   })
   
@@ -508,6 +520,7 @@ mod_qtl_view_server <- function(input, output, session,
     if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tiff")
     if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
     if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
+    if(input$fformat=="RData") filename <- paste0("profile","_",seed,".RData")
     return(filename)
   })
   
@@ -515,8 +528,11 @@ mod_qtl_view_server <- function(input, output, session,
   fn_download <- function()
   {
     p <- only_plot_profile(pl.in = qtl.data())
-    ggsave(p, filename = fn_downloadname(), 
-           width = input$width_profile, height = input$height_profile, units = "mm", dpi = input$dpi_profile)    
+    
+    if(input$fformat!="RData"){
+      ggsave(p, filename = fn_downloadname(), 
+             width = input$width_profile, height = input$height_profile, units = "mm", dpi = input$dpi_profile)    
+    } else save(p, file = fn_downloadname())
   }
   
   observe({
@@ -548,6 +564,7 @@ mod_qtl_view_server <- function(input, output, session,
     if(input$fformat_effects=="tiff") filename <- paste0("effects","_",seed,".tiff")
     if(input$fformat_effects=="jpeg") filename <- paste0("effects","_",seed,".jpg")
     if(input$fformat_effects=="pdf") filename <- paste0("effects","_",seed,".pdf")
+    if(input$fformat_effects=="RData") filename <- paste0("effects","_",seed,".RData")
     return(filename)
   })
   
@@ -560,10 +577,16 @@ mod_qtl_view_server <- function(input, output, session,
     
     df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     
+    if(!grepl("Example" ,input$parents_name)) {
+      cat("here2")
+      parents <- unlist(strsplit(input$parents_name, ","))
+    } else parents <- NULL
+    
     data <- data_effects(qtl_info = loadQTL()$qtl_info, 
                          effects = loadQTL()$effects,
                          pheno.col = as.character(df$Trait), 
                          lgs = df$LG, 
+                         parents = parents,
                          position = df$`Position (cM)`,
                          groups = as.numeric(input$group),
                          software = loadQTL()$software,
@@ -571,8 +594,10 @@ mod_qtl_view_server <- function(input, output, session,
     
     plots <- plot_effects(data, software = loadQTL()$software, design = input$effects_design)
     
-    ggsave(plots, filename = fn_downloadname_effects(), height = input$height_effects, 
-           width = input$width_effects, units = "mm", bg = "white", dpi = input$dpi_effects)    
+    if(input$fformat_effects!="RData"){
+      ggsave(plots, filename = fn_downloadname_effects(), height = input$height_effects, 
+             width = input$width_effects, units = "mm", bg = "white", dpi = input$dpi_effects)    
+    } else save(data, file = fn_downloadname_effects())
   }
   
   shinyjs::disable("bn_download_effects")
@@ -614,6 +639,7 @@ mod_qtl_view_server <- function(input, output, session,
     if(input$fformat_haplo=="tiff") filename <- paste0("haplotypes","_",seed,".tiff")
     if(input$fformat_haplo=="jpeg") filename <- paste0("haplotypes","_",seed,".jpg")
     if(input$fformat_haplo=="pdf") filename <- paste0("haplotypes","_",seed,".pdf")
+    if(input$fformat_haplo=="RData") filename <- paste0("haplotypes","_",seed,".RData")
     return(filename)
   })
   
@@ -623,8 +649,10 @@ mod_qtl_view_server <- function(input, output, session,
     p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
     plots <- ggarrange(plotlist = p, ncol = 3, common.legend = TRUE)
     
-    ggsave(plots, filename = fn_downloadname_haplo(), height = input$height_haplo, 
-           width = input$width_haplo, units = "mm", bg = "white", dpi = input$dpi_haplo)    
+    if(input$fformat_haplo!="RData"){
+      ggsave(plots, filename = fn_downloadname_haplo(), height = input$height_haplo, 
+             width = input$width_haplo, units = "mm", bg = "white", dpi = input$dpi_haplo)    
+    } else save(p, file = fn_downloadname_haplo())
   }
   
   observe({

@@ -77,7 +77,7 @@ mod_map_view_ui <- function(id){
                    downloadButton(ns('bn_download'), "Download", class = "butt")
             ),
             column(3,
-                   radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T)
+                   radioButtons(ns("fformat"), "File type", choices=c("png","tiff","jpeg","pdf", "RData"), selected = "png", inline = T)
             ),                     
             column(2,
                    numericInput(ns("width_profile"), "Width (mm)", value = 180),
@@ -138,7 +138,7 @@ mod_map_view_ui <- function(id){
                    downloadButton(ns('bn_download_summary'), "Download", class = "butt")
             ),
             column(3,
-                   radioButtons(ns("fformat_summary"), "File type", choices=c("png","tiff","jpeg","pdf"), selected = "png", inline = T), br(),
+                   radioButtons(ns("fformat_summary"), "File type", choices=c("png","tiff","jpeg","pdf", "RData"), selected = "png", inline = T), br(),
             ),                     
             column(2,
                    numericInput(ns("width_summary"), "Width (mm)", value = 180),
@@ -412,6 +412,7 @@ mod_map_view_server <- function(input, output, session,
     if(input$fformat=="tiff") filename <- paste0("profile","_",seed,".tiff")
     if(input$fformat=="jpeg") filename <- paste0("profile","_",seed,".jpg")
     if(input$fformat=="pdf") filename <- paste0("profile","_",seed,".pdf")
+    if(input$fformat=="RData") filename <- paste0("profile","_",seed,".RData")
     return(filename)
   })
   
@@ -426,9 +427,12 @@ mod_map_view_server <- function(input, output, session,
                        range.max = input$range[2], 
                        by_range=T, 
                        software = loadQTL()$software)
-    ggsave(pl, filename = fn_downloadname(), 
-           width = input$width_profile, height = input$height_profile, 
-           units = "mm", dpi = input$dpi_profile)    
+    
+    if(input$fformat!="RData"){
+      ggsave(pl, filename = fn_downloadname(), 
+             width = input$width_profile, height = input$height_profile, 
+             units = "mm", dpi = input$dpi_profile)    
+    } else save(pl, file = fn_downloadname())
   }
   
   observe({
@@ -479,7 +483,7 @@ mod_map_view_server <- function(input, output, session,
       jpeg(fn_downloadname_map(), width = input$width_map, height = input$height_map, units = "mm", res = input$dpi_map)
     } else  if(input$fformat_map == "pdf"){
       pdf(fn_downloadname_map(), width = input$width_map, height = input$height_map, units = "mm", res = input$dpi_map)
-    }
+    } 
     
     draw_map_shiny(left.lim = input$range[1], 
                    right.lim = input$range[2], 
@@ -522,6 +526,7 @@ mod_map_view_server <- function(input, output, session,
     if(input$fformat_summary=="tiff") filename <- paste0("map","_",seed,".tiff")
     if(input$fformat_summary=="jpeg") filename <- paste0("map","_",seed,".jpg")
     if(input$fformat_summary=="pdf") filename <- paste0("map","_",seed,".pdf")
+    if(input$fformat_summary=="RData") filename <- paste0("map","_",seed,".RData")
     return(filename)
   })
   
@@ -536,19 +541,24 @@ mod_map_view_server <- function(input, output, session,
       y
     })
     
-    if(input$fformat_summary == "png"){
-      png(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
-    } else  if(input$fformat_summary == "tiff"){
-      tiff(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
-    } else  if(input$fformat_summary == "jpeg"){
-      jpeg(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
-    } else  if(input$fformat_summary == "pdf"){
-      pdf(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
+    if(input$fformat_summary != "RData"){
+      if(input$fformat_summary == "png"){
+        png(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
+      } else  if(input$fformat_summary == "tiff"){
+        tiff(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
+      } else  if(input$fformat_summary == "jpeg"){
+        jpeg(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
+      } else  if(input$fformat_summary == "pdf"){
+        pdf(fn_downloadname_summary(),  width = input$width_summary, height = input$height_summary, units = "mm", res = input$dpi_summary)
+      }
+      
+      plot_map_list(loadMap())   
+      
+      dev.off()
+    } else {
+      p <-  plot_map_list(loadMap())   
+      save(p, file = fn_downloadname_summary())
     }
-    
-    plot_map_list(loadMap())   
-    
-    dev.off()
   }
   
   observe({
