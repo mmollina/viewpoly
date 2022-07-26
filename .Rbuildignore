@@ -10,3 +10,5 @@
 ^paper$
 ^rsconnect$
 ^app\.R$
+^Dockerfile$
+^\.dockerignore$
