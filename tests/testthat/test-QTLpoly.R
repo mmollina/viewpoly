@@ -14,9 +14,9 @@ test_that("Tests uploaded QTLpoly files",{
   download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_fitted.RData", destfile = fitted.mod$datapath)
   
   viewqtl_qtlpoly <- prepare_QTLpoly(data = input.data,
-                                     remim.mod = remim.mod,
-                                     est.effects = est.effects,
-                                     fitted.mod = fitted.mod)
+                                                remim.mod = remim.mod,
+                                                est.effects = est.effects,
+                                                fitted.mod = fitted.mod)
   
   expect_equal(check_viewqtl(viewqtl_qtlpoly),0)
   
@@ -151,12 +151,24 @@ test_that("Tests uploaded QTLpoly files",{
   input.haplo <- list("Trait:SG06_LG:2_Pos:77_homolog:P1.1", "Trait:FM07_LG:5_Pos:26_homolog:P1.3",
                       "Trait:SG06_LG:2_Pos:77_homolog:P1.3", "Trait:FM07_LG:5_Pos:26_homolog:P2.3")
   
-  p1 <- select_haplo(input.haplo,
+  p1.list <- select_haplo(input.haplo,
                      viewqtl_qtlpoly$probs,
                      viewqtl_qtlpoly$selected_mks,
                      effects.data = p)
+  p1 <- p1.list[[1]]
   
-  expect_equal(sum(p1[[1]]$data$probability), 940.0008, tolerance = 0.0001)
-  expect_equal(sum(p1[[2]]$data$probability), 940.0004, tolerance = 0.0001)
-  expect_equal(sum(p1[[3]]$data$probability), 939.9999, tolerance = 0.0001)
+  # Test exclude
+  input.haplo <- list("Trait:PY06_LG:5_Pos:29_homolog:P1.1")
+  exclude.haplo <- list("Trait:FM07_LG:5_Pos:26_homolog:P1.4")
+  
+  p1.list <- select_haplo(input.haplo = input.haplo,
+                                exclude.haplo = exclude.haplo, 
+                                probs = viewqtl_qtlpoly$probs, 
+                                selected_mks = viewqtl_qtlpoly$selected_mks,
+                                effects.data = p)
+  p1 <- p1.list[[1]]
+  
+  expect_equal(sum(p1[[1]]$data$probability), 431.9998, tolerance = 0.0001)
+  expect_equal(sum(p1[[2]]$data$probability), 432.0001, tolerance = 0.0001)
+  expect_equal(sum(p1[[3]]$data$probability), 432.0005, tolerance = 0.0001)
 })

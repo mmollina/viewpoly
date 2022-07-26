@@ -31,3 +31,5 @@ Main modifications made during JOSS review:
 * User-defined parents names in effects graphics
 * Download of plots with RData format
 * Docker image available
+* Allow to exclude haplotypes from haplotypes probability view in VIEWqtl module
+* Display progeny individuals selected names as a vector

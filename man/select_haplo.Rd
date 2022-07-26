@@ -4,7 +4,13 @@
 \alias{select_haplo}
 \title{Plot selected haplotypes}
 \usage{
-select_haplo(input.haplo, probs, selected_mks, effects.data)
+select_haplo(
+  input.haplo,
+  probs,
+  selected_mks,
+  effects.data,
+  exclude.haplo = NULL
+)
 }
 \arguments{
 \item{input.haplo}{character vector with selected haplotypes. It contains the information: "Trait:<trait ID>_LG:<linkage group ID_Pos:<QTL position>"}
@@ -14,6 +20,8 @@ select_haplo(input.haplo, probs, selected_mks, effects.data)
 \item{selected_mks}{data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)}
 
 \item{effects.data}{output object from \code{data_effects} function}
+
+\item{exclude.haplo}{character vector with haplotypes to be excluded. It contains the information: "Trait:<trait ID>_LG:<linkage group ID_Pos:<QTL position>"}
 }
 \value{
 ggplot graphic

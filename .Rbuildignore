@@ -10,3 +10,4 @@
 ^paper$
 ^rsconnect$
 ^app\.R$
+^Dockerfile$

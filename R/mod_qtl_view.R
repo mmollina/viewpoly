@@ -157,6 +157,19 @@ mod_qtl_view_ui <- function(id){
                                               dropdownAlignRight = TRUE
                                             ), 
                                             multiple = TRUE), br(),
+                                pickerInput(ns("haplo_exclude"),
+                                            label = h6("Exclude haplotypes (optional)"),
+                                            choices = "Click on `update available haplotype` to update",
+                                            selected = "Click on `update available haplotype` to update",
+                                            options = pickerOptions(
+                                              size = 15,
+                                              `selected-text-format` = "count > 3",
+                                              `live-search`=TRUE,
+                                              actionsBox = TRUE,
+                                              dropupAuto = FALSE,
+                                              dropdownAlignRight = TRUE
+                                            ), 
+                                            multiple = TRUE), br(),
                                 actionBttn(ns("haplo_submit"), style = "jelly", color = "royal",  size = "sm", label = "submit selected haplotypes*", icon = icon("share-square", verify_fa = FALSE)), 
                                 br(), hr()),
                          column(3,
@@ -176,6 +189,7 @@ mod_qtl_view_ui <- function(id){
                          ), br(), 
                          column(12,
                                 hr(),
+                                htmlOutput(ns("ind_names")), hr(),
                                 uiOutput(ns("plot_haplo.ui"))
                          )
                      ),
@@ -353,7 +367,6 @@ mod_qtl_view_server <- function(input, output, session,
     })
   })
   
-  
   plotHeight <- reactive({
     
     validate(
@@ -395,12 +408,22 @@ mod_qtl_view_server <- function(input, output, session,
                           label = "Select haplotypes",
                           choices = paste0("Feature not implemented for software: ", loadQTL()$software),
                           selected= paste0("Feature not implemented for software: ", loadQTL()$software))
+        
+        updatePickerInput(session, "haplo_exclude",
+                          label = "Exclude haplotypes (optional)",
+                          choices = paste0("Feature not implemented for software: ", loadQTL()$software),
+                          selected= paste0("Feature not implemented for software: ", loadQTL()$software))
       } else if(!is.null(input$plot_brush)){
         dframe <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
       } else {
         dframe <- NULL
         updatePickerInput(session, "haplo",
                           label = "Select haplotypes",
+                          choices = "Select QTL in the profile graphic to update",
+                          selected= "Select QTL in the profile graphic to update")
+        
+        updatePickerInput(session, "haplo_exclude",
+                          label = "Exclude haplotypes (optional)",
                           choices = "Select QTL in the profile graphic to update",
                           selected= "Select QTL in the profile graphic to update")
       }
@@ -410,12 +433,21 @@ mod_qtl_view_server <- function(input, output, session,
                         label = "Select haplotypes",
                         choices = "Upload the QTL information in upload session to access this feature.",
                         selected= "Upload the QTL information in upload session to access this feature.")
+      
+      updatePickerInput(session, "haplo_exclude",
+                        label = "Exclude haplotypes (optional)",
+                        choices = "Upload the QTL information in upload session to access this feature.",
+                        selected= "Upload the QTL information in upload session to access this feature.")
     }
-    
     if(!is.null(dframe)){
       if(input$effects_design == "digenic" | input$effects_design == "circle") {
         updatePickerInput(session, "haplo",
                           label = "Select haplotypes",
+                          choices = "Select `bar` design to access this feature.",
+                          selected= "Select `bar` design to access this feature.")
+        
+        updatePickerInput(session, "haplo_exclude",
+                          label = "Exclude haplotypes (optional)",
                           choices = "Select `bar` design to access this feature.",
                           selected= "Select `bar` design to access this feature.")
       } else {
@@ -430,6 +462,11 @@ mod_qtl_view_server <- function(input, output, session,
                           label = "Select haplotypes",
                           choices = haplo_choices,
                           selected= haplo_choices[1:3])
+        
+        updatePickerInput(session, "haplo_exclude",
+                          label = "Exclude haplotypes (optional)",
+                          choices = haplo_choices,
+                          selected= NULL)
       }
     }
   })
@@ -441,11 +478,14 @@ mod_qtl_view_server <- function(input, output, session,
       need(all(input$haplo != "Select QTL in the profile graphic to update"), "Select QTL in the profile graphic to update"),
       need(all(input$haplo != "Select `bar` design to access this feature."), "Select `bar` design to access this feature.")
     )
-    p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data())
+
+    list.p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data(), exclude.haplo = input$haplo_exclude)
+    p <- list.p[[1]]
+    inds <- list.p[[2]]
     counts <- ceiling(length(p)/3)
     if(counts == 0) counts <- 1
     size <- counts*450
-    list(p, size)
+    list(p, size, inds)
   })
   
   output$haplotypes <- renderPlot({
@@ -460,6 +500,11 @@ mod_qtl_view_server <- function(input, output, session,
   
   output$plot_haplo.ui <- renderUI({
     plotOutput(ns("haplotypes"), height = haplo_data()[[2]])
+  })
+  
+  output$ind_names <- renderUI({
+    x <- paste0("<strong>Progeny individuals with selected haplotypes  </strong>: ", paste(haplo_data()[[3]], collapse = ", "))
+    HTML(x)
   })
   
   output$info <- DT::renderDataTable(server = FALSE, {

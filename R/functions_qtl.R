@@ -760,6 +760,7 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' Plot selected haplotypes
 #' 
 #' @param input.haplo character vector with selected haplotypes. It contains the information: "Trait:<trait ID>_LG:<linkage group ID_Pos:<QTL position>" 
+#' @param exclude.haplo character vector with haplotypes to be excluded. It contains the information: "Trait:<trait ID>_LG:<linkage group ID_Pos:<QTL position>" 
 #' @param probs data.frame with first column (named `ind`) as individuals ID and next columns named with markers ID and containing the genotype probability at each marker
 #' @param selected_mks data.frame with: LG - linkage group ID; mk - marker ID; pos - position in linkage map (cM)
 #' @param effects.data output object from \code{data_effects} function
@@ -768,9 +769,10 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' 
 #' @keywords internal
-select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
+select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.haplo = NULL){
   LG <- map.position <- individual <- probability <- NULL
   
+  # Include haplo
   lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
   lgs <- gsub("LG:", "", lgs)
   homo.dat <- calc_homologprob(probs = probs, selected_mks = selected_mks, selected_lgs = lgs)
@@ -794,18 +796,50 @@ select_haplo <- function(input.haplo, probs, selected_mks, effects.data){
     like.ind.all[[i]] <-  like.ind
   }
   like.intersect <- Reduce(intersect, like.ind.all)
+  
+  ## Exclude haplo
+  if(!is.null(exclude.haplo)){
+    lgs1 <- sapply(strsplit(unlist(exclude.haplo), "_"),function(x) x[grep("LG", x)])
+    lgs1 <- gsub("LG:", "", lgs1)
+    homo.dat1 <- calc_homologprob(probs = probs, selected_mks = selected_mks, selected_lgs = lgs1)
+    pos1 <- sapply(strsplit(unlist(exclude.haplo), "_"),function(x) x[grep("Pos", x)])
+    pos1 <- gsub("Pos:", "", pos1)
+    homo <- sapply(strsplit(unlist(exclude.haplo), "_"),function(x) x[grep("homolog", x)])
+    homo <- gsub("homolog:", "", homo)
+    alleles <- effects.data[[1]]$data$Alleles[!grepl("_",effects.data[[1]]$data$Alleles)]
+    alleles <- rep(alleles, length(homo))
+    like.ind.all <- list()
+    for(i in 1:length(pos1)){
+      idx <- match(homo[i], sort(unique(alleles)))
+      homoprob_temp <- homo.dat1$homoprob %>% 
+        filter(round(map.position,2) %in% round(as.numeric(pos1[i]),2)) %>% filter(LG %in% lgs1[i])
+      homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
+      homoprob_temp <- homoprob_temp %>% 
+        group_by(map.position, LG, individual) %>% 
+        summarise(best = which(probability > 0.5))
+      like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx)]
+      if(length(like.ind) ==0) like.ind <- NA
+      like.ind.all[[i]] <-  like.ind
+    }
+    like.intersect.exclude <- Reduce(intersect, like.ind.all)
+    like.intersect <- like.intersect[-which(like.intersect %in% like.intersect.exclude)]
+    # For vertical lines
+    idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% c(paste0(round(as.numeric(pos),2), "_", lgs), paste0(round(as.numeric(pos1),2), "_", lgs1)))
+  } else {
+    idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% paste0(round(as.numeric(pos),2), "_", lgs))
+  }
+  
   if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop(safeError("No individual in the progeny was found containing the combination of all the selected homolog/s. Please, select another combination of homolog/s."))
-  idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% paste0(round(as.numeric(pos),2), "_", lgs))
   homo.dat$homoprob$qtl <- NA
   homo.dat$homoprob$qtl[idx] <- homo.dat$homoprob$map.position[idx] # vertical lines
   
   p <- list()
   for(i in 1:length(like.intersect)){
     p[[i]] <- plot.mappoly.homoprob(x = homo.dat, 
-                                    lg = unique(as.numeric(lgs)), 
-                                    ind = as.character(like.intersect)[i],
-                                    use.plotly = FALSE)
+                                               lg = unique(as.numeric(lgs)), 
+                                               ind = as.character(like.intersect)[i],
+                                               use.plotly = FALSE)
   }
-  return(p)
+  return(list(p, inds = as.character(like.intersect)))
 }
 
