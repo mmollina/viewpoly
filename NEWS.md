@@ -25,7 +25,7 @@ Main modifications made during JOSS review:
 * Disable the download buttons when image parameters are not reliable
 * Title of boxes are now also collapsible
 
-# viewpoly 0.2.1
+# viewpoly 0.3.0
 
 * Support for diaQTL multi-population evaluation
 * User-defined parents names in effects graphics
