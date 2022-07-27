@@ -672,7 +672,7 @@ mod_upload_server <- function(input, output, session, parent_session){
       } else if (values$upload_state_viewpoly == 'reset') {
         return(NULL)
       } else if(values$upload_state_viewpoly == "uploaded"){
-        if(!is.null(input$viewpoly_input) | !is.null(input$viewpoly_env)){ 
+        if(is.null(input$viewpoly_input) & is.null(input$viewpoly_env)){ 
           warning("Upload a viewpoly dataset or select one available in your R environment before submit.")
           viewpoly.obj <- NULL
         } else if(!is.null(input$viewpoly_input)){
