@@ -168,7 +168,6 @@ mod_genes_view_ui <- function(id){
 mod_genes_view_server <- function(input, output, session, 
                                   loadMap, loadQTL,
                                   loadJBrowse_fasta, loadJBrowse_gff3, loadJBrowse_vcf, loadJBrowse_align, loadJBrowse_wig, 
-                                  loadExample,
                                   parent_session){
   ns <- session$ns
   
@@ -365,7 +364,6 @@ mod_genes_view_server <- function(input, output, session,
   
   # Open JBrowser server 
   button <- eventReactive(input$create_server, {
-    
     if(!is.null(loadJBrowse_fasta())){
       if(loadJBrowse_fasta() != "") {
         path.fa <- loadJBrowse_fasta()
@@ -404,31 +402,8 @@ mod_genes_view_server <- function(input, output, session,
     } else path.wig <- NULL
     
     validate(
-      need(is.null(loadJBrowse_fasta()) & !is.null(loadExample()), "Upload the genome information in upload session to access this feature.")
+      need(!is.null(path.fa), "Upload the genome information in upload session to access this feature.")
     )
-    
-    path.fa <- loadExample()$fasta
-    path.gff <- loadExample()$gff3
-    
-    ext.list <- strsplit(c(loadExample()$fasta,loadExample()$gff3), "[.]")
-    
-    ext <- sapply(ext.list, function(x) {
-      if(x[length(x)] == "gz") paste0(x[length(x)-1], ".",x[length(x)])
-    })
-    
-    # fasta.dir <- paste0(tempfile(),".", ext[1])
-    # download.file(loadExample()$fasta, destfile = fasta.dir)
-    # download.file(paste0(loadExample()$fasta, ".fai"), destfile = paste0(fasta.dir, ".fai"))
-    # path.fa <- fasta.dir
-    
-    gff.dir <- paste0(tempfile(),".", ext[2])
-    download.file(loadExample()$gff3, destfile = gff.dir)
-    #path.gff <- gff.dir
-    
-    gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
-    # Add other tracks
-    # variants_track <- track_variant()
-    # alignments_track <- track_alignments()
     
     if(!grepl("^http", path.fa)){
       data_server <- serve_data(dirname(path.fa), port = 5000)
