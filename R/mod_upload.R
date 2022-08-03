@@ -27,8 +27,9 @@ mod_upload_ui <- function(id){
              fluidPage(
                box(id= ns("box_example"), width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = actionLink(inputId = ns("exampleID"), label = tags$b("Available example datasets")),
                    radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals."), 
-                                choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
-                                selected = "tetra_map"), br(), br(), hr(),
+                                choices = c("Brite Eyes x My Girl" = "BExMG",
+                                            "Stormy Weather x Brite Eyes" = "SWxBE"),
+                                selected = "BExMG"), br(), br(), hr(),
                    tags$p("Access complete example datasets ", 
                           tags$a(href= "https://www.polyploids.org/input-tests","here"))
                )

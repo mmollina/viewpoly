@@ -10,20 +10,20 @@
 #' @keywords internal
 prepare_examples <- function(example){
   viewmap_tetra <- viewqtl_tetra <- NULL
-  if(example == "tetra_map"){
-    load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
-    load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
+  if(example == "BExMG"){
+    temp <- load(system.file("ext/BExMG_viewpoly_chr_updated.RData", package = "viewpoly"))
+    obj <- get(temp)
     
-    structure(list(map=viewmap_tetra, 
-                   qtl=viewqtl_tetra,
-                   fasta = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz",
-                   gff3 = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz",
-                   vcf = NULL,
-                   align = NULL, 
-                   wig = NULL,
-                   version = packageVersion("viewpoly")),
-              class = "viewpoly")
+  } else if (example == "SWxBE"){
+    temp <- load(system.file("ext/SWxBE_viewpoly_chr_updated.RData", package = "viewpoly"))
+    obj <- get(temp)
   }
+  
+  obj$fasta <- c(system.file("ext/OBDH_1.0_formated.fasta.gz",package="viewpoly"))
+  
+  obj$gff3 <- c(system.file("ext/OBDH_1.0_gene_models_sorted.gff3.gz", package="viewpoly"))
+  
+  return(obj)
 }
 
 #' Converts map information in custom format files to viewmap object
@@ -376,9 +376,9 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
   idx <- which(sapply(CI, is.null))
   if(length(idx) != 0 | length(BayesCI_list_ord) != dim(qtl_info2)[1]){
     if(length(idx) != 0)
-    CI[[idx]] <- c(NA, NA)
+      CI[[idx]] <- c(NA, NA)
     else  CI[[length(CI) + 1]] <- c(NA, NA)
-
+    
   }
   
   CI <- do.call(rbind, CI)
