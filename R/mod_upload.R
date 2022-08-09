@@ -569,12 +569,14 @@ mod_upload_server <- function(input, output, session, parent_session){
         qtlpoly_fitted.mod = input$qtlpoly_fitted.mod))
     } else if(values$upload_state_diaQTL == "uploaded"){
       validate(
-        need(!is.null(input$diaQTL_scan1), "Upload diaQTL scan1 file before submit"),
-        need(!is.null(input$diaQTL_scan1.summaries), "Upload diaQTL scan1.summaries file before submit"),
-        need(!is.null(input$diaQTL_fitQTL), "Upload diaQTL fitQTL file before submit"),
-        need(!is.null(input$diaQTL_BayesCI), "Upload diaQTL BayesCI file before submit")
+        need(!is.null(input$qtlpoly_data), "Upload diaQTL data file before submit"),
+        need(!is.null(input$qtlpoly_remim.mod), "Upload diaQTL scan1 file before submit"),
+        need(!is.null(input$qtlpoly_est.effects), "Upload diaQTL scan1.summaries file before submit"),
+        need(!is.null(input$qtlpoly_fitted.mod), "Upload diaQTL fitQTL file before submit"),
+        need(!is.null(input$qtlpoly_fitted.mod), "Upload diaQTL BayesCI file before submit")
       )
       return(list(
+        diaQTL_data = input$diaQTL_data,
         diaQTL_scan1 = input$diaQTL_scan1,
         diaQTL_scan1.summaries = input$diaQTL_scan1.summaries,
         diaQTL_fitQTL = input$diaQTL_fitQTL,

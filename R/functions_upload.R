@@ -305,8 +305,6 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
   qtls.id <- list()
   qtl_info2 <- data.frame()
   
-  if(is.null(fitQTL_list[[1]]$plots)) fitQTL_list <- unlist(fitQTL_list, recursive = F)
-  
   profile <- effects <- data.frame()
   for(i in 1:length(fitQTL_list)){
     qtls.id <- colnames(fitQTL_list[[i]]$effects$additive)
