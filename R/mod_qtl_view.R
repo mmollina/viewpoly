@@ -503,7 +503,7 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$ind_names <- renderUI({
-    x <- paste0("<strong>Progeny individuals with selected haplotypes  </strong>: ", paste(haplo_data()[[3]], collapse = ", "))
+    x <- paste0("<strong>Number of INDs: ",length(haplo_data()[[3]]),"   ","<strong>Progeny individuals with selected haplotypes  </strong>: ", paste(haplo_data()[[3]], collapse = ", "))
     HTML(x)
   })
   
