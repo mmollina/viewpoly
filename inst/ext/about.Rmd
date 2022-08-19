@@ -3,65 +3,27 @@ title: "About"
 output: html_document
 ---
 
-### VIEWpoly
+## Complete results of my amazing study:"My amazing study title"
 
-<br />
+Use `Input data` tab to select the data set to be visualized and click in `QTL`, `Genome` and `Map` tabs to explore the results.
 
-<div><img src="www/viewpoly-flowchart.png" alt="alt" align="center" style="width:1100px;height:530px;"></div>
+This is a Rmarkdown text stored in viewpoly/inst/ext/about.Rmd. You can edit it as you like. Maybe you can add a summary of the study and the data sets available.
 
-<br />
+### Data sets available
 
-`VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html), [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html) , [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html) , [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html), 
-[diaQTL](https://github.com/jendelman/diaQTL) and genomic assembly, variants, annotation and alignment files. VIEWpoly uses [shiny](https://cran.r-project.org/web/packages/shiny/index.html), [golem](https://cran.r-project.org/web/packages/golem/index.html), [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html), [plotly](https://cran.r-project.org/web/packages/plotly/index.html), and [JBrowseR](https://cran.r-project.org/web/packages/JBrowseR/index.html) libraries to graphically display the QTL profiles, positions, alleles estimated effects, progeny individuals containing specific haplotypes and their breeding values. It is also possible to access marker dosage and parental phase from the linkage map. If genomic information is available, the corresponding QTL positions are interactively explored using JBrowseR interface, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables and images for further analysis and presentation.
+* Tetraploid potato: Atlantic x B1829
 
-### Quick Start
+Linkage map, QTL and genomic information for a bi-parental population with 156 progenies created by crossing "Atlantic" x B1829-5.
 
-You can run `VIEWpoly` locally installing the package and accessing the graphical interface through a web browser. To use the stable version, please install the package from CRAN:
-
-```{r}
-install.packages("viewpoly")
-viewpoly::run_app()
-```
-
-If you want to use the latest development version, go ahead and install `VIEWpoly` from our Github repository:
-
-```{r}
-# install.packages("devtools")
-devtools::install_github("mmollina/viewpoly")
-viewpoly::run_app()
-```
-
-NOTE: Windows users may need to install the `Rtools` before compiling the package from source (development version).
-
-The `Input data` tab has options for diverse types of inputs. You can upload directly outputs from:
-
-* [MAPpoly](https://cran.r-project.org/web/packages/mappoly/index.html)
-* [polymapR](https://cran.r-project.org/web/packages/polymapR/index.html)
-* [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html)
-* [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html)
-* [diaQTL](https://github.com/jendelman/diaQTL)
-* CSV, TSV or TSV.GZ standard formats
-
-To relate the genetic maps and QTL with genomic information, it is also required:
-
-* FASTA reference genome
-
-It is optional to upload also: 
-
-* GFF3 annotation file
-* BAM or CRAM alignment file
-* VCF file
-* bigWig file
+See more about this population [here](https://www.nature.com/articles/s41437-021-00416-x).
 
 ### Documentation
 
-Access the [tutorial](https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html). 
+Access more information about how to make your data sets available through VIEWpoly [here](https://cristianetaniguti.github.io/viewpoly_vignettes/Publish_data_VIEWpoly.html).
 
-We present the app main features in the video bellow:
+Access VIEWpoly tutorial [here](https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html).
 
-<iframe width="600" height="315"
-src="https://www.youtube.com/embed/OBt_jebhfeY">
-</iframe> 
+VIEWpoly main features are also presented in this [video](https://www.youtube.com/watch?v=OBt_jebhfeY).
 
 ### References
 
