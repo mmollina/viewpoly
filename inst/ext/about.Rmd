@@ -3,19 +3,21 @@ title: "About"
 output: html_document
 ---
 
-## Complete results of my amazing study:"My amazing study title"
+## "My amazing study title" (Complete results)
 
 Use `Input data` tab to select the data set to be visualized and click in `QTL`, `Genome` and `Map` tabs to explore the results.
 
 This is a Rmarkdown text stored in viewpoly/inst/ext/about.Rmd. You can edit it as you like. Maybe you can add a summary of the study and the data sets available.
 
-### Data sets available
+### Datasets available
 
 * Tetraploid potato: Atlantic x B1829
 
 Linkage map, QTL and genomic information for a bi-parental population with 156 progenies created by crossing "Atlantic" x B1829-5.
 
 See more about this population [here](https://www.nature.com/articles/s41437-021-00416-x).
+
+* You can add more than one dataset
 
 ### Documentation
 

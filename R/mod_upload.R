@@ -24,7 +24,7 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(id= ns("box_example"), width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = actionLink(inputId = ns("exampleID"), label = tags$b("Available datasets")),
-                   radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals."), 
+                   radioButtons(ns("example_map"), label = p("Selected dataset:"), 
                                 choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
                                 selected = "tetra_map"), br(), br(), hr()
                )
@@ -64,7 +64,8 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadExample = reactive({
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Uploading example map data..."))
-      prepare_examples(input$example_map)
+      example <- prepare_examples(input$example_map)
+      return(example)
     })
   })
   
@@ -72,17 +73,20 @@ mod_upload_server <- function(input, output, session, parent_session){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.1, detail = paste("Uploading fasta path..."))
       if(!is.null(loadExample()$fasta)){
-        loadExample()$fasta
-      } else NULL
+        return(loadExample()$fasta)
+      } else {
+        return(NULL)
+      }
     })
   })
   
   loadJBrowse_gff3 = reactive({
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.1, detail = paste("Uploading gff3 path..."))
-      if(!is.null(loadExample()$fastagff3)){
-        loadExample()$gff3
-      } else NULL
+      if(!is.null(loadExample()$gff3)){
+        return(loadExample()$gff3)
+      } else 
+        return(NULL)
     })
   })
   
@@ -90,8 +94,9 @@ mod_upload_server <- function(input, output, session, parent_session){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.1, detail = paste("Uploading VCF path..."))
       if(!is.null(loadExample()$vcf_server)) {
-        loadExample()$vcf_server
-      } else NULL
+        return(loadExample()$vcf_server)
+      } else 
+        return(NULL)
     })
   })
   
@@ -99,8 +104,9 @@ mod_upload_server <- function(input, output, session, parent_session){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.1, detail = paste("Uploading BAM or CRAM alignment data path..."))
       if(!is.null(loadExample()$align_server)) {
-        loadExample()$align_server
-      } else NULL
+        return(loadExample()$align_server)
+      } else 
+        return(NULL)
     })
   })
   
@@ -108,8 +114,9 @@ mod_upload_server <- function(input, output, session, parent_session){
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.1, detail = paste("Uploading bigWig data path..."))
       if(!is.null(loadExample()$wig_server)) {
-        loadExample()$wig_server
-      } else NULL
+        return(loadExample()$wig_server)
+      } else 
+        return(NULL)
     })
   })
   
@@ -118,7 +125,6 @@ mod_upload_server <- function(input, output, session, parent_session){
       warning("Select one of the options in `upload` session")
       return(NULL)
     } else if(!is.null(loadExample())){
-      print(str(loadExample()$map))
       return(loadExample()$map)
     }
   })
@@ -128,7 +134,6 @@ mod_upload_server <- function(input, output, session, parent_session){
       warning("Select one of the options in `upload` session")
       return(NULL)
     } else if(!is.null(loadExample())){
-      print(str(loadExample()$qtl))
       return(loadExample()$qtl)
     }
   })

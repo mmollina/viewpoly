@@ -308,8 +308,8 @@ mod_qtl_view_server <- function(input, output, session,
   
   qtl.data <- reactive({
     validate(
-      need(length(input$phenotypes) != 0 & input$phenotypes != "Upload QTL information to update", "Select at least one phenotype"),
-      need(length(input$group) != 0 & input$group != "Upload map or QTL data in `upload` session.", "Select at least one linkage group"),
+      need(length(input$phenotypes) != 0 & input$phenotypes != "Upload QTL information to update" & input$phenotypes != "This will be updated", "Select at least one phenotype"),
+      need(length(input$group) != 0 & input$group != "Upload map or QTL data in `upload` session." & input$group != "This will be updated", "Select at least one linkage group"),
       need(!is.null(loadQTL()), "Upload the QTL information in upload session to access this feature.")
     )
     idx <- which(unique(loadQTL()$profile$pheno) %in% input$phenotypes)
