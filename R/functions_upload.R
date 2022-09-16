@@ -9,21 +9,60 @@
 #' 
 #' @keywords internal
 prepare_examples <- function(example){
-  viewmap_tetra <- viewqtl_tetra <- NULL
-  if(example == "tetra_map"){
-    load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
-    load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
+  if(example != "This will be updated"){
+    files <- list.files(system.file("ext/my_viewpoly_objects/", package = "viewpoly"))
+    ids <- read.csv(system.file("ext/info_data.csv", package = "viewpoly"), header = T)
+    idx <- which(ids$ID == example)
+    obj <- load(system.file(paste0("ext/my_viewpoly_objects/",ids$File[idx]), package = "viewpoly"))
+    obj <- get(obj)
     
-    structure(list(map=viewmap_tetra, 
-                   qtl=viewqtl_tetra,
-                   fasta = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz",
-                   gff3 = "https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz",
-                   vcf = NULL,
-                   align = NULL, 
-                   wig = NULL,
-                   version = packageVersion("viewpoly")),
-              class = "viewpoly")
-  }
+    # fasta
+    obj$fasta <- if(ids$fasta[idx] == "NULL") {
+      NULL 
+    }else if(grepl("http", ids$fasta[idx])) {
+      ids$fasta[idx]
+    } else { 
+      system.file(paste0("ext/my_genomes/",ids$fasta[idx]), package = "viewpoly")
+    }
+    
+    #gff3
+    obj$gff3 <- if(ids$gff3[idx] == "NULL") {
+      NULL 
+    }else if(grepl("http", ids$gff3[idx])) {
+      ids$gff3[idx]
+    } else { 
+      system.file(paste0("ext/my_genomes/",ids$gff3[idx]), package = "viewpoly")
+    }
+    
+    # vcf
+    obj$vcf <- if(ids$vcf[idx] == "NULL") {
+      NULL 
+    }else if(grepl("http", ids$vcf[idx])) {
+      ids$vcf[idx]
+    } else { 
+      system.file(paste0("ext/my_genomes/",ids$vcf[idx]), package = "viewpoly")
+    }
+    
+    # align
+    obj$align <- if(ids$align[idx] == "NULL") {
+      NULL 
+    }else if(grepl("http", ids$align[idx])) {
+      ids$align[idx]
+    } else { 
+      system.file(paste0("ext/my_genomes/",ids$align[idx]), package = "viewpoly")
+    }
+    
+    # wig
+    obj$wig <- if(ids$wig[idx] == "NULL") {
+      NULL 
+    }else if(grepl("http", ids$wig[idx])) {
+      ids$wig[idx]
+    } else { 
+      system.file(paste0("ext/my_genomes/",ids$wig[idx]), package = "viewpoly")
+    }
+    
+    return(obj)
+  } else return(NULL)
 }
 
 #' Converts map information in custom format files to viewmap object
@@ -376,9 +415,9 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
   idx <- which(sapply(CI, is.null))
   if(length(idx) != 0 | length(BayesCI_list_ord) != dim(qtl_info2)[1]){
     if(length(idx) != 0)
-    CI[[idx]] <- c(NA, NA)
+      CI[[idx]] <- c(NA, NA)
     else  CI[[length(CI) + 1]] <- c(NA, NA)
-
+    
   }
   
   CI <- do.call(rbind, CI)

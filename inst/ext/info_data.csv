@@ -1,0 +1,4 @@
+File,ID,fasta,gff3,vcf,align,wig
+example_data.RData,Potato - Atlantic x B1829-5 (genome links),https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.fa.gz,https://gesteira.statgen.ncsu.edu/files/genome-browser/Stuberosum_448_v4.03.gene_exons.gff3.gz,NULL,NULL,NULL
+example_data.Rdata,Potato - Atlantic x B1829-5 (genome files),Stuberosum_sub.fa.gz,Stuberosum_sub.sorted.gff3.gz,NULL,NULL,NULL
+example_data.RData,Potato - Atlantic x B1829-5 (without genome info),NULL,NULL,NULL,NULL,NULL

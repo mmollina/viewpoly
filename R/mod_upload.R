@@ -24,9 +24,9 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(id= ns("box_example"), width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = actionLink(inputId = ns("exampleID"), label = tags$b("Available datasets")),
-                   radioButtons(ns("example_map"), label = p("Selected dataset:"), 
-                                choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
-                                selected = "tetra_map"), br(), br(), hr()
+                   radioButtons(ns("example_map"), label = "Select dataset:", 
+                                choices = "This will be updated",
+                                selected = "This will be updated"), br(), br(), hr()
                )
              )
       )
@@ -59,6 +59,18 @@ mod_upload_server <- function(input, output, session, parent_session){
                       selected = "about")
   })
   
+  # load datas
+  observe({
+    files <- list.files(system.file("ext/my_viewpoly_objects/", package = "viewpoly"))
+    ids <- read.csv(system.file("ext/info_data.csv", package = "viewpoly"), header = T)
+
+    choices <- as.list(ids$ID)
+    names(choices) <- ids$ID
+    
+    updateRadioButtons(session, "example_map", label = "Select dataset:", 
+                       choices = choices,
+                       selected = choices[[1]])
+  })
   
   # Wait system for the uploads
   loadExample = reactive({
