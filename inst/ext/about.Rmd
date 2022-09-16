@@ -21,11 +21,11 @@ See more about this population [here](https://www.nature.com/articles/s41437-021
 
 ### Documentation
 
-* Access more information about how to make your data sets available through VIEWpoly [here](https://cristianetaniguti.github.io/viewpoly_vignettes/Publish_data_VIEWpoly.html).
-
 * Access VIEWpoly tutorial [here](https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html).
 
 * VIEWpoly main features are also presented in this [video](https://www.youtube.com/watch?v=OBt_jebhfeY).
+
+* Access more information about how to make your data sets available through VIEWpoly [here](https://cristianetaniguti.github.io/viewpoly_vignettes/Publish_data_VIEWpoly.html).
 
 * If you would like to contribute to develop `VIEWpoly`, please check our [Contributing Guidelines](https://cristianetaniguti.github.io/viewpoly_vignettes/Contributing_guidelines.html).
 
