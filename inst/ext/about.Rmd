@@ -55,13 +55,17 @@ It is optional to upload also:
 
 ### Documentation
 
-Access the [tutorial](https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html). 
+* Access VIEWpoly tutorial [here](https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html).
 
-We present the app main features in the video bellow:
+* We present the app main features in the video bellow:
 
 <iframe width="600" height="315"
 src="https://www.youtube.com/embed/OBt_jebhfeY">
 </iframe> 
+
+* Access more information about how to make your data sets available through VIEWpoly [here](https://cristianetaniguti.github.io/viewpoly_vignettes/Publish_data_VIEWpoly.html).
+
+* If you would like to contribute to develop `VIEWpoly`, please check our [Contributing Guidelines](https://cristianetaniguti.github.io/viewpoly_vignettes/Contributing_guidelines.html).
 
 ### References
 
