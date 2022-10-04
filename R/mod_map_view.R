@@ -390,6 +390,7 @@ mod_map_view_server <- function(input, output, session,
     summary <- summary_maps(loadMap())
     DT::datatable(summary, extensions = 'Buttons', 
                   options = list(
+                    scrollX = TRUE,
                     dom = 'Bfrtlp',
                     buttons = c('copy', 'csv', 'excel', 'pdf') 
                   ),

@@ -567,6 +567,7 @@ mod_genes_view_server <- function(input, output, session,
     df <- df %>% filter(seqid == unique(mks$g.chr) & start > mks.range.1 & end < mks.range.2)
     DT::datatable(df, extensions = 'Buttons',
                   options = list(
+                    scrollX = TRUE,
                     dom = 'Bfrtlp',
                     buttons = c('copy', 'csv', 'excel', 'pdf')
                   ),
