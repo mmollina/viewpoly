@@ -36,4 +36,8 @@ Main modifications made during JOSS review:
 * Bug fixed to upload genome through genome link
 * Bug fixed to upload viewpoly object
 
+# viewpoly 0.3.1
 
+* Avoid errors if user has not internet connection
+* Inform number and ID of individuals selected by haplotypes
+* README updated to include new vignette for server version (available at brach publishing_data)

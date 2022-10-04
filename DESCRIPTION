@@ -1,6 +1,6 @@
 Package: viewpoly
 Title: A Shiny App to Visualize Genetic Maps and QTL Analysis in Polyploid Species
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
            person(given = "Cristiane",
                   family = "Taniguti",
@@ -59,10 +59,7 @@ Imports:
     abind,
     reshape2,
     markdown,
-    stats,
-    rlang,
-    pkgload,
-    vdiffr
+    stats
 URL: https://github.com/mmollina/viewpoly
 BugReports: https://github.com/mmollina/viewpoly/issues
 Encoding: UTF-8
@@ -70,6 +67,9 @@ LazyData: true
 RoxygenNote: 7.1.2
 Suggests: 
     testthat (>= 3.0.0),
-    shinytest
+    shinytest,
+    rlang,
+    pkgload,
+    vdiffr
 Config/testthat/edition: 3
 Language: en-US
