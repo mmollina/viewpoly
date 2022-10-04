@@ -125,7 +125,7 @@ mod_qtl_view_ui <- function(id){
                                        radioButtons(ns("fformat_effects"), "File type", choices=c("png","tiff","jpeg","pdf", "RData"), selected = "png", inline = T)
                                 ),
                                 column(6,
-                                       textInput(ns("parents_name"), "Parents name", value = "Example: P1, P2")
+                                       textInput(ns("parents_name"), "Parents name", value = "P1, P2")
                                 ),
                          ),
                          column(12,
@@ -342,9 +342,7 @@ mod_qtl_view_server <- function(input, output, session,
       need(dim(df)[1] > 0, "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
     )
     
-    if(!grepl("Example" ,input$parents_name)) {
-      parents <- unlist(strsplit(input$parents_name, ","))
-    } else parents <- NULL
+    parents <- unlist(strsplit(input$parents_name, ","))
     
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Getting data..."))
@@ -478,7 +476,7 @@ mod_qtl_view_server <- function(input, output, session,
       need(all(input$haplo != "Select QTL in the profile graphic to update"), "Select QTL in the profile graphic to update"),
       need(all(input$haplo != "Select `bar` design to access this feature."), "Select `bar` design to access this feature.")
     )
-
+    
     list.p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data(), exclude.haplo = input$haplo_exclude)
     p <- list.p[[1]]
     inds <- list.p[[2]]
@@ -503,7 +501,7 @@ mod_qtl_view_server <- function(input, output, session,
   })
   
   output$ind_names <- renderUI({
-    x <- paste0("<strong>Number of INDs: ",length(haplo_data()[[3]]),"   ","<strong>Progeny individuals with selected haplotypes  </strong>: ", paste(haplo_data()[[3]], collapse = ", "))
+    x <- paste0("<strong>Number of individuals with selected haplotypes: ",length(haplo_data()[[3]]),"   ","<br><strong>Individual's ID  </strong>: ", paste(haplo_data()[[3]], collapse = ", "))
     HTML(x)
   })
   

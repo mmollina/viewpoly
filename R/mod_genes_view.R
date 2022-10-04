@@ -375,8 +375,12 @@ mod_genes_view_server <- function(input, output, session,
         path.gff <- loadJBrowse_gff3()
         if(grepl("^http", loadJBrowse_gff3())){
           gff.dir <- tempfile()
-          download.file(loadJBrowse_gff3(), destfile = gff.dir)
-          gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
+          t <- try(download.file(loadJBrowse_gff3(), destfile = gff.dir))
+          if(!inherits(t, "try-error")){
+            gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
+          } else {
+            print("No internet conection.")
+          }
         } else {
           gff <- vroom(loadJBrowse_gff3(), delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
         }
@@ -600,9 +604,9 @@ mod_genes_view_server <- function(input, output, session,
                        software = loadQTL()$software)
     
     if(input$fformat!="RData"){
-    ggsave(pl, filename = fn_downloadname(), 
-           width = input$width_profile, height = input$height_profile, 
-           units = "mm", dpi = input$dpi_profile)    
+      ggsave(pl, filename = fn_downloadname(), 
+             width = input$width_profile, height = input$height_profile, 
+             units = "mm", dpi = input$dpi_profile)    
     } else save(pl, file = fn_downloadname())
   }
   
@@ -656,9 +660,9 @@ mod_genes_view_server <- function(input, output, session,
       theme_bw() + theme(legend.position = "none") 
     
     if(input$fformat_phi!="RData"){
-    ggsave(p, filename = fn_downloadname_phi(), 
-           width = input$width_phi, height = input$height_phi, 
-           units = "mm", dpi = input$dpi_phi)    
+      ggsave(p, filename = fn_downloadname_phi(), 
+             width = input$width_phi, height = input$height_phi, 
+             units = "mm", dpi = input$dpi_phi)    
     } else save(p, file = fn_downloadname_phi())
   }
   
