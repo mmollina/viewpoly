@@ -70,11 +70,12 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
+          remotes::install_cran("curl")
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("covr")
           remotes::install_cran("webshot")
           webshot::install_phantomjs()
-          webdriver::run_phantomjs(timeout = 10000)
+          webdriver::run_phantomjs(timeout = 15000)
         shell: Rscript {0}
 
       - name: Check
