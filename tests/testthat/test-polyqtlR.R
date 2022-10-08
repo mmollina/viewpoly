@@ -1,5 +1,6 @@
 test_that("Tests uploaded polyqtlR files",{
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  library(curl)
   
   # upload polyqtlR
   polyqtlR_QTLscan_list <- polyqtlR_qtl_info <- polyqtlR_effects <- list()
@@ -7,8 +8,8 @@ test_that("Tests uploaded polyqtlR files",{
   polyqtlR_qtl_info$datapath <- tempfile()
   polyqtlR_effects$datapath <- tempfile()
   
-  t <- try(download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_qtl_info.RData", destfile = polyqtlR_qtl_info$datapath))
-  if(!inherits(t, "try-error")){
+  if(has_internet()){
+    download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_qtl_info.RData", destfile = polyqtlR_qtl_info$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_QTLscan.RData", destfile = polyqtlR_QTLscan_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_effects.RData", destfile = polyqtlR_effects$datapath)
   

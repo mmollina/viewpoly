@@ -1,10 +1,11 @@
 test_that("Tests uploaded MAPpoly files",{
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  library(curl)
   
   # upload MAPpoly
   temp <- tempfile()
-  t <- try(download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_MAPpoly_maps.RData", destfile = temp))
-  if(!inherits(t, "try-error")){
+  if(has_internet()){
+    download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_MAPpoly_maps.RData", destfile = temp)
     temp.name <- load(temp)
     input.data <- get(temp.name)
     viewmap_mappoly <- prepare_MAPpoly(input.data)

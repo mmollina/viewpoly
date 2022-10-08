@@ -4,18 +4,18 @@
 
 Dear CRAN Team,
 
-This is a re-submission of VIEWpoly package. In this version (0.2.0):
+This is a re-submission of VIEWpoly package. In this version (0.3.1):
 
-- Broken links were fixed
-- Download of the images with .tiff format was fixed
-- Avoids warnings and error messages displayed in the console during app execution 
-- Error messages were improved
-- Function documentation were improved
-- Aesthetic improvements
-- App is also available on shinyapps.io: https://cris-taniguti.shinyapps.io/viewpoly/
-- Functional testing added
-- Disable the download buttons when image parameters are not reliable
-- Title of boxes are now also collapsible
+* Support for diaQTL multi-population evaluation
+* User-defined parents names in effects graphics
+* Download of plots with RData format
+* Docker image available
+* Allow to exclude haplotypes from haplotypes probability view in VIEWqtl module
+* Bug fixed to upload genome through genome link
+* Bug fixed to upload viewpoly object
+* Avoid errors if user has not internet connection
+* Inform number and ID of individuals selected by haplotypes
+* README updated to include new vignette for server version (available at brach publishing_data)
 
 Thank you for reviewing our re-submission!
 

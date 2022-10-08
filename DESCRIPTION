@@ -59,7 +59,8 @@ Imports:
     abind,
     reshape2,
     markdown,
-    stats
+    stats,
+    curl
 URL: https://github.com/mmollina/viewpoly
 BugReports: https://github.com/mmollina/viewpoly/issues
 Encoding: UTF-8

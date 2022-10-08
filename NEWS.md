@@ -32,7 +32,6 @@ Main modifications made during JOSS review:
 * Download of plots with RData format
 * Docker image available
 * Allow to exclude haplotypes from haplotypes probability view in VIEWqtl module
-* Display progeny individuals selected names as a vector
 * Bug fixed to upload genome through genome link
 * Bug fixed to upload viewpoly object
 

@@ -1,5 +1,6 @@
 test_that("Tests uploaded diaQTL files",{
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
+  library(curl)
   
   # upload diaQTL
   scan1_list <- scan1_summaries_list <- fitQTL_list <- BayesCI_list <- list()
@@ -8,8 +9,8 @@ test_that("Tests uploaded diaQTL files",{
   fitQTL_list$datapath <- tempfile()
   BayesCI_list$datapath <- tempfile()
   
-  t <- try(download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_BayesCI_list_0.RData", destfile = BayesCI_list$datapath))
-  if(!inherits(t, "try-error")){
+  if(has_internet()){
+    download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_BayesCI_list_0.RData", destfile = BayesCI_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_scan1_list.RData", destfile = scan1_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_scan1_summaries_list.RData", destfile = scan1_summaries_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_fitQTL_list%20%281%29.RData", destfile = fitQTL_list$datapath)
