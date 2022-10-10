@@ -3,20 +3,20 @@ test_that("Tests uploaded diaQTL files",{
   library(curl)
   
   # upload diaQTL
-  scan1_list <- scan1_summaries_list <- fitQTL_list <- BayesCI_list <- list()
+  scan1_list <- scan1_summaries_list <- fitQTL_list <- BayesCI_list_temp <- list()
   scan1_list$datapath <- tempfile()
   scan1_summaries_list$datapath <- tempfile()
   fitQTL_list$datapath <- tempfile()
-  BayesCI_list$datapath <- tempfile()
+  BayesCI_list_temp$datapath <- tempfile()
   
   if(has_internet()){
-    download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_BayesCI_list_0.RData", destfile = BayesCI_list$datapath)
+    download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_BayesCI_list_0.RData", destfile = BayesCI_list_temp$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_scan1_list.RData", destfile = scan1_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_scan1_summaries_list.RData", destfile = scan1_summaries_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_fitQTL_list%20%281%29.RData", destfile = fitQTL_list$datapath)
     
     # Adapt old version object to new
-    temp <- load(BayesCI_list$datapath)
+    temp <- load(BayesCI_list_temp$datapath)
     BayesCI_list <- get(temp)
     
     BayesCI_list[[1]] <- cbind(pheno = "FM07", BayesCI_list[[1]])
@@ -24,14 +24,12 @@ test_that("Tests uploaded diaQTL files",{
     BayesCI_list[[3]] <- cbind(pheno = "FM08", BayesCI_list[[3]])
     BayesCI_list <- BayesCI_list[-4]
     
-    dir.temp <- paste0(tempdir(), "BayesCI_list.RData")
-    save(BayesCI_list, file = dir.temp)
-    BayesCI_list$datapath <- dir.temp
+    save(BayesCI_list, file = BayesCI_list_temp$datapath)
     
     viewqtl_diaqtl <- prepare_diaQTL(scan1_list,
                                      scan1_summaries_list,
                                      fitQTL_list,
-                                     BayesCI_list)
+                                     BayesCI_list_temp)
     
     expect_equal(check_viewqtl(viewqtl_obj = viewqtl_diaqtl),0)
     
