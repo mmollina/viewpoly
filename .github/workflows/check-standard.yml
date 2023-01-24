@@ -74,6 +74,7 @@ jobs:
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("covr")
           remotes::install_cran("webshot")
+          remotes::install_cran("vdiffr")
           webshot::install_phantomjs()
           webdriver::run_phantomjs(timeout = 15000)
         shell: Rscript {0}
