@@ -108,7 +108,9 @@ header.append('<div style=\"float:right\"><a href=\"https://www.polyploids.org/\
             tabPanel("Genome", value = "genes",
                      mod_genes_view_ui("genes_view_ui_1")),
             tabPanel("Map", value = "map",
-                     mod_map_view_ui("map_view_ui_1"))
+                     mod_map_view_ui("map_view_ui_1")),
+            tabPanel("Hidecan", value = "hidecan",
+                     mod_hidecan_view_ui("hidecan_view_ui_1"))
           )
         )
       )

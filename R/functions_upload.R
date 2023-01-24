@@ -26,6 +26,24 @@ prepare_examples <- function(example){
   }
 }
 
+#' Upload hidecan example files
+#' 
+#' @param example character indicating the example dataset selected
+#' 
+#' @return object of class \code{viewpoly}
+#' 
+#' 
+#' @keywords internal
+prepare_hidecan_examples <- function(example){
+  gwas <- read.csv(system.file("ext/gwas.csv", package = "viewpoly"))
+  de <- read.csv(system.file("ext/de.csv", package = "viewpoly"))
+  can <- read.csv(system.file("ext/can.csv", package = "viewpoly"))
+  
+  structure(list(GWAS=gwas, 
+                 DE=de,
+                 CAN = can))
+}
+
 #' Converts map information in custom format files to viewmap object
 #' 
 #' 
@@ -376,9 +394,9 @@ prepare_diaQTL <- function(scan1_list, scan1_summaries_list, fitQTL_list, BayesC
   idx <- which(sapply(CI, is.null))
   if(length(idx) != 0 | length(BayesCI_list_ord) != dim(qtl_info2)[1]){
     if(length(idx) != 0)
-    CI[[idx]] <- c(NA, NA)
+      CI[[idx]] <- c(NA, NA)
     else  CI[[length(CI) + 1]] <- c(NA, NA)
-
+    
   }
   
   CI <- do.call(rbind, CI)

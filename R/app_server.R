@@ -39,4 +39,10 @@ app_server <- function( input, output, session ) {
              loadMap = datas$loadMap,
              loadQTL = datas$loadQTL,
              parent_session=session)
+  
+  # Hidecan view
+  callModule(mod_hidecan_view_server,
+             "hidecan_view_ui_1", 
+             loadHidecan = datas$loadHidecan,
+             parent_session=session)
 }
