@@ -60,7 +60,8 @@ Imports:
     reshape2,
     markdown,
     stats,
-    curl
+    curl,
+    hidecan
 URL: https://github.com/mmollina/viewpoly
 BugReports: https://github.com/mmollina/viewpoly/issues
 Encoding: UTF-8
