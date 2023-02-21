@@ -239,24 +239,20 @@ mod_upload_ui <- function(id){
                           tags$a(href= "https://plantandfoodresearch.github.io/hidecan/","here")), br(),
                    
                    div(style = "position:absolute;right:1em;",
-                       actionBttn(ns("reset_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE))
+                       actionBttn(ns("reset_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE)),
+                       actionBttn(ns("submit_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "submit HIDECAN", icon = icon("share-square", verify_fa = FALSE)), 
                    ), br(), br(), 
-                   box(id= ns("box_gwas"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwasID"), label = tags$b("Upload GWAS output")),
+                   box(id= ns("box_gwaspoly"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwaspolyID"), label = tags$b("Upload GWASpoly output")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_gwas"), style = "jelly", color = "royal",  size = "sm", label = "submit GWAS", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
-                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = F)
+                       p("Object of class GWASpoly.thresh obtained with the GWASpoly::set.threshold():"), br(),
+                       fileInput(ns("gwaspoly"), label = h6("File: gwaspoly_res_thr.rda"), multiple = F)
                    ),
-                   box(id = ns("box_DE"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("deID"), label = tags$b("Upload DE output")),
+                   box(id= ns("box_gwas_de"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwasID"), label = tags$b("Upload HIDECAN CSV files")),
                        div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_DE"), style = "jelly", color = "royal",  size = "sm", label = "submit DE", icon = icon("share-square", verify_fa = FALSE)), 
                        ), br(), br(),
-                       fileInput(ns("de"), label = h6("File: DE.csv"), multiple = F)
-                   ),
-                   box(id = ns("box_CAN"),width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("canID"), label = tags$b("Upload CAN output")),
-                       div(style = "position:absolute;right:1em;",
-                           actionBttn(ns("submit_CAN"), style = "jelly", color = "royal",  size = "sm", label = "submit CAN", icon = icon("share-square", verify_fa = FALSE)), 
-                       ), br(), br(),
+                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = F),
+                       fileInput(ns("de"), label = h6("File: DE.csv"), multiple = F),
                        fileInput(ns("can"), label = h6("File: CAN.csv"), multiple = F)
                    )
                )
@@ -446,11 +442,7 @@ mod_upload_server <- function(input, output, session, parent_session){
     upload_state_polyqtlR = 0,
     upload_state_qtl_custom = 0,
     upload_state_genome = 0,
-    upload_state_hidecan = 0,
-    upload_state_gwas = 0,
-    upload_state_de = 0,
-    upload_state_can = 0
-    
+    upload_state_hidecan = 0
   )
   
   observeEvent(input$reset_all, {
@@ -466,9 +458,6 @@ mod_upload_server <- function(input, output, session, parent_session){
     values$upload_state_qtl_custom = 0
     values$upload_state_genome <- 'reset'
     values$upload_state_hidecan <- 'reset'
-    values$upload_state_gwas = 0
-    values$upload_state_de = 0
-    values$upload_state_can = 0
   })
   
   observeEvent(input$reset_viewpoly, {
@@ -496,9 +485,6 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   observeEvent(input$reset_hidecan, {
     values$upload_state_hidecan <- 'reset'
-    values$upload_state_gwas = 0
-    values$upload_state_de = 0
-    values$upload_state_can = 0
   })
   
   observeEvent(input$submit_viewpoly, {
@@ -544,19 +530,8 @@ mod_upload_server <- function(input, output, session, parent_session){
     values$upload_state_genome <- 'uploaded'
   })
   
-  observeEvent(input$submit_gwas, {
-    values$upload_state_qtlpoly <- 'uploaded'
-    values$upload_state_qtl = 0
-  })
-  
-  observeEvent(input$submit_de, {
-    values$upload_state_diaQTL <- 'uploaded'
-    values$upload_state_qtl = 0
-  })
-  
-  observeEvent(input$submit_can, {
-    values$upload_state_polyqtlR <- 'uploaded'
-    values$upload_state_qtl = 0
+  observeEvent(input$submit_hidecan, {
+    values$upload_state_hidecan <- 'uploaded'
   })
   
   input_map <- reactive({
@@ -684,22 +659,23 @@ mod_upload_server <- function(input, output, session, parent_session){
   })
   
   input_hidecan <- reactive({
-    if (values$upload_state_hidecan == 0 & 
-        values$upload_state_gwas == 0 & 
-        values$upload_state_de == 0 &
-        values$upload_state_can == 0) {
+    if (values$upload_state_hidecan == 0) {
       return(NULL)
     } else if (values$upload_state_hidecan == 'reset') {
       return(NULL)
     } else if(values$upload_state_hidecan == "uploaded"){
       validate(
-        need(!is.null(input$gwas), "Upload GWAS results file before submit"),
-        need(!is.null(input$de), "Upload Differential Expression file before submit"),
-        need(!is.null(input$can), "Upload CAN file before submit"),
+        need(!all(c(is.null(input$gwas),is.null(input$gwaspoly))), "Upload GWAS results file before submit")
       )
-      return(list(GWAS = input$gwas,
-                  DE = input$de,
-                  CAN = input$can))
+      if(!is.null(input$gwaspoly)) {
+        temp <- load(input$gwaspoly$datapath)
+        gwaspoly <- get(temp)
+      } else gwaspoly <- NULL
+      
+      return(list(GWASpoly = gwaspoly,
+                  GWAS = {if(!is.null(input$gwas)) read.csv(input$gwas$datapath) else NULL},
+                  DE = {if(!is.null(input$de)) read.csv(input$de$datapath) else NULL},
+                  CAN = {if(!is.null(input$can)) read.csv(input$can$datapath) else NULL}))
     } 
   })
   
@@ -752,7 +728,7 @@ mod_upload_server <- function(input, output, session, parent_session){
     if(is.null(input_hidecan()$gwas) & is.null(input_hidecan()$de) & is.null(input_hidecan()$can))
       withProgress(message = 'Working:', value = 0, {
         incProgress(0.5, detail = paste("Uploading example map data..."))
-        prepare_hidecan_examples()
+        get_example_data()
       })
     else NULL
   })

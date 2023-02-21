@@ -32,6 +32,7 @@ prepare_examples <- function(example){
 #' 
 #' @return object of class \code{viewpoly}
 #' 
+#' @import hidecan
 #' 
 #' @keywords internal
 prepare_hidecan_examples <- function(example){
@@ -39,8 +40,9 @@ prepare_hidecan_examples <- function(example){
   de <- read.csv(system.file("ext/de.csv", package = "viewpoly"))
   can <- read.csv(system.file("ext/can.csv", package = "viewpoly"))
   
-  structure(list(GWAS=gwas, 
-                 DE=de,
+  structure(list(GWASpoly = NULL,
+                 GWAS= gwas, 
+                 DE= de,
                  CAN = can))
 }
 
