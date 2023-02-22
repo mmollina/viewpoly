@@ -42,7 +42,7 @@ app_server <- function( input, output, session ) {
   
   # Hidecan view
   callModule(mod_hidecan_view_server,
-             "hidecan_view_ui_1", 
+             "hidecan_view_ui_1",
              loadHidecan = datas$loadHidecan,
              parent_session=session)
 }
