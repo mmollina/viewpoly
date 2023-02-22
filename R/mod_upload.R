@@ -776,8 +776,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadHidecanExample = reactive({
     if(is.null(input_hidecan()$gwas) & is.null(input_hidecan()$de) & is.null(input_hidecan()$can))
       withProgress(message = 'Working:', value = 0, {
-        incProgress(0.5, detail = paste("Uploading example map data..."))
-        
+        incProgress(0.5, detail = paste("Uploading example map data..."))        
         x <- get_example_data()
         
         list("GWAS" = list(hidecan::GWAS_data(x[["GWAS"]])),
