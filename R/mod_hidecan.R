@@ -7,7 +7,8 @@
 #' @importFrom shinyjs inlineCSS useShinyjs
 #' @importFrom plotly plotlyOutput
 #' @importFrom shiny NS tagList  
-#' 
+#' @import hidecan 
+#'
 #' @noRd 
 #'
 mod_hidecan_view_ui <- function(id){

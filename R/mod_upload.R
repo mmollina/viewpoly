@@ -7,6 +7,7 @@
 #' @noRd 
 #' 
 #' @importFrom shinyjs inlineCSS useShinyjs
+#' @importFrom hidecan get_example_data
 #' @importFrom shiny NS tagList 
 mod_upload_ui <- function(id){
   ns <- NS(id)
