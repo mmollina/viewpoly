@@ -251,9 +251,9 @@ mod_upload_ui <- function(id){
                    box(id= ns("box_gwas_de"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwasID"), label = tags$b("Upload HIDECAN CSV files")),
                        div(style = "position:absolute;right:1em;",
                        ), br(), br(),
-                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = F),
-                       fileInput(ns("de"), label = h6("File: DE.csv"), multiple = F),
-                       fileInput(ns("can"), label = h6("File: CAN.csv"), multiple = F)
+                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = T),
+                       fileInput(ns("de"), label = h6("File: DE.csv"), multiple = T),
+                       fileInput(ns("can"), label = h6("File: CAN.csv"), multiple = T)
                    )
                )
              )
@@ -658,6 +658,52 @@ mod_upload_server <- function(input, output, session, parent_session){
     })
   })
   
+  read_input_hidecan <- function(input_list, func){
+    
+    ## Turning the hidecan constructors into safe functions
+    ## i.e. instead of throwing an error they return the error
+    ## message -> useful to escalate the error message in the app
+    safe_func <- purrr::safely(func)
+    
+    ## Read all files uploaded
+    res <- lapply(input_list$datapath,
+                  read.csv) 
+    
+    ## Apply the hidecan constructor to each file: this will
+    ## check whether the input files have the correct columns etc
+    res <- lapply(res, safe_func) |> 
+      ## rather than the resulting list being: level 1 = file, level 2 = result and error
+      ## we get the result and error as level 1, and files as level 2
+      purrr::transpose() 
+    
+    ## Checking whether any file returned an error
+    no_error <- res$error |>
+      purrr::map_lgl(is.null) |>
+      all()
+    
+    if(!no_error){
+      
+      ## Extract error message
+      error_msg <- res$error |>
+        setNames(input_list$name) |>
+        purrr::map(purrr::pluck, "message") |>
+        purrr::imap(~ paste0("Input file ", .y, ": ", .x)) |>
+        purrr::reduce(paste0, collapse = "\n")
+      
+      ## Remove NULL elements from the list or results
+      ## If all are NULL, will return an empty list()
+      res$result <- purrr::discard(res$result,
+                                   is.null)
+    
+      showNotification(error_msg, type = "error", duration = 20)
+      validate(need(no_error, error_msg))
+      
+    }
+    
+    return(res$result)
+    
+  }
+  
   input_hidecan <- reactive({
     if (values$upload_state_hidecan == 0) {
       return(NULL)
@@ -670,12 +716,14 @@ mod_upload_server <- function(input, output, session, parent_session){
       if(!is.null(input$gwaspoly)) {
         temp <- load(input$gwaspoly$datapath)
         gwaspoly <- get(temp)
+        gwaspoly <- hidecan::GWAS_data_from_gwaspoly(gwaspoly)
+        
       } else gwaspoly <- NULL
       
       return(list(GWASpoly = gwaspoly,
-                  GWAS = {if(!is.null(input$gwas)) read.csv(input$gwas$datapath) else NULL},
-                  DE = {if(!is.null(input$de)) read.csv(input$de$datapath) else NULL},
-                  CAN = {if(!is.null(input$can)) read.csv(input$can$datapath) else NULL}))
+                  GWAS = {if(!is.null(input$gwas)) read_input_hidecan(input$gwas, hidecan::GWAS_data) else list()},
+                  DE = {if(!is.null(input$de)) read_input_hidecan(input$de, hidecan::DE_data) else list()},
+                  CAN = {if(!is.null(input$can)) read_input_hidecan(input$can, hidecan::CAN_data) else list()}))
     } 
   })
   
@@ -728,7 +776,12 @@ mod_upload_server <- function(input, output, session, parent_session){
     if(is.null(input_hidecan()$gwas) & is.null(input_hidecan()$de) & is.null(input_hidecan()$can))
       withProgress(message = 'Working:', value = 0, {
         incProgress(0.5, detail = paste("Uploading example map data..."))
-        get_example_data()
+        
+        x <- get_example_data()
+        
+        list("GWAS" = list(hidecan::GWAS_data(x[["GWAS"]])),
+             "DE" = list(hidecan::DE_data(x[["DE"]])),
+             "CAN" = list(hidecan::CAN_data(x[["CAN"]])))
       })
     else NULL
   })

@@ -142,16 +142,18 @@ mod_hidecan_view_server <- function(input, output, session,
       shinyjs::disable("score_thr_gwas")
       shinyjs::disable("score_thr_de")
       shinyjs::disable("log2fc_thr_de")
-    } else if(!is.null(loadHidecan()$GWAS)){
-      updateSliderInput(inputId = ns("score_thr_gwas"), max = round(max(loadHidecan()$GWAS$score),2), step =  round(max(loadHidecan()$GWAS$score)/20,1))
+    } else if(length(loadHidecan()$GWAS)){
+      max_score <- max(sapply(loadHidecan()$GWAS, function(x){max(x$score)}))
+      updateSliderInput(inputId = ns("score_thr_gwas"), max = round(max_score,2), step =  round(max_score/20,1))
     } else {
       shinyjs::disable("score_thr_gwas")
     }
     
-    if(!is.null(loadHidecan()$DE)){
-      if(!is.null(loadHidecan()$DE$score))
-        updateSliderInput(inputId = ns("score_thr_de"), max = round(max(loadHidecan()$DE$score),2), step = round(max(loadHidecan()$DE$score)/20,1))
-      updateSliderInput(inputId = ns("log2fc_thr_de"), max = round(max(abs(loadHidecan()$DE$log2FoldChange)),2), step = round(max(abs(loadHidecan()$DE$log2FoldChange))/10,1))
+    if(length(loadHidecan()$DE)){
+      max_score <- max(sapply(loadHidecan()$DE, function(x){max(x$score)}))
+      max_log2fc <- max(sapply(loadHidecan()$DE, function(x){max(abs(x$log2FoldChange))}))
+      updateSliderInput(inputId = ns("score_thr_de"), max = round(max_score,2), step = round(max_score/20,1))
+      updateSliderInput(inputId = ns("log2fc_thr_de"), max = round(max_log2fc,2), step = round(max_log2fc/10,1))
     } else {
       shinyjs::disable("score_thr_de")
       shinyjs::disable("log2fc_thr_de")
@@ -176,69 +178,47 @@ mod_hidecan_view_server <- function(input, output, session,
   })
   
   hidecan_data <- reactive({
-    # temp <- load(system.file("ext/gwaspoly_thre.RData", package = "viewpoly"))
-    # gwaspoly_res_thr <- get(temp)
-    
-    # loadHidecan() <- get_example_data()
-    # loadHidecan() <- prepare_hidecan_examples()
-    plot_list <- plot_list_thr <- list(NULL)
-    if(!is.null(loadHidecan()[["GWAS"]])){
-      plot_list[[1]] <- GWAS_data(loadHidecan()[["GWAS"]])
-      plot_list_thr[[1]] <- apply_threshold(plot_list[[1]], 
-                                            score_thr = input$score_thr_gwas)
-    }
-    
-    if(!is.null(loadHidecan()[["DE"]])){
-      plot_list[[2]] <- DE_data(loadHidecan()[["DE"]])
-      plot_list_thr[[2]] <- apply_threshold(plot_list[[2]], 
-                                            score_thr = input$score_thr_de,
-                                            log2fc_thr = input$log2fc_thr_de)
-    }
-    
-    if(!is.null(loadHidecan()[["CAN"]])){
-      plot_list[[3]] <- CAN_data(loadHidecan()[["CAN"]])
-      plot_list_thr[[3]] <- apply_threshold(plot_list[[3]])
-    }
-    
-    idx <- sapply(plot_list, is.null)
-    if(!all(idx)){
-      if(length(which(idx)) > 0) plot_list <- plot_list[-which(idx)]
-      chrom_length <- combine_chrom_length(plot_list)    
-    }
-    
-    idx <- sapply(plot_list_thr, is.null)
-    if(!all(idx)){
-      if(length(which(idx)) > 0) plot_list_thr <- plot_list_thr[-which(idx)]
-    }
     
     if(!is.null(loadHidecan()[["GWASpoly"]])){
-      if(!inherits(loadHidecan()[["GWASpoly"]], "GWASpoly.thresh")) stop("It is not a GWASpoly.thresh object.")
-      p <- hidecan_plot_from_gwaspoly(
-        loadHidecan()[["GWASpoly"]],
-        remove_empty_chrom = input$remove_empty_chrom,
-        title = input$title,
-        subtitle = input$subtitle,
-        n_rows = plot_nrows(),
-        n_cols = input$ncols,
-        legend_position = input$legend_position,
-        point_size = input$point_size,
-        label_size = input$label_size,
-        label_padding = input$label_padding  
-      )
+      x <- loadHidecan()[["GWASpoly"]]$gwas_data_thr_list
     } else {
-      p <- create_hidecan_plot(plot_list_thr,
-                               chrom_length,
-                               colour_genes_by_score = input$colour_genes_by_score,
-                               remove_empty_chrom = input$remove_empty_chrom,
-                               title = input$title,
-                               subtitle = input$subtitle,
-                               n_rows = plot_nrows(),
-                               n_cols = input$ncols,
-                               legend_position = input$legend_position,
-                               point_size = input$point_size,
-                               label_size = input$label_size,
-                               label_padding = input$label_padding)
+      x <- list()
     }
+    
+    x <- c(
+      x,
+      loadHidecan()[["GWAS"]] |>
+        lapply(hidecan::apply_threshold, input$score_thr_gwas),
+      loadHidecan()[["DE"]] |>
+        lapply(hidecan::apply_threshold, input$score_thr_de, input$log2fc_thr_de),
+      loadHidecan()[["CAN"]] |>
+        lapply(hidecan::apply_threshold)
+    )
+    
+    chrom_length <- combine_chrom_length(
+      c(
+        loadHidecan()[["GWASpoly"]][["gwas_data_list"]],
+        loadHidecan()[["GWAS"]],
+        loadHidecan()[["DE"]],
+        loadHidecan()[["CAN"]]
+      )
+    )
+    
+    p <- create_hidecan_plot(x,
+                             chrom_length,
+                             colour_genes_by_score = input$colour_genes_by_score,
+                             remove_empty_chrom = input$remove_empty_chrom,
+                             title = input$title,
+                             subtitle = input$subtitle,
+                             n_rows = plot_nrows(),
+                             n_cols = input$ncols,
+                             legend_position = input$legend_position,
+                             point_size = input$point_size,
+                             label_size = input$label_size,
+                             label_padding = input$label_padding)
+    
+    ggsave("C:/Users/hrpoab/Downloads/test_viewpoly.pdf", plot = p, width = 20, height = 20)
+    
     p
   })
   
@@ -256,13 +236,13 @@ mod_hidecan_view_server <- function(input, output, session,
       need(!all(c(is.null(loadHidecan()$GWAS),is.null(loadHidecan()$GWASpoly))), "Upload HIDECAN information in upload session to access this feature."),
     )
     
-    if(!is.null(loadHidecan()$GWAS))
-      n.chr <- length(unique(loadHidecan()$GWAS$chromosome))
-    else if(!is.null(loadHidecan()$GWASpoly))
-      n.chr <- length(unique(loadHidecan()$GWASpoly@map$Chrom))
+    ## Extract number of chromosomes directly from the plot
+    n.chr <- length(unique(hidecan_data()$data$chromosome))
+    ## Also use the number of tracks on the y axis
+    n.ytracks <- length(unique(hidecan_data()$data$dataset))
     
-    size <- (n.chr/input$ncols)*110
-    
+    size <- (n.ytracks * n.chr/input$ncols)*80
+  
     size
   })
   
