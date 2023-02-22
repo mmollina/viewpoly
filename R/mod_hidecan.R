@@ -62,7 +62,8 @@ mod_hidecan_view_ui <- function(id){
                                      numericInput(ns("label_size"), "Label size", value = 3.5, min = 0, max = Inf)),
                               column(6,
                                      numericInput(ns("label_padding"), "Label padding", value = 0.15, min = 0, max = Inf))
-                            ),
+                            ), br(),
+                            textInput(ns("data_names"), label = "No inputs detected", value = NULL), br(),
                             checkboxInput(ns("colour_genes_by_score"), "Colour genes by score?", value = TRUE),
                             checkboxInput(ns("remove_empty_chrom"), "Remove empty chromosomes?", value = TRUE)
                         )
@@ -110,7 +111,7 @@ mod_hidecan_view_ui <- function(id){
 # input <- list()
 # input$colour_genes_by_score <- TRUE
 # input$remove_empty_chrom <- TRUE
-# input$title <- NULL 
+# input$title <- NULL
 # input$subtitle <- NULL
 # input$ncols <- 2
 # input$legend_position <- "bottom"
@@ -139,22 +140,21 @@ mod_hidecan_view_server <- function(input, output, session,
   
   observe({
     if(!is.null(loadHidecan()$GWASpoly)){
-      cat("alo!")
       shinyjs::disable("score_thr_gwas")
       shinyjs::disable("score_thr_de")
       shinyjs::disable("log2fc_thr_de")
     } else if(length(loadHidecan()$GWAS)){
-      max_score <- max(sapply(loadHidecan()$GWAS, function(x){max(x$score)}))
-      updateSliderInput(inputId = ns("score_thr_gwas"), max = round(max_score,2), step =  round(max_score/20,1))
+      max_score <- max(sapply(loadHidecan()$GWAS, function(x){max(x$score, na.rm = TRUE)}))
+      updateSliderInput(inputId = "score_thr_gwas", max = round(max_score,2), step =  round(max_score/20,1))
     } else {
       shinyjs::disable("score_thr_gwas")
     }
     
     if(length(loadHidecan()$DE)){
-      max_score <- max(sapply(loadHidecan()$DE, function(x){max(x$score)}))
-      max_log2fc <- max(sapply(loadHidecan()$DE, function(x){max(abs(x$log2FoldChange))}))
-      updateSliderInput(inputId = ns("score_thr_de"), max = round(max_score,2), step = round(max_score/20,1))
-      updateSliderInput(inputId = ns("log2fc_thr_de"), max = round(max_log2fc,2), step = round(max_log2fc/10,1))
+      max_score <- max(sapply(loadHidecan()$DE, function(x){max(x$score, na.rm = TRUE)}))
+      max_log2fc <- max(sapply(loadHidecan()$DE, function(x){max(abs(x$log2FoldChange), na.rm = TRUE)}))
+      updateSliderInput(inputId = "score_thr_de", max = round(max_score,2), step = round(max_score/20,1))
+      updateSliderInput(inputId = "log2fc_thr_de", max = round(max_log2fc,2), step = round(max_log2fc/10,1))
     } else {
       shinyjs::disable("score_thr_de")
       shinyjs::disable("log2fc_thr_de")
@@ -204,30 +204,37 @@ mod_hidecan_view_server <- function(input, output, session,
         loadHidecan()[["CAN"]]
       )
     )
-    
-    p <- create_hidecan_plot(x,
-                             chrom_length,
-                             colour_genes_by_score = input$colour_genes_by_score,
-                             remove_empty_chrom = input$remove_empty_chrom,
-                             title = input$title,
-                             subtitle = input$subtitle,
-                             n_rows = plot_nrows(),
-                             n_cols = input$ncols,
-                             legend_position = input$legend_position,
-                             point_size = input$point_size,
-                             label_size = input$label_size,
-                             label_padding = input$label_padding)
-    
-    ggsave("C:/Users/hrpoab/Downloads/test_viewpoly.pdf", plot = p, width = 20, height = 20)
-    
-    p
+    hidecan_data <- list(x, chrom_length)
+    hidecan_data
+  })
+  
+  observe({
+    example_names <- paste0("Track",1:length(hidecan_data()[[1]]), collapse = ", ")
+    updateTextInput(inputId = "data_names", 
+                    label = paste0("Give custom names for your ",length(hidecan_data()[[1]]), 
+                                   " tracks."), value = NULL, placeholder = paste0("Example: ", example_names))
   })
   
   output$plot_hidecan <- renderPlot({
     validate(
       need(!is.null(loadHidecan()), "Upload HIDECAN information in the upload session to access this feature.")
     )
-    hidecan_data()
+    x <- hidecan_data()[[1]]
+    
+    if(input$data_names != "") names(x) <- unlist(strsplit(input$data_names, ","))
+    
+    create_hidecan_plot(x,
+                        hidecan_data()[[2]],
+                        colour_genes_by_score = input$colour_genes_by_score,
+                        remove_empty_chrom = input$remove_empty_chrom,
+                        title = input$title,
+                        subtitle = input$subtitle,
+                        n_rows = plot_nrows(),
+                        n_cols = input$ncols,
+                        legend_position = input$legend_position,
+                        point_size = input$point_size,
+                        label_size = input$label_size,
+                        label_padding = input$label_padding)
   })
   
   
@@ -238,9 +245,11 @@ mod_hidecan_view_server <- function(input, output, session,
     )
     
     ## Extract number of chromosomes directly from the plot
-    n.chr <- length(unique(hidecan_data()$data$chromosome))
+    idx <- which(sapply(hidecan_data()[[1]], function(x) inherits(x, "GWAS_data_thr")))
+    
+    n.chr <- length(unique(hidecan_data()[[1]][[idx[1]]]$chromosome))
     ## Also use the number of tracks on the y axis
-    n.ytracks <- length(unique(hidecan_data()$data$dataset))
+    n.ytracks <- length(hidecan_data()[[1]])
     
     size <- (n.ytracks * n.chr/input$ncols)*80
   

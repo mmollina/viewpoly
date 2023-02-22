@@ -7,7 +7,7 @@
 #' @noRd 
 #' 
 #' @importFrom shinyjs inlineCSS useShinyjs
-#' @importFrom hidecan get_example_data
+#' @importFrom hidecan get_example_data GWAS_data_from_gwaspoly GWAS_data DE_data CAN_data
 #' @importFrom shiny NS tagList 
 mod_upload_ui <- function(id){
   ns <- NS(id)
@@ -659,52 +659,6 @@ mod_upload_server <- function(input, output, session, parent_session){
     })
   })
   
-  read_input_hidecan <- function(input_list, func){
-    
-    ## Turning the hidecan constructors into safe functions
-    ## i.e. instead of throwing an error they return the error
-    ## message -> useful to escalate the error message in the app
-    safe_func <- purrr::safely(func)
-    
-    ## Read all files uploaded
-    res <- lapply(input_list$datapath,
-                  read.csv) 
-    
-    ## Apply the hidecan constructor to each file: this will
-    ## check whether the input files have the correct columns etc
-    res <- lapply(res, safe_func) |> 
-      ## rather than the resulting list being: level 1 = file, level 2 = result and error
-      ## we get the result and error as level 1, and files as level 2
-      purrr::transpose() 
-    
-    ## Checking whether any file returned an error
-    no_error <- res$error |>
-      purrr::map_lgl(is.null) |>
-      all()
-    
-    if(!no_error){
-      
-      ## Extract error message
-      error_msg <- res$error |>
-        setNames(input_list$name) |>
-        purrr::map(purrr::pluck, "message") |>
-        purrr::imap(~ paste0("Input file ", .y, ": ", .x)) |>
-        purrr::reduce(paste0, collapse = "\n")
-      
-      ## Remove NULL elements from the list or results
-      ## If all are NULL, will return an empty list()
-      res$result <- purrr::discard(res$result,
-                                   is.null)
-    
-      showNotification(error_msg, type = "error", duration = 20)
-      validate(need(no_error, error_msg))
-      
-    }
-    
-    return(res$result)
-    
-  }
-  
   input_hidecan <- reactive({
     if (values$upload_state_hidecan == 0) {
       return(NULL)
@@ -717,14 +671,14 @@ mod_upload_server <- function(input, output, session, parent_session){
       if(!is.null(input$gwaspoly)) {
         temp <- load(input$gwaspoly$datapath)
         gwaspoly <- get(temp)
-        gwaspoly <- hidecan::GWAS_data_from_gwaspoly(gwaspoly)
+        gwaspoly <- GWAS_data_from_gwaspoly(gwaspoly)
         
       } else gwaspoly <- NULL
       
       return(list(GWASpoly = gwaspoly,
-                  GWAS = {if(!is.null(input$gwas)) read_input_hidecan(input$gwas, hidecan::GWAS_data) else list()},
-                  DE = {if(!is.null(input$de)) read_input_hidecan(input$de, hidecan::DE_data) else list()},
-                  CAN = {if(!is.null(input$can)) read_input_hidecan(input$can, hidecan::CAN_data) else list()}))
+                  GWAS = {if(!is.null(input$gwas)) read_input_hidecan(input$gwas, GWAS_data) else list()},
+                  DE = {if(!is.null(input$de)) read_input_hidecan(input$de, DE_data) else list()},
+                  CAN = {if(!is.null(input$can)) read_input_hidecan(input$can, CAN_data) else list()}))
     } 
   })
   
@@ -779,9 +733,9 @@ mod_upload_server <- function(input, output, session, parent_session){
         incProgress(0.5, detail = paste("Uploading example map data..."))        
         x <- get_example_data()
         
-        list("GWAS" = list(hidecan::GWAS_data(x[["GWAS"]])),
-             "DE" = list(hidecan::DE_data(x[["DE"]])),
-             "CAN" = list(hidecan::CAN_data(x[["CAN"]])))
+        list("GWAS" = list(GWAS_data(x[["GWAS"]])),
+             "DE" = list(DE_data(x[["DE"]])),
+             "CAN" = list(CAN_data(x[["CAN"]])))
       })
     else NULL
   })
