@@ -32,14 +32,35 @@ mod_hidecan_view_ui <- function(id){
                         )
                  ),
                  column(6,
+                        box(width = 12, solidHeader = TRUE, status="info", title = "Select dataset *",
+                            pickerInput(ns("tracks"),
+                                        label = h4("Select data sets to be displayed as tracks:"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE), 
+                            pickerInput(ns("chrom"),
+                                        label = h4("Select chromosomes to be displayed:"),
+                                        choices = "This will be updated",
+                                        selected = "This will be updated",
+                                        options = list(
+                                          `actions-box` = TRUE, 
+                                          size = 10,
+                                          `selected-text-format` = "count > 3"
+                                        ), 
+                                        multiple = TRUE))
+                 ),
+                 column(6,
                         box(width = 12, solidHeader = TRUE, status="info", title = "Define thresholds *",
                             ## Input sliders for GWAS score threshold
-                                sliderInput(ns("score_thr_gwas"), "Score threshold for GWAS results", value = 4, min = 0, max = 10, step = 0.1),br(),
+                            sliderInput(ns("score_thr_gwas"), "Score threshold for GWAS results", value = 4, min = 0, max = 10, step = 0.1),br(),
                             ## Input sliders for DE score and log2FC threshold
-                                sliderInput(ns("score_thr_de"), "Score threshold for DE results", value = 1.3, min = 0, max = 10, step = 0.1), br(),
-                                sliderInput(ns("log2fc_thr_de"), "log2(fold-change) threshold for DE results", value = 1, min = 0, max = 10, step = 0.1)
-                         
-                            
+                            sliderInput(ns("score_thr_de"), "Score threshold for DE results", value = 1.3, min = 0, max = 10, step = 0.1), br(),
+                            sliderInput(ns("log2fc_thr_de"), "log2(fold-change) threshold for DE results", value = 1, min = 0, max = 10, step = 0.1)
                         )
                  ),
                  column(6,
@@ -209,51 +230,76 @@ mod_hidecan_view_server <- function(input, output, session,
   })
   
   observe({
-    example_names <- paste0("Track",1:length(hidecan_data()[[1]]), collapse = ", ")
     updateTextInput(inputId = "data_names", 
                     label = paste0("Give custom names for your ",length(hidecan_data()[[1]]), 
-                                   " tracks."), value = NULL, placeholder = paste0("Example: ", example_names))
+                                   " tracks."), value = NULL, placeholder = names(hidecan_data()[[1]]))
+    
+    track_choices <- as.list(names(hidecan_data()[[1]]))
+    names(track_choices) <- names(hidecan_data()[[1]])
+    
+    updatePickerInput(session, "tracks",
+                      label = "Select data sets to be displayed as tracks:",
+                      choices = track_choices,
+                      selected=unlist(track_choices))
+    
+    chrom_choices <- as.list(unique(hidecan_data()[[1]][[1]]$chromosome))
+    names(chrom_choices) <- unique(hidecan_data()[[1]][[1]]$chromosome)
+    
+    updatePickerInput(session, "chrom",
+                      label = "Select chromosomes",
+                      choices = chrom_choices,
+                      selected=unlist(chrom_choices))
+  })
+  
+  hidecan_plot <- reactive({
+    validate(
+      need(!is.null(loadHidecan()), "Upload HIDECAN information in the upload session to access this feature.")
+    )
+    x <- hidecan_data()[[1]]
+    x <- x[match(input$tracks, names(x))]
+    
+    x <- lapply(x, function(y) y[which(y$chromosome %in% input$chrom),])
+    
+    chrom_length <- hidecan_data()[[2]]
+    chrom_length <- chrom_length[match(input$chrom, chrom_length$chromosome),]
+
+    if(input$data_names != "") names(x) <- unlist(strsplit(input$data_names, ",")) else names(x) <- NULL
+    
+    p <- create_hidecan_plot(x,
+                             chrom_length,
+                             colour_genes_by_score = input$colour_genes_by_score,
+                             remove_empty_chrom = input$remove_empty_chrom,
+                             title = input$title,
+                             subtitle = input$subtitle,
+                             n_rows = plot_nrows(),
+                             n_cols = input$ncols,
+                             legend_position = input$legend_position,
+                             point_size = input$point_size,
+                             label_size = input$label_size,
+                             label_padding = input$label_padding)
+    p
+  })
+  
+  plotHeight <- reactive({
+    validate(
+      need(!all(c(is.null(loadHidecan()$GWAS),is.null(loadHidecan()$GWASpoly))), "Upload HIDECAN information in upload session to access this feature."),
+    )
+    
+    ## Extract number of chromosomes directly from the plot
+    n.chr <- length(unique(hidecan_plot()$data$chromosome))
+    ## Also use the number of tracks on the y axis
+    n.ytracks <- length(unique(hidecan_plot()$data$dataset))
+    
+    size <- (n.ytracks * n.chr/input$ncols)*80
+    
+    size
   })
   
   output$plot_hidecan <- renderPlot({
     validate(
       need(!is.null(loadHidecan()), "Upload HIDECAN information in the upload session to access this feature.")
     )
-    x <- hidecan_data()[[1]]
-    
-    if(input$data_names != "") names(x) <- unlist(strsplit(input$data_names, ","))
-    
-    create_hidecan_plot(x,
-                        hidecan_data()[[2]],
-                        colour_genes_by_score = input$colour_genes_by_score,
-                        remove_empty_chrom = input$remove_empty_chrom,
-                        title = input$title,
-                        subtitle = input$subtitle,
-                        n_rows = plot_nrows(),
-                        n_cols = input$ncols,
-                        legend_position = input$legend_position,
-                        point_size = input$point_size,
-                        label_size = input$label_size,
-                        label_padding = input$label_padding)
-  })
-  
-  
-  plotHeight <- reactive({
-    
-    validate(
-      need(!all(c(is.null(loadHidecan()$GWAS),is.null(loadHidecan()$GWASpoly))), "Upload HIDECAN information in upload session to access this feature."),
-    )
-    
-    ## Extract number of chromosomes directly from the plot
-    idx <- which(sapply(hidecan_data()[[1]], function(x) inherits(x, "GWAS_data_thr")))
-    
-    n.chr <- length(unique(hidecan_data()[[1]][[idx[1]]]$chromosome))
-    ## Also use the number of tracks on the y axis
-    n.ytracks <- length(hidecan_data()[[1]])
-    
-    size <- (n.ytracks * n.chr/input$ncols)*80
-  
-    size
+    hidecan_plot()
   })
   
   output$plot.ui <- renderUI({

@@ -513,6 +513,9 @@ read_input_hidecan <- function(input_list, func){
   res <- lapply(input_list$datapath,
                 read.csv) 
   
+  ## Add file name
+  names(res) <- input_list$name
+  
   ## Apply the hidecan constructor to each file: this will
   ## check whether the input files have the correct columns etc
   res <- lapply(res, safe_func) |> 

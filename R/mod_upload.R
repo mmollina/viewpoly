@@ -733,9 +733,9 @@ mod_upload_server <- function(input, output, session, parent_session){
         incProgress(0.5, detail = paste("Uploading example map data..."))        
         x <- get_example_data()
         
-        list("GWAS" = list(GWAS_data(x[["GWAS"]])),
-             "DE" = list(DE_data(x[["DE"]])),
-             "CAN" = list(CAN_data(x[["CAN"]])))
+        list("GWAS" = list("GWAS peaks" = GWAS_data(x[["GWAS"]])),
+             "DE" = list("DE genes" = DE_data(x[["DE"]])),
+             "CAN" = list("Candidate genes"= CAN_data(x[["CAN"]])))
       })
     else NULL
   })
