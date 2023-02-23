@@ -501,3 +501,52 @@ prepare_qtl_custom_files <- function(selected_mks, qtl_info, blups, beta.hat,
   structure(qtls, class = "viewqtl")
 }
 
+
+read_input_hidecan <- function(input_list, func){
+  
+  ## Turning the hidecan constructors into safe functions
+  ## i.e. instead of throwing an error they return the error
+  ## message -> useful to escalate the error message in the app
+  safe_func <- purrr::safely(func)
+  
+  ## Read all files uploaded
+  res <- lapply(input_list$datapath,
+                read.csv) 
+  
+  ## Add file name
+  names(res) <- input_list$name
+  
+  ## Apply the hidecan constructor to each file: this will
+  ## check whether the input files have the correct columns etc
+  res <- lapply(res, safe_func) |> 
+    ## rather than the resulting list being: level 1 = file, level 2 = result and error
+    ## we get the result and error as level 1, and files as level 2
+    purrr::transpose() 
+  
+  ## Checking whether any file returned an error
+  no_error <- res$error |>
+    purrr::map_lgl(is.null) |>
+    all()
+  
+  if(!no_error){
+    
+    ## Extract error message
+    error_msg <- res$error |>
+      setNames(input_list$name) |>
+      purrr::map(purrr::pluck, "message") |>
+      purrr::imap(~ paste0("Input file ", .y, ": ", .x)) |>
+      purrr::reduce(paste0, collapse = "\n")
+    
+    ## Remove NULL elements from the list or results
+    ## If all are NULL, will return an empty list()
+    res$result <- purrr::discard(res$result,
+                                 is.null)
+    
+    showNotification(error_msg, type = "error", duration = 20)
+    validate(need(no_error, error_msg))
+    
+  }
+  
+  return(res$result)
+  
+}
