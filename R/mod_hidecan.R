@@ -264,6 +264,8 @@ mod_hidecan_view_server <- function(input, output, session,
     hidecan_data
   })
   
+  ## Function to create a name for each dataset to use when choosing which
+  ## dataset should be plotted
   make_names_hidecan_data <- function(hidecan_list){
     
     data_type_labels <- c("GWAS_data_thr" = "GWAS data",
@@ -284,10 +286,25 @@ mod_hidecan_view_server <- function(input, output, session,
     labels
   }
   
+  ## Function to create a placeholder in the text input section when adding
+  ## custom prefix to track names
+  make_placeholders_hidecan_data <- function(hidecan_list){
+    
+    data_type_labels <- c("GWAS_data_thr" = "[GWAS peaks]",
+                          "DE_data_thr" = "[DE genes]",
+                          "CAN_data_thr" = "[Candidate genes]")
+    
+    labels <- sapply(hidecan_list, function(x){data_type_labels[class(x)[[1]]]}) |> 
+      unname()
+    labels[names(hidecan_list) != " "] <- names(hidecan_list)[names(hidecan_list) != " "]
+    
+    return(labels)
+  }
+  
   observe({
     updateTextInput(inputId = "data_names", 
-                    label = paste0("Give custom names for your ",length(hidecan_data()[[1]]), 
-                                   " tracks."), value = NULL, placeholder = names(hidecan_data()[[1]]))
+                    label = paste0("Add custom prefix for your ",length(hidecan_data()[[1]]), 
+                                   " tracks."), value = NULL, placeholder = make_placeholders_hidecan_data(hidecan_data()[[1]]))
     
     track_choices <- as.list(make_names_hidecan_data(hidecan_data()[[1]]))
     names(track_choices) <- make_names_hidecan_data(hidecan_data()[[1]])
@@ -325,7 +342,27 @@ mod_hidecan_view_server <- function(input, output, session,
     chrom_length <- hidecan_data()[[2]]
     chrom_length <- chrom_length[match(input$chrom, chrom_length$chromosome),]
     
-    if(input$data_names != "") names(x) <- unlist(strsplit(input$data_names, ",")) else names(x) <- names(x)
+    ## Handling custom prefix for the tracks
+    if(input$data_names != ""){
+      
+      ## Read in the prefixes
+      new_names <- unlist(strsplit(input$data_names, ","))
+      
+      ## If one value is just space, it means no input
+      new_names[grep("^[:blank:]*$", new_names)] <- NA
+      
+      ## Making sure that there is a value per dataset (not more, not less)
+      ## This will select the first n values if there are too many values
+      ## or fill the vector with NAs if there are not enough values
+      length(new_names) <- length(x)
+      
+      ## For the tracks where there is no input, use what was originally planned
+      ## (e.g. custom label or nothing)
+      names(x) <- coalesce(new_names, names(x))
+      
+    }  else{
+      names(x) <- names(x)
+    } 
     
     p <- create_hidecan_plot(x,
                              chrom_length,
