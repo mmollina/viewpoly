@@ -207,8 +207,37 @@ mod_hidecan_view_server <- function(input, output, session,
       x <- list()
     }
     
-    x <- c(
-      x,
+    ## Adding file name as custom names for the different tracks
+    
+    ## For GWAS data, add file name if 1) there is some GWAS data from GWASpoly
+    ## or 2) if there is more than one file uploaded
+    
+    if(!is.null(loadHidecan()[["GWASpoly"]])){
+      csv_names_gwas <- names(loadHidecan()[["GWAS"]])
+    } else {
+      if(length(loadHidecan()[["GWAS"]]) == 0){
+        csv_names_gwas <- NULL
+      } else if(length(loadHidecan()[["GWAS"]]) == 1){
+        csv_names_gwas <- " "
+      } else {
+        csv_names_gwas <- names(loadHidecan()[["GWAS"]])
+      }
+    }
+    
+    ## For DE and GWAS data, add file name only if there is more than one file
+    ## uploaded
+    csv_names <- c(
+      csv_names_gwas,
+      lapply(loadHidecan()[c("DE", "CAN")],
+             function(x){
+               if(length(x) == 0) return(NULL)
+               if(length(x) > 1) return(names(x))
+               return(" ")
+             }) |> 
+        unlist()
+    )
+    
+    x_csv <- c(
       loadHidecan()[["GWAS"]] |>
         lapply(hidecan::apply_threshold, input$score_thr_gwas),
       loadHidecan()[["DE"]] |>
@@ -216,6 +245,11 @@ mod_hidecan_view_server <- function(input, output, session,
       loadHidecan()[["CAN"]] |>
         lapply(hidecan::apply_threshold)
     )
+    
+    ## Use custom names computed above
+    names(x_csv) <- csv_names
+    
+    x <- c(x, x_csv)
     
     chrom_length <- combine_chrom_length(
       c(
@@ -225,25 +259,63 @@ mod_hidecan_view_server <- function(input, output, session,
         loadHidecan()[["CAN"]]
       )
     )
+    
     hidecan_data <- list(x, chrom_length)
     hidecan_data
   })
   
+  ## Function to create a name for each dataset to use when choosing which
+  ## dataset should be plotted
+  make_names_hidecan_data <- function(hidecan_list){
+    
+    data_type_labels <- c("GWAS_data_thr" = "GWAS data",
+                          "DE_data_thr" = "DE data",
+                          "CAN_data_thr" = "Candidate genes list")
+    
+    labels <- sapply(hidecan_list, function(x){class(x)[[1]]})
+    
+    labels <- paste0(
+      data_type_labels[labels],
+      " (",
+      names(hidecan_list),
+      ")"
+    )
+    
+    labels <- sub(" ( )", "", labels, fixed = TRUE)
+    
+    labels
+  }
+  
+  ## Function to create a placeholder in the text input section when adding
+  ## custom prefix to track names
+  make_placeholders_hidecan_data <- function(hidecan_list){
+    
+    data_type_labels <- c("GWAS_data_thr" = "[GWAS peaks]",
+                          "DE_data_thr" = "[DE genes]",
+                          "CAN_data_thr" = "[Candidate genes]")
+    
+    labels <- sapply(hidecan_list, function(x){data_type_labels[class(x)[[1]]]}) |> 
+      unname()
+    labels[names(hidecan_list) != " "] <- names(hidecan_list)[names(hidecan_list) != " "]
+    
+    return(labels)
+  }
+  
   observe({
     updateTextInput(inputId = "data_names", 
-                    label = paste0("Give custom names for your ",length(hidecan_data()[[1]]), 
-                                   " tracks."), value = NULL, placeholder = names(hidecan_data()[[1]]))
+                    label = paste0("Add custom prefix for your ",length(hidecan_data()[[1]]), 
+                                   " tracks."), value = NULL, placeholder = make_placeholders_hidecan_data(hidecan_data()[[1]]))
     
-    track_choices <- as.list(names(hidecan_data()[[1]]))
-    names(track_choices) <- names(hidecan_data()[[1]])
+    track_choices <- as.list(make_names_hidecan_data(hidecan_data()[[1]]))
+    names(track_choices) <- make_names_hidecan_data(hidecan_data()[[1]])
     
     updatePickerInput(session, "tracks",
                       label = "Select data sets to be displayed as tracks:",
                       choices = track_choices,
                       selected=unlist(track_choices))
     
-    chrom_choices <- as.list(unique(hidecan_data()[[1]][[1]]$chromosome))
-    names(chrom_choices) <- unique(hidecan_data()[[1]][[1]]$chromosome)
+    chrom_choices <- as.list(unique(hidecan_data()[[2]]$chromosome))
+    names(chrom_choices) <- unique(hidecan_data()[[2]]$chromosome)
     
     updatePickerInput(session, "chrom",
                       label = "Select chromosomes",
@@ -255,15 +327,42 @@ mod_hidecan_view_server <- function(input, output, session,
     validate(
       need(!is.null(loadHidecan()), "Upload HIDECAN information in the upload session to access this feature.")
     )
+    
     x <- hidecan_data()[[1]]
-    x <- x[match(input$tracks, names(x))]
+    x <- x[match(input$tracks, make_names_hidecan_data(x))]
+    
+    ## At the start of the app input$chrom is equal to "This will be updated"
+    ## which would throw an error if trying to use it to subset the data
+    validate(
+      need(input$chrom != "This will be updated", "Waiting to initialise chromosomes selection.")
+    )
     
     x <- lapply(x, function(y) y[which(y$chromosome %in% input$chrom),])
     
     chrom_length <- hidecan_data()[[2]]
     chrom_length <- chrom_length[match(input$chrom, chrom_length$chromosome),]
-
-    if(input$data_names != "") names(x) <- unlist(strsplit(input$data_names, ",")) else names(x) <- NULL
+    
+    ## Handling custom prefix for the tracks
+    if(input$data_names != ""){
+      
+      ## Read in the prefixes
+      new_names <- unlist(strsplit(input$data_names, ","))
+      
+      ## If one value is just space, it means no input
+      new_names[grep("^[:blank:]*$", new_names)] <- NA
+      
+      ## Making sure that there is a value per dataset (not more, not less)
+      ## This will select the first n values if there are too many values
+      ## or fill the vector with NAs if there are not enough values
+      length(new_names) <- length(x)
+      
+      ## For the tracks where there is no input, use what was originally planned
+      ## (e.g. custom label or nothing)
+      names(x) <- coalesce(new_names, names(x))
+      
+    }  else{
+      names(x) <- names(x)
+    } 
     
     p <- create_hidecan_plot(x,
                              chrom_length,
