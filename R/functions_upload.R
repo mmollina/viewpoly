@@ -501,13 +501,22 @@ prepare_qtl_custom_files <- function(selected_mks, qtl_info, blups, beta.hat,
   structure(qtls, class = "viewqtl")
 }
 
-
+#' Check hidecan inputs
+#' 
+#' @param input_list shiny input result containing file path
+#' @param func hidecan read input function
+#' 
+#' @importFrom stats setNames
+#' @importFrom utils read.csv
+#' @import hidecan
+#' @import purrr
+#' 
 read_input_hidecan <- function(input_list, func){
   
   ## Turning the hidecan constructors into safe functions
   ## i.e. instead of throwing an error they return the error
   ## message -> useful to escalate the error message in the app
-  safe_func <- purrr::safely(func)
+  safe_func <- safely(func)
   
   ## Read all files uploaded
   res <- lapply(input_list$datapath,
@@ -521,7 +530,7 @@ read_input_hidecan <- function(input_list, func){
   res <- lapply(res, safe_func) |> 
     ## rather than the resulting list being: level 1 = file, level 2 = result and error
     ## we get the result and error as level 1, and files as level 2
-    purrr::transpose() 
+    transpose() 
   
   ## Checking whether any file returned an error
   no_error <- res$error |>

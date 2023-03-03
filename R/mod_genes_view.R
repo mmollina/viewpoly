@@ -163,7 +163,6 @@ mod_genes_view_ui <- function(id){
 #' @importFrom plotly event_data layout
 #' @importFrom shinyjs inlineCSS js
 #' @importFrom dplyr `%>%`
-#' @importFrom curl has_internet
 #'
 #' @noRd 
 mod_genes_view_server <- function(input, output, session, 
@@ -376,7 +375,7 @@ mod_genes_view_server <- function(input, output, session,
         path.gff <- loadJBrowse_gff3()
         if(grepl("^http", loadJBrowse_gff3())){
           gff.dir <- tempfile()
-          if(has_internet()){
+          if(havingIP()){
             download.file(loadJBrowse_gff3(), destfile = gff.dir)
             gff <- vroom(gff.dir, delim = "\t", skip = 3, col_names = F, progress = FALSE, show_col_types = FALSE)
           } else {

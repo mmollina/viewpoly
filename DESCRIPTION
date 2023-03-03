@@ -1,6 +1,6 @@
 Package: viewpoly
 Title: A Shiny App to Visualize Genetic Maps and QTL Analysis in Polyploid Species
-Version: 0.3.2
+Version: 0.4.0
 Authors@R: c(
            person(given = "Cristiane",
                   family = "Taniguti",
@@ -12,6 +12,12 @@ Authors@R: c(
                   email = "gdesiqu@ncsu.edu"),
            person(given = "Jeekin",
                   family = "Lau",
+                  role = c("aut")),
+           person(given = "Olivia",
+                  family = "Angelin-Bonnet",
+                  role = c("aut")),
+           person(given = "Susan",
+                  family = "Thomson",
                   role = c("ctb")),
            person(given = "Guilherme",
                   family = "da Silva Pereira",
@@ -36,7 +42,7 @@ Description: Provides a graphical user interface to integrate, visualize and exp
             species. The app is meant for interactive use and allows users to optionally upload different sources 
             of information, including  gene annotation and alignment files, enabling the exploitation and search for 
             candidate genes in a genome browser. In its current version, 'VIEWpoly' supports inputs from 'MAPpoly', 
-            'polymapR', 'diaQTL', 'QTLpoly' and 'polyqtlR' packages. 
+            'polymapR', 'diaQTL', 'QTLpoly', 'polyqtlR', 'GWASpoly', and 'HIDECAN' packages. 
 License: GPL (>= 3)
 Depends:
     R (>= 4.0)
@@ -60,8 +66,8 @@ Imports:
     reshape2,
     markdown,
     stats,
-    curl,
-    hidecan
+    hidecan,
+    purrr
 URL: https://github.com/mmollina/viewpoly
 BugReports: https://github.com/mmollina/viewpoly/issues
 Encoding: UTF-8

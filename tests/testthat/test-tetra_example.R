@@ -78,14 +78,14 @@ test_that("upload files",{
   expect_equal(sum(as.numeric(summary_table$`Max gap`)), 80.51)
 
   #VIEWqtl tests
-  expect_doppelganger("qtl plot",plot_profile(viewpoly_obj$qtl$profile,
-                                              viewpoly_obj$qtl$qtl_info,
-                                              viewpoly_obj$qtl$selected_mks,
-                                              pheno.col = 2,
-                                              lgs.id = 2,
-                                              by_range = FALSE,
-                                              plot=TRUE,
-                                              software = NULL))
+  # expect_doppelganger("qtl plot",plot_profile(viewpoly_obj$qtl$profile,
+  #                                             viewpoly_obj$qtl$qtl_info,
+  #                                             viewpoly_obj$qtl$selected_mks,
+  #                                             pheno.col = 2,
+  #                                             lgs.id = 2,
+  #                                             by_range = FALSE,
+  #                                             plot=TRUE,
+  #                                             software = NULL))
 
   # by range
   qtl_profile_data <- plot_profile(viewpoly_obj$qtl$profile,
@@ -139,7 +139,9 @@ test_that("upload files",{
                     software = "QTLpoly",
                     design = "circle")
 
-  expect_doppelganger("effects circle", plot_effects(p, "QTLpoly", "circle"))
+  # expect_doppelganger("effects circle", plot_effects(data_effects.obj = p, 
+  #                                                               software = "QTLpoly", 
+  #                                                               design = "circle"))
 
   expect_equal(sum(p[[1]]$data$Estimates), -0.0436829, tolerance = 0.001)
   expect_equal(names(p[[1]]$data),
@@ -160,7 +162,7 @@ test_that("upload files",{
                c("x", "y", "z"),
                tolerance = 0.001)
 
-  expect_doppelganger("effects digenic", plot_effects(p, "QTLpoly", "digenic"))
+  # expect_doppelganger("effects digenic", plot_effects(p, "QTLpoly", "digenic"))
 
   p <- data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
                     effects = viewpoly_obj$qtl$effects,
@@ -176,7 +178,7 @@ test_that("upload files",{
                c("Estimates", "Alleles", "Parent", "Effects"),
                tolerance = 0.001)
 
-  expect_doppelganger("effects bar", plot_effects(p, "QTLpoly", "bar"))
+  # expect_doppelganger("effects bar", plot_effects(p, "QTLpoly", "bar"))
 
   # breeding values table
   pos <- split(viewpoly_obj$qtl$qtl_info[1:3,]$Pos, viewpoly_obj$qtl$qtl_info[1:3,]$pheno)

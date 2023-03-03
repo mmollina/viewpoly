@@ -136,8 +136,8 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait)) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y = y.dat), colour = "black", na.rm = TRUE)} +
-        geom_line(data=lines, aes(y = range, color = Trait), size=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
-        geom_line(data=lines, aes(y = SIG, group = Trait),  colour = "gray", size=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
+        geom_line(data=lines, aes(y = range, color = Trait), linewidth=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
+        geom_line(data=lines, aes(y = SIG, group = Trait),  colour = "gray", linewidth=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max,scale.each)) +
@@ -148,7 +148,7 @@ plot_profile <- function(profile, qtl_info, selected_mks, pheno.col = NULL,
       pl <- ggplot(data = lines, aes(x = `Position (cM)`, color = Trait, group=1)) +
         facet_grid(.~LG, space = "free") +
         {if(!all(is.na(lines$INT))) geom_path(data=lines, aes(x = INT, y =y.dat), colour = "black", na.rm = TRUE)} +
-        geom_line(data=lines, aes(y = SIG, color = Trait), size=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
+        geom_line(data=lines, aes(y = SIG, color = Trait), linewidth=linesize, alpha=0.8, lineend = "round", na.rm = TRUE) +
         scale_x_continuous(breaks=seq(0,max(lgs.size),cutx)) +
         {if(dim(points)[1] > 0) geom_point(data=points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
         scale_y_continuous(breaks=seq(scale.min, scale.max, scale.each)) +
@@ -192,7 +192,7 @@ only_plot_profile <- function(pl.in){
   
   pl <- ggplot(data = pl.in$lines, aes(x = x)) +
     {if(!all(is.na( pl.in$lines$INT))) geom_path(data= pl.in$lines, aes(x = x.int, y =y.dat), colour = "black", na.rm = TRUE)} +
-    geom_line(data=pl.in$lines, aes(y = SIG, color = Trait), size=pl.in$linesize, alpha=0.8) +
+    geom_line(data=pl.in$lines, aes(y = SIG, color = Trait), linewidth=pl.in$linesize, alpha=0.8) +
     #guides(color = guide_legend("Trait")) + 
     {if(dim(pl.in$points)[1] > 0) geom_point(data=pl.in$points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
     {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8, na.rm = TRUE)} +  #threshold
@@ -435,12 +435,12 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       for(i in 1:length(lgs)){
         p[[i]] <- all.additive %>% filter(LG == lgs[i]) %>% 
           ggplot(aes(x=Alleles, y=Estimates, group=unique.id, colour=unique.id, alpha = abs(Estimates))) +
-          geom_path(alpha =0.7, size = 1.5) +
+          geom_path(alpha =0.7, linewidth = 1.5) +
           #geom_polygon(fill = NA, size =1, alpha = abs(data_temp$Estimates))+
           geom_point(size=5) +  
           coord_radar() +
           labs(title = paste0("LG", lgs[i])) +
-          annotate(x= 0,y=c(-1.3,breaks), label= round(c(NA,breaks),2),geom="text") +
+          annotate(x= 0,y=c(-1.3,breaks), label= round(c(NA, breaks),2),geom="text", na.rm = TRUE) +
           theme_bw() + 
           theme(axis.title.y=element_blank(),
                 axis.text.y=element_blank(),

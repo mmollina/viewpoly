@@ -1,7 +1,6 @@
 test_that("Tests uploaded QTLpoly files",{
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
-  library(curl)
-  
+
   # upload QTLpoly
   input.data <- remim.mod <- est.effects <- fitted.mod <- list()
   input.data$datapath <- tempfile()
@@ -9,7 +8,7 @@ test_that("Tests uploaded QTLpoly files",{
   est.effects$datapath <- tempfile()
   fitted.mod$datapath <- tempfile()
   
-  if(has_internet()){
+  if(havingIP()){
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_effects.RData", destfile = est.effects$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_data.RData", destfile = input.data$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_remim.RData", destfile = remim.mod$datapath)
