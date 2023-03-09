@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - add_hidecan
 
   pull_request:
     branches:
       - main
+      - add_hidecan
 
 name: R-CMD-check
 

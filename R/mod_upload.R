@@ -243,16 +243,17 @@ mod_upload_ui <- function(id){
                        actionBttn(ns("reset_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE)),
                        actionBttn(ns("submit_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "submit HIDECAN", icon = icon("share-square", verify_fa = FALSE)), 
                    ), br(), br(), 
-                   box(id= ns("box_gwaspoly"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwaspolyID"), label = tags$b("Upload GWASpoly output")),
+                   box(id= ns("box_gwaspoly"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwaspolyID"), label = tags$b("Upload GWAS output")),
                        div(style = "position:absolute;right:1em;",
                        ), br(), br(),
                        p("Object of class GWASpoly.thresh obtained with the GWASpoly::set.threshold():"), br(),
-                       fileInput(ns("gwaspoly"), label = h6("File: gwaspoly_res_thr.rda"), multiple = F)
+                       fileInput(ns("gwaspoly"), label = h6("File: gwaspoly_res_thr.rda"), multiple = F),
+                       p("or"),
+                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = T)
                    ),
-                   box(id= ns("box_gwas_de"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwasID"), label = tags$b("Upload HIDECAN CSV files")),
+                   box(id= ns("box_gwas_de"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwasID"), label = tags$b("Upload differential expression (DE) and candidate genes (CAN) files")),
                        div(style = "position:absolute;right:1em;",
                        ), br(), br(),
-                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = T),
                        fileInput(ns("de"), label = h6("File: DE.csv"), multiple = T),
                        fileInput(ns("can"), label = h6("File: CAN.csv"), multiple = T)
                    )
@@ -1011,11 +1012,12 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   loadHidecan = reactive({
     if(is.null(loadHidecanExample()) & 
-       is.null(input_hidecan())){
+       is.null(input_hidecan()) & 
+       is.null(loadViewpoly())){
       warning("Select one of the options in `upload` session")
       return(NULL)
-      # } else if(!is.null(loadViewpoly())){
-      #   return(loadViewpoly()$hidecan)
+    } else if(!is.null(loadViewpoly())){
+      return(loadViewpoly()$hidecan)
     } else if(!is.null(input_hidecan())){
       return(input_hidecan())
     } else if(!is.null(loadHidecanExample())){
@@ -1051,6 +1053,7 @@ mod_upload_server <- function(input, output, session, parent_session){
                               vcf = NULL,
                               align = NULL,
                               wig = NULL,
+                              hidecan = loadHidecan(),
                               version = packageVersion("viewpoly")), 
                          class = "viewpoly")
         assign(input$data.name, obj)

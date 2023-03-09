@@ -7,7 +7,7 @@ output: html_document
 
 <br />
 
-<div><img src="www/viewpoly-flowchart.png" alt="alt" align="center" style="width:1100px;height:530px;"></div>
+<div><img src="www/flow_chart.png" alt="alt" align="center" style="width:800px;height:830px;"></div>
 
 <br />
 
@@ -40,6 +40,8 @@ The `Input data` tab has options for diverse types of inputs. You can upload dir
 * [polyqtlR](https://cran.r-project.org/web/packages/polyqtlR/index.html)
 * [QTLpoly](https://cran.r-project.org/web/packages/qtlpoly/index.html)
 * [diaQTL](https://github.com/jendelman/diaQTL)
+* [GWASpoly](https://github.com/jendelman/GWASpoly)
+* [HIDECAN](https://cran.r-project.org/web/packages/hidecan/index.html)
 * CSV, TSV or TSV.GZ standard formats
 
 To relate the genetic maps and QTL with genomic information, it is also required:
