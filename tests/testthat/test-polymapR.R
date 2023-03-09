@@ -1,13 +1,12 @@
 test_that("Tests uploaded polymapR files",{
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
-  library(curl)
-  
+
   # upload MAPpoly
   input.data <- polymapR.map <- list()
   input.data$datapath <- tempfile()
   polymapR.map$datapath <- tempfile()
   
-  if(has_internet()){
+  if(havingIP()){
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polymapR_dataset.RData", destfile = input.data$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polymapR_map.RData", destfile = polymapR.map$datapath)
     

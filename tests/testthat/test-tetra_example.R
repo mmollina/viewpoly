@@ -1,10 +1,10 @@
-test_that("upload files",{
+test_that("tetra example",{
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
   
   # upload examples
-  viewpoly_obj <- prepare_examples("tetra_map")
+  viewpoly_obj <- viewpoly:::prepare_examples("tetra_map")
 
-  expect_equal(check_viewpoly(viewpoly_obj),0)
+  expect_equal(viewpoly:::check_viewpoly(viewpoly_obj),0)
 
   check_viewmap_values(viewpoly_obj$map,
                        c(14, 132, 139, 157, 34),
@@ -21,7 +21,7 @@ test_that("upload files",{
                                1)
 
   # VIEWmap tests
-  qtl_profile_plot <- plot_profile(profile = viewpoly_obj$qtl$profile,
+  qtl_profile_plot <- viewpoly:::plot_profile(profile = viewpoly_obj$qtl$profile,
                                    qtl_info = viewpoly_obj$qtl$qtl_info,
                                    selected_mks = viewpoly_obj$qtl$selected_mks,
                                    pheno.col = 2:3,
@@ -40,7 +40,7 @@ test_that("upload files",{
     y
   })
 
-  expect_doppelganger("linkage map draw",   draw_map_shiny(left.lim = 1,
+  vdiffr::expect_doppelganger("linkage map draw",   viewpoly:::draw_map_shiny(left.lim = 1,
                                                            right.lim = 50,
                                                            ch = 1,
                                                            d.p1 = viewpoly_obj$map$d.p1,
@@ -50,7 +50,7 @@ test_that("upload files",{
                                                            ph.p2 = viewpoly_obj$map$ph.p2,
                                                            snp.names = FALSE))
 
-  expect_doppelganger("linkage map draw names",   draw_map_shiny(left.lim = 1,
+  vdiffr::expect_doppelganger("linkage map draw names",   viewpoly:::draw_map_shiny(left.lim = 1,
                                                                  right.lim = 50,
                                                                  ch = 1,
                                                                  d.p1 = viewpoly_obj$map$d.p1,
@@ -60,10 +60,10 @@ test_that("upload files",{
                                                                  ph.p2 = viewpoly_obj$map$ph.p2,
                                                                  snp.names = TRUE))
 
-  expect_doppelganger("plot map list", plot_map_list(viewpoly_obj$map))
+  vdiffr::expect_doppelganger("plot map list", viewpoly:::plot_map_list(viewpoly_obj$map))
 
   # Get max size each chromosome
-  expect_equal(map_summary(left.lim = 1,
+  expect_equal(viewpoly:::map_summary(left.lim = 1,
                            right.lim = 50,
                            ch = 3,
                            maps = maps,
@@ -71,14 +71,14 @@ test_that("upload files",{
                            d.p2 = viewpoly_obj$map$d.p2)[[5]], 134.073, tolerance = 0.0001)
 
   # Map summary table
-  summary_table <- summary_maps(viewpoly_obj$map)
+  summary_table <- viewpoly:::summary_maps(viewpoly_obj$map)
   expect_equal(sum(as.numeric(summary_table$`Map length (cM)`)), 3259.98)
   expect_equal(sum(as.numeric(summary_table$Simplex)), 2450)
   expect_equal(sum(as.numeric(summary_table$`Double-simplex`)), 1820)
   expect_equal(sum(as.numeric(summary_table$`Max gap`)), 80.51)
 
   #VIEWqtl tests
-  expect_doppelganger("qtl plot",plot_profile(viewpoly_obj$qtl$profile,
+  vdiffr::expect_doppelganger("qtl plot", viewpoly:::plot_profile(viewpoly_obj$qtl$profile,
                                               viewpoly_obj$qtl$qtl_info,
                                               viewpoly_obj$qtl$selected_mks,
                                               pheno.col = 2,
@@ -88,7 +88,7 @@ test_that("upload files",{
                                               software = NULL))
 
   # by range
-  qtl_profile_data <- plot_profile(viewpoly_obj$qtl$profile,
+  qtl_profile_data <- viewpoly:::plot_profile(viewpoly_obj$qtl$profile,
                                    viewpoly_obj$qtl$qtl_info,
                                    viewpoly_obj$qtl$selected_mks,
                                    pheno.col = 2,
@@ -107,7 +107,7 @@ test_that("upload files",{
   expect_equal(as.numeric(qtl_profile_data$points$SUP), 119, tolerance = 0.001)
 
   # export data
-  qtl_profile_data <- plot_profile(viewpoly_obj$qtl$profile,
+  qtl_profile_data <- viewpoly:::plot_profile(viewpoly_obj$qtl$profile,
                                    viewpoly_obj$qtl$qtl_info,
                                    viewpoly_obj$qtl$selected_mks,
                                    pheno.col = 2,
@@ -126,11 +126,11 @@ test_that("upload files",{
   expect_equal(as.numeric(qtl_profile_data$points$SUP), 119, tolerance = 0.001)
 
   # plot exported data
-  p <- only_plot_profile(qtl_profile_data)
+  p <- viewpoly:::only_plot_profile(qtl_profile_data)
   expect_equal(sum(p$data$SIG), 292.883, tolerance = 0.001)
 
   # effects graphics
-  p <- data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
+  p <- viewpoly:::data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
                     effects = viewpoly_obj$qtl$effects,
                     pheno.col = "SG06",
                     lgs = 2,
@@ -139,14 +139,16 @@ test_that("upload files",{
                     software = "QTLpoly",
                     design = "circle")
 
-  expect_doppelganger("effects circle", plot_effects(p, "QTLpoly", "circle"))
+  vdiffr::expect_doppelganger("effects circle", viewpoly:::plot_effects(data_effects.obj = p,
+                                                                software = "QTLpoly",
+                                                                design = "circle"))
 
   expect_equal(sum(p[[1]]$data$Estimates), -0.0436829, tolerance = 0.001)
   expect_equal(names(p[[1]]$data),
                c("Estimates", "Alleles", "Parent", "Effects", "pheno", "qtl_id", "LG", "Pos", "unique.id"),
                tolerance = 0.001)
 
-  p <- data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
+  p <- viewpoly:::data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
                     effects = viewpoly_obj$qtl$effects,
                     pheno.col = "SG06",
                     lgs = 2,
@@ -160,9 +162,9 @@ test_that("upload files",{
                c("x", "y", "z"),
                tolerance = 0.001)
 
-  expect_doppelganger("effects digenic", plot_effects(p, "QTLpoly", "digenic"))
+  vdiffr::expect_doppelganger("effects digenic", viewpoly:::plot_effects(p, "QTLpoly", "digenic"))
 
-  p <- data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
+  p <- viewpoly:::data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
                     effects = viewpoly_obj$qtl$effects,
                     pheno.col = "SG06",
                     lgs = 2,
@@ -176,11 +178,11 @@ test_that("upload files",{
                c("Estimates", "Alleles", "Parent", "Effects"),
                tolerance = 0.001)
 
-  expect_doppelganger("effects bar", plot_effects(p, "QTLpoly", "bar"))
+  vdiffr::expect_doppelganger("effects bar", viewpoly:::plot_effects(p, "QTLpoly", "bar"))
 
   # breeding values table
   pos <- split(viewpoly_obj$qtl$qtl_info[1:3,]$Pos, viewpoly_obj$qtl$qtl_info[1:3,]$pheno)
-  breed.values <- breeding_values(viewpoly_obj$qtl$qtl_info,
+  breed.values <- viewpoly:::breeding_values(viewpoly_obj$qtl$qtl_info,
                                   viewpoly_obj$qtl$probs,
                                   viewpoly_obj$qtl$selected_mks,
                                   viewpoly_obj$qtl$blups,
@@ -191,14 +193,14 @@ test_that("upload files",{
   expect_equal(sum(breed.values$SG06), 5.36)
 
   # get and plot homologs prob
-  data.prob <- calc_homologprob(probs = viewpoly_obj$qtl$probs,
+  data.prob <- viewpoly:::calc_homologprob(probs = viewpoly_obj$qtl$probs,
                                 viewpoly_obj$qtl$selected_mks,
                                 1:5)
 
   expect_equal(sum(data.prob$homoprob$probability), 14900, tolerance = 0.001)
 
   input.haplo <- c("Trait:SG06_LG:2_Pos:77_homolog:P1.1")
-  p1.list <- select_haplo(input.haplo,
+  p1.list <- viewpoly:::select_haplo(input.haplo,
                     viewpoly_obj$qtl$probs,
                     viewpoly_obj$qtl$selected_mks,
                     effects.data = p)
@@ -209,7 +211,7 @@ test_that("upload files",{
   expect_equal(sum(p1[[3]]$data$probability), 508.0009, tolerance = 0.0001)
 
   # VIEWgenome tests
-  p <- plot_cm_mb(viewpoly_obj$map, 1, 1,50)
+  p <- viewpoly:::plot_cm_mb(viewpoly_obj$map, 1, 1,50)
 
   expect_equal(sum(p$data$l.dist), 50502.07, tolerance = 0.001)
 

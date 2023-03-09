@@ -7,6 +7,7 @@
 #' @noRd 
 #' 
 #' @importFrom shinyjs inlineCSS useShinyjs
+#' @importFrom hidecan get_example_data GWAS_data_from_gwaspoly GWAS_data DE_data CAN_data
 #' @importFrom shiny NS tagList 
 mod_upload_ui <- function(id){
   ns <- NS(id)
@@ -234,6 +235,33 @@ mod_upload_ui <- function(id){
       ),
       column(width = 12,
              fluidPage(
+               box(id = ns("box_hidecan"),width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="primary", title = actionLink(inputId = ns("hidecanID"), label = tags$b("Upload Hidecan files")),
+                   tags$p("Access further information about the files expected in this section ", 
+                          tags$a(href= "https://plantandfoodresearch.github.io/hidecan/","here")), br(),
+                   
+                   div(style = "position:absolute;right:1em;",
+                       actionBttn(ns("reset_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "reset", icon = icon("undo-alt", verify_fa = FALSE)),
+                       actionBttn(ns("submit_hidecan"), style = "jelly", color = "royal",  size = "sm", label = "submit HIDECAN", icon = icon("share-square", verify_fa = FALSE)), 
+                   ), br(), br(), 
+                   box(id= ns("box_gwaspoly"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwaspolyID"), label = tags$b("Upload GWAS output")),
+                       div(style = "position:absolute;right:1em;",
+                       ), br(), br(),
+                       p("Object of class GWASpoly.thresh obtained with the GWASpoly::set.threshold():"), br(),
+                       fileInput(ns("gwaspoly"), label = h6("File: gwaspoly_res_thr.rda"), multiple = F),
+                       p("or"),
+                       fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = T)
+                   ),
+                   box(id= ns("box_gwas_de"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE,  status="primary", title = actionLink(inputId = ns("gwasID"), label = tags$b("Upload differential expression (DE) and candidate genes (CAN) files")),
+                       div(style = "position:absolute;right:1em;",
+                       ), br(), br(),
+                       fileInput(ns("de"), label = h6("File: DE.csv"), multiple = T),
+                       fileInput(ns("can"), label = h6("File: CAN.csv"), multiple = T)
+                   )
+               )
+             )
+      ),
+      column(width = 12,
+             fluidPage(
                box(id = ns("box_viewpoly"),width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, status="info", title = actionLink(inputId = ns("viewpolyID"), label = tags$b("Download VIEWpoly dataset")),
                    p("The uploaded data are converted to the viewpoly format. It keeps the map and the QTL information. Genome information is not stored."), br(),
                    textInput(ns("data.name"), label = p("Define the dataset name. Do not use spaces between words."), value = "dataset_name"), br(),
@@ -325,6 +353,10 @@ mod_upload_server <- function(input, output, session, parent_session){
     js$collapse(ns("box_genome"))
   })
   
+  observeEvent(input$hidecanID, {
+    js$collapse(ns("box_hidecan"))
+  })
+  
   observeEvent(input$viewpolyID, {
     js$collapse(ns("box_viewpoly"))
   })
@@ -411,7 +443,8 @@ mod_upload_server <- function(input, output, session, parent_session){
     upload_state_diaQTL = 0,
     upload_state_polyqtlR = 0,
     upload_state_qtl_custom = 0,
-    upload_state_genome = 0
+    upload_state_genome = 0,
+    upload_state_hidecan = 0
   )
   
   observeEvent(input$reset_all, {
@@ -426,6 +459,7 @@ mod_upload_server <- function(input, output, session, parent_session){
     values$upload_state_polyqtlR = 0
     values$upload_state_qtl_custom = 0
     values$upload_state_genome <- 'reset'
+    values$upload_state_hidecan <- 'reset'
   })
   
   observeEvent(input$reset_viewpoly, {
@@ -449,6 +483,10 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   observeEvent(input$reset_genome, {
     values$upload_state_genome <- 'reset'
+  })
+  
+  observeEvent(input$reset_hidecan, {
+    values$upload_state_hidecan <- 'reset'
   })
   
   observeEvent(input$submit_viewpoly, {
@@ -492,6 +530,10 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   observeEvent(input$submit_genome, {
     values$upload_state_genome <- 'uploaded'
+  })
+  
+  observeEvent(input$submit_hidecan, {
+    values$upload_state_hidecan <- 'uploaded'
   })
   
   input_map <- reactive({
@@ -618,6 +660,29 @@ mod_upload_server <- function(input, output, session, parent_session){
     })
   })
   
+  input_hidecan <- reactive({
+    if (values$upload_state_hidecan == 0) {
+      return(NULL)
+    } else if (values$upload_state_hidecan == 'reset') {
+      return(NULL)
+    } else if(values$upload_state_hidecan == "uploaded"){
+      validate(
+        need(!all(c(is.null(input$gwas),is.null(input$gwaspoly))), "Upload GWAS results file before submit")
+      )
+      if(!is.null(input$gwaspoly)) {
+        temp <- load(input$gwaspoly$datapath)
+        gwaspoly <- get(temp)
+        gwaspoly <- GWAS_data_from_gwaspoly(gwaspoly)
+        
+      } else gwaspoly <- NULL
+      
+      return(list(GWASpoly = gwaspoly,
+                  GWAS = {if(!is.null(input$gwas)) read_input_hidecan(input$gwas, GWAS_data) else list()},
+                  DE = {if(!is.null(input$de)) read_input_hidecan(input$de, DE_data) else list()},
+                  CAN = {if(!is.null(input$can)) read_input_hidecan(input$can, CAN_data) else list()}))
+    } 
+  })
+  
   # Wait system for the uploads
   loadExample = reactive({
     if(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map) &
@@ -659,6 +724,20 @@ mod_upload_server <- function(input, output, session, parent_session){
       incProgress(0.5, detail = paste("Uploading example map data..."))
       prepare_examples(input$example_map)
     })
+    else NULL
+  })
+  
+  # Load hidecan example
+  loadHidecanExample = reactive({
+    if(is.null(input_hidecan()$gwas) & is.null(input_hidecan()$de) & is.null(input_hidecan()$can))
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.5, detail = paste("Uploading example map data..."))        
+        x <- get_example_data()
+        
+        list("GWAS" = list(GWAS_data(x[["GWAS"]])),
+             "DE" = list(DE_data(x[["DE"]])),
+             "CAN" = list(CAN_data(x[["CAN"]])))
+      })
     else NULL
   })
   
@@ -931,6 +1010,21 @@ mod_upload_server <- function(input, output, session, parent_session){
     }
   })
   
+  loadHidecan = reactive({
+    if(is.null(loadHidecanExample()) & 
+       is.null(input_hidecan()) & 
+       is.null(loadViewpoly())){
+      warning("Select one of the options in `upload` session")
+      return(NULL)
+    } else if(!is.null(loadViewpoly())){
+      return(loadViewpoly()$hidecan)
+    } else if(!is.null(input_hidecan())){
+      return(input_hidecan())
+    } else if(!is.null(loadHidecanExample())){
+      return(loadHidecanExample())
+    }
+  })
+  
   observe({
     if (!is.null(loadMap()) | !is.null(loadQTL())) {
       Sys.sleep(1)
@@ -959,6 +1053,7 @@ mod_upload_server <- function(input, output, session, parent_session){
                               vcf = NULL,
                               align = NULL,
                               wig = NULL,
+                              hidecan = loadHidecan(),
                               version = packageVersion("viewpoly")), 
                          class = "viewpoly")
         assign(input$data.name, obj)
@@ -974,7 +1069,8 @@ mod_upload_server <- function(input, output, session, parent_session){
               loadJBrowse_gff3 = reactive(loadJBrowse_gff3()), 
               loadJBrowse_vcf = reactive(loadJBrowse_vcf()),
               loadJBrowse_align = reactive(loadJBrowse_align()),
-              loadJBrowse_wig = reactive(loadJBrowse_wig())))
+              loadJBrowse_wig = reactive(loadJBrowse_wig()),
+              loadHidecan = reactive(loadHidecan())))
 }
 
 ## To be copied in the UI

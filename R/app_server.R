@@ -7,7 +7,7 @@
 app_server <- function( input, output, session ) {
   # Your application server logic
   # Upload size
-  options(shiny.maxRequestSize=5000*1024^2)
+  options(shiny.maxRequestSize=50000*1024^2)
   
   ## Start modules
   datas <- callModule(mod_upload_server,
@@ -38,5 +38,11 @@ app_server <- function( input, output, session ) {
              "map_view_ui_1", 
              loadMap = datas$loadMap,
              loadQTL = datas$loadQTL,
+             parent_session=session)
+  
+  # Hidecan view
+  callModule(mod_hidecan_view_server,
+             "hidecan_view_ui_1",
+             loadHidecan = datas$loadHidecan,
              parent_session=session)
 }
