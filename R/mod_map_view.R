@@ -119,7 +119,6 @@ mod_map_view_ui <- function(id){
             column(12,
                    hr(),
                    plotOutput(ns("plot_map"), height = "500px"), br(),
-                   includeHTML(system.file(package = "viewpoly", "ext/include.html")), br(), br(),
                    box(id = ns("box_phaplo"),width = 12, solidHeader = FALSE, collapsible = TRUE,  collapsed = TRUE, status="primary", title = actionLink(inputId = ns("phaploID"), label = "Parents haplotypes table"),
                        DT::dataTableOutput(ns("parents_haplo"))
                    )
@@ -248,7 +247,7 @@ mod_map_view_server <- function(input, output, session,
       for(i in 1:length(command))
         seqs[[i]] <- eval(parse(text = command[i]))
       
-      maps <- lapply(loadMap()$maps, function(x) {
+      maps.dist <- lapply(loadMap()$maps, function(x) {
         y <- x$l.dist
         names(y) <- x$mk.names
         y
@@ -256,7 +255,7 @@ mod_map_view_server <- function(input, output, session,
       
       max_updated <- map_summary(left.lim = input$range[1], 
                                  right.lim = input$range[2], 
-                                 ch = input$group, maps = maps, 
+                                 ch = input$group, maps = maps.dist, 
                                  d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
       
       qtls_pos <- Reduce(union, seqs)
@@ -339,7 +338,7 @@ mod_map_view_server <- function(input, output, session,
     validate(
       need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
     )
-    maps <- lapply(loadMap()$maps, function(x) {
+    maps.dist <- lapply(loadMap()$maps, function(x) {
       y <- x$l.dist
       names(y) <- x$mk.names
       y
@@ -349,14 +348,14 @@ mod_map_view_server <- function(input, output, session,
                    ch = input$group,
                    d.p1 = loadMap()$d.p1,
                    d.p2 = loadMap()$d.p2, 
-                   maps = maps, 
+                   maps.dist = maps.dist, 
                    ph.p1 = loadMap()$ph.p1, 
                    ph.p2 = loadMap()$ph.p2,
                    snp.names = input$op)
     
     max_updated = reactive({
       map_summary(left.lim = input$range[1], right.lim = input$range[2], 
-                  ch = input$group, maps = maps, 
+                  ch = input$group, maps = maps.dist, 
                   d.p1 = loadMap()$d.p1, 
                   d.p2 = loadMap()$d.p2)[[5]]
     })
