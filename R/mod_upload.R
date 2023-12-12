@@ -85,6 +85,18 @@ mod_upload_ui <- function(id){
                        fileInput(ns("polymapR.dataset"), label = h6("File: polymapR.dataset.RData"), multiple = F),
                        fileInput(ns("polymapR.map"), label = h6("File: polymapR.map.RData"), multiple = F),
                    ),
+                   box(id = ns("box_onemap"),width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, status="primary",  title = actionLink(inputId = ns("onemapID"), label = tags$b("Upload OneMap output")),
+                       tags$p("Access further information about how to build a linkage maps with OneMap ", 
+                              tags$a(href= "https://cristianetaniguti.github.io/htmls/Outcrossing_Populations.html","here")), br(),
+                       tags$p("Access a example code of how to obtain these inputs using OneMap functions ", 
+                              tags$a(href= "https://cristianetaniguti.github.io/viewpoly_vignettes/VIEWpoly_tutorial.html#Upload_linkage_map_files","here")),
+                       hr(),
+                       div(style = "position:absolute;right:1em;",
+                           actionBttn(ns("submit_onemap"), style = "jelly", color = "royal",  size = "sm", label = "submit OneMap", icon = icon("share-square", verify_fa = FALSE)), 
+                       ), br(), br(),
+                       tags$p("Object of class `viewmap`."), 
+                       fileInput(ns("onemap_in"), label = h6("File: my_onemap_map.RData"), multiple = F),
+                   ),
                    box(id = ns("box_mapst"), width = 12, solidHeader = FALSE, collapsible = TRUE, collapsed = TRUE, status="primary",title = actionLink(inputId = ns("mapstID"), label = tags$b("Upload linkage map files with standard format (.csv, .tsv or .tsv.gz)")),
                        div(style = "position:absolute;right:1em;",
                            actionBttn(ns("submit_map_custom"), style = "jelly", color = "royal",  size = "sm", label = "submit map custom", icon = icon("share-square", verify_fa = FALSE)), 
@@ -321,6 +333,10 @@ mod_upload_server <- function(input, output, session, parent_session){
     js$collapse(ns("box_mappoly"))
   })
   
+  observeEvent(input$onemapID, {
+    js$collapse(ns("box_onemap"))
+  })
+  
   observeEvent(input$polymapID, {
     js$collapse(ns("box_polymap"))
   })
@@ -436,6 +452,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   values <- reactiveValues(
     upload_state_map = 0,
     upload_state_mappoly = 0,
+    upload_state_onemap = 0,
     upload_state_polymapR = 0,
     upload_state_map_custom = 0,
     upload_state_qtl = 0,
@@ -451,6 +468,7 @@ mod_upload_server <- function(input, output, session, parent_session){
     values$upload_state_viewpoly <- 'reset'
     values$upload_state_map <- 'reset'
     values$upload_state_mappoly = 0
+    values$upload_state_onemap = 0
     values$upload_state_polymapR = 0
     values$upload_state_map_custom = 0
     values$upload_state_qtl <- 'reset'
@@ -469,6 +487,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   observeEvent(input$reset_map, {
     values$upload_state_map <- 'reset'
     values$upload_state_mappoly = 0
+    values$upload_state_onemap = 0
     values$upload_state_polymapR = 0
     values$upload_state_map_custom = 0
   })
@@ -495,6 +514,11 @@ mod_upload_server <- function(input, output, session, parent_session){
   
   observeEvent(input$submit_mappoly, {
     values$upload_state_mappoly <- 'uploaded'
+    values$upload_state_map <- 0
+  })
+  
+  observeEvent(input$submit_onemap, {
+    values$upload_state_onemap <- 'uploaded'
     values$upload_state_map <- 0
   })
   
@@ -539,6 +563,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   input_map <- reactive({
     if (values$upload_state_map == 0 & 
         values$upload_state_mappoly == 0 & 
+        values$upload_state_onemap == 0 & 
         values$upload_state_polymapR == 0 &
         values$upload_state_map_custom == 0) {
       return(NULL)
@@ -549,6 +574,11 @@ mod_upload_server <- function(input, output, session, parent_session){
         need(!is.null(input$mappoly_in), "Upload mappoly file before submit")
       )
       return(list(mappoly_in = input$mappoly_in))
+    } else if(values$upload_state_onemap == "uploaded"){
+      validate(
+        need(!is.null(input$onemap_in), "Upload onemap file before submit")
+      )
+      return(list(onemap_in = input$onemap_in))
     } else if(values$upload_state_polymapR == "uploaded"){
       validate(
         need(!is.null(input$polymapR.dataset), "Upload polymapR dataset file before submit"),
@@ -687,6 +717,7 @@ mod_upload_server <- function(input, output, session, parent_session){
   loadExample = reactive({
     if(is.null(input_map()$dosages) & is.null(input_map()$phases) & is.null(input_map()$genetic_map) &
        is.null(input_map()$mappoly_in) &
+       is.null(input_map()$onemap_in) &
        is.null(input_map()$polymapR.dataset) &
        is.null(input_map()$polymapR.map) &
        is.null(input_qtl()$selected_mks) & 
@@ -781,6 +812,18 @@ mod_upload_server <- function(input, output, session, parent_session){
       withProgress(message = 'Working:', value = 0, {
         incProgress(0.3, detail = paste("Uploading MAPpoly data..."))
         prepare_MAPpoly(input_map()$mappoly_in)
+      })
+    } else NULL
+  })
+  
+  loadMap_onemap =  reactive({
+    
+    if(!is.null(input_map()$onemap_in)){
+      withProgress(message = 'Working:', value = 0, {
+        incProgress(0.3, detail = paste("Uploading OneMap data..."))
+        temp <- load(input_map()$onemap_in$datapath)
+        viewmap <- get(temp)
+        viewmap
       })
     } else NULL
   })
@@ -969,6 +1012,7 @@ mod_upload_server <- function(input, output, session, parent_session){
     if(is.null(loadExample()) & 
        is.null(loadMap_custom()) & 
        is.null(loadMap_mappoly()) &
+       is.null(loadMap_onemap()) &
        is.null(loadMap_polymapR()) &
        is.null(loadViewpoly())){
       warning("Select one of the options in `upload` session")
@@ -979,6 +1023,8 @@ mod_upload_server <- function(input, output, session, parent_session){
       return(loadMap_custom())
     } else if(!is.null(loadMap_mappoly())){
       return(loadMap_mappoly())
+    } else if(!is.null(loadMap_onemap())){
+      return(loadMap_onemap())
     } else if(!is.null(loadMap_polymapR())){
       return(loadMap_polymapR())
     } else if(!is.null(loadExample())){

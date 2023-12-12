@@ -19,23 +19,25 @@
 #' 
 #' @return graphic representing selected section of a linkage group
 #' 
+#' @import RColorBrewer
+#' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
-                         maps, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
+                         maps.dist, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
 {
   par <- lines <- points <- axis <- mtext <- text <- NULL
   ch <- as.numeric(ch)
   ploidy <- dim(ph.p1[[1]])[2]
   # if(is.character(ch))
   #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
-  var.col <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3")
-  names(var.col) <- c("A", "T", "C", "G")
-  dark2 <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666")
-  d.col<-c(NA, dark2[1:ploidy])
+  alleles <- sort(unique(as.vector(unlist(ph.p1[[1]]))))
+  if(length(alleles) < 3) var.col <- c("#E41A1C", "#377EB8") else   var.col <- brewer.pal(length(alleles), "Set1")
+  names(var.col) <- alleles
+  if(ploidy < 3) d.col <- c(NA, "#1B9E77", "#D95F02") else d.col<-c(NA, brewer.pal(ploidy, "Dark2"))
   names(d.col) <- 0:ploidy
   d.col[1]<-NA
-  x <- maps[[ch]]
-  lab <- names(maps[[ch]])
+  x <- maps.dist[[ch]]
+  lab <- names(maps.dist[[ch]])
   zy <- seq(0, 0.5, length.out = ploidy) + 1.5
   pp1 <- ph.p1[[ch]]
   pp2 <- ph.p2[[ch]]
@@ -47,10 +49,13 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   id.right<-rev(which(x2==min(x2)))[1]
   par(mai = c(0.5,0.15,0,0))
   curx<-x[id.left:id.right]
-  plot(x = curx,
+  exten <- curx
+  exten[1] <- exten[1] - 1
+  exten[length(exten)] <- exten[length(exten)] + 1
+  plot(x = exten,
        y = rep(.5,length(curx)),
        type = "n" , 
-       ylim = c(.25, 4.5), 
+       ylim = c(.1, 5.5), 
        #xlim = c(min(curx), max(curx)),
        axes = FALSE)
   lines(c(x[id.left], x[id.right]), c(.5, .5), lwd=15, col = "gray")
@@ -59,9 +64,9 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
          xlab = "", ylab = "", 
          pch = "|", cex=1.5, 
          ylim = c(0,2))
-  axis(side = 1)
-  mtext(text = "Distance (cM)", side = 1, adj = 1)
-  #Parent 1
+  axis(side = 1, line = -1)
+  mtext(text = "Distance (cM)", side = 1, adj = 1, line = 1)
+  #Parent 2
   for(i in 1:ploidy)
   {
     lines(c(x[id.left], x[id.right]), c(zy[i], zy[i]), lwd=10, col = "gray")
@@ -71,9 +76,9 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
            pch = 15,
            cex = 2)
   }
-  mtext(text = "Parent 2", side = 2, at = mean(zy), line = -3, font = 4)
+  mtext(text = "Parent 2", side = 2, at = mean(zy), line = -3, font = 4, padj =1)
   for(i in 1:ploidy)
-    mtext(letters[12:7][i], at = zy[i], side = 2,  line = -4, font = 1)
+    mtext(letters[(2*ploidy):(ploidy+1)][i], at = zy[i], side = 2,  line = -4, font = 1, padj =1)
   connect.lines<-seq(x[id.left], x[id.right], length.out = length(curx))
   for(i in 1:length(connect.lines))
     lines(c(curx[i], connect.lines[i]), c(0.575, zy[1]-.05), lwd=0.3)
@@ -84,7 +89,7 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   corners = par("usr") 
   par(xpd = TRUE) 
   text(x = corners[1]+.5, y = mean(zy[ploidy]+0.05+(1:ploidy/20)), "Doses")
-  #Parent 2
+  #Parent 1
   zy<-zy+1.1
   for(i in 1:ploidy)
   {
@@ -109,10 +114,10 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
          labels = names(curx),
          srt=90, adj = 0, cex = .7)
   for(i in 1:ploidy)
-    mtext(letters[ploidy:1][i], at = zy[i], side = 2,  line = -4, font = 1)
-  # legend("bottomleft", legend=c("A", "T", "C", "G", "-"), 
-  #        fill =c(var.col, "white"), 
-  #        box.lty=0, bg="transparent")
+    mtext(letters[ploidy:1][i], at = zy[i], side = 2,  line = -4, font = 1, padj =1)
+  legend("topleft", legend= c(alleles, "-"),
+         fill =c(var.col, "white"), horiz = TRUE,
+         box.lty=0, bg="transparent")
 }
 
 #' Gets summary information from map.
