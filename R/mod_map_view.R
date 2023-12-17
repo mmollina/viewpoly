@@ -493,7 +493,7 @@ mod_map_view_server <- function(input, output, session,
                    ch = input$group,
                    d.p1 = loadMap()$d.p1,
                    d.p2 = loadMap()$d.p2, 
-                   maps = maps, 
+                   maps.dist = maps, 
                    ph.p1 = loadMap()$ph.p1, 
                    ph.p2 = loadMap()$ph.p2,
                    snp.names = input$op, software = loadMap()$software)   
