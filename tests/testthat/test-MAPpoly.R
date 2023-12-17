@@ -29,10 +29,10 @@ test_that("Tests uploaded MAPpoly files",{
                              ch = 3,
                              maps = maps,
                              d.p1 = viewmap_mappoly$d.p1,
-                             d.p2 = viewmap_mappoly$d.p2)[[5]], 134.073, tolerance = 0.0001)
+                             d.p2 = viewmap_mappoly$d.p2)[[5]], 134.073, tolerance = 0.0001, )
     
     # Map summary table
-    summary_table <- summary_maps(viewmap_mappoly)
+    summary_table <- summary_maps(viewmap_mappoly, software = "mappoly")
     expect_equal(sum(as.numeric(summary_table$`Map length (cM)`)), 3259.98)
     expect_equal(sum(as.numeric(summary_table$Simplex)), 2450)
     expect_equal(sum(as.numeric(summary_table$`Double-simplex`)), 1820)

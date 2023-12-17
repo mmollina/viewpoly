@@ -253,10 +253,8 @@ mod_map_view_server <- function(input, output, session,
         y
       })
       
-      max_updated <- map_summary(left.lim = input$range[1], 
-                                 right.lim = input$range[2], 
-                                 ch = input$group, maps = maps.dist, 
-                                 d.p1 = loadMap()$d.p1, d.p2 = loadMap()$d.p2)[[5]]
+      ch <- as.numeric(input$group)
+      max_updated <- as.numeric(maps.dist[[ch]][length(maps.dist[[ch]])])
       
       qtls_pos <- Reduce(union, seqs)
       chr_all <- 0:max_updated
@@ -351,13 +349,12 @@ mod_map_view_server <- function(input, output, session,
                    maps.dist = maps.dist, 
                    ph.p1 = loadMap()$ph.p1, 
                    ph.p2 = loadMap()$ph.p2,
-                   snp.names = input$op)
+                   snp.names = input$op, software = loadMap()$software)
     
     max_updated = reactive({
-      map_summary(left.lim = input$range[1], right.lim = input$range[2], 
-                  ch = input$group, maps = maps.dist, 
-                  d.p1 = loadMap()$d.p1, 
-                  d.p2 = loadMap()$d.p2)[[5]]
+      
+      ch <- as.numeric(input$group)
+      as.numeric(maps.dist[[ch]][length(maps.dist[[ch]])])
     })
     
     observeEvent(max_updated, {
@@ -392,7 +389,7 @@ mod_map_view_server <- function(input, output, session,
     validate(
       need(!is.null(loadMap()$ph.p1), "Upload map information in the upload session to access this feature.")
     )
-    summary <- summary_maps(loadMap())
+    summary <- summary_maps(loadMap(), loadMap()$software)
     DT::datatable(summary, extensions = 'Buttons', 
                   options = list(
                     scrollX = TRUE,
@@ -499,7 +496,7 @@ mod_map_view_server <- function(input, output, session,
                    maps = maps, 
                    ph.p1 = loadMap()$ph.p1, 
                    ph.p2 = loadMap()$ph.p2,
-                   snp.names = input$op)   
+                   snp.names = input$op, software = loadMap()$software)   
     
     dev.off()
   }

@@ -16,24 +16,32 @@
 #' 4) numerical vector with dosage
 #' @param d.p2 list containing a data.frame for each group with parent 2 dosages. See d.p1 parameter description
 #' @param snp.names logical TRUE/FALSE. If TRUE it includes the marker names in the plot
+#' @param software character defined from each software it comes from
 #' 
 #' @return graphic representing selected section of a linkage group
 #' 
-#' @import RColorBrewer
-#' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
-                         maps.dist, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE)
+                         maps.dist, ph.p1, ph.p2, d.p1, d.p2, snp.names=TRUE, software = NULL)
 {
   par <- lines <- points <- axis <- mtext <- text <- NULL
+  Set1 <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+  Dark2 <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666")
+  setout <- c("#9E0142", "#BE2449", "#DA464C", "#EC6145", "#F7834D", "#FCAA5F", "#FDC877", "#FEE391", 
+              "#FEF5AF", "#F7FCB3", "#E8F69C", "#CAE99D","#A6DBA4", "#7ECBA4", "#59B4AA", "#3B92B8", "#4470B1", "#5E4FA2")
   ch <- as.numeric(ch)
   ploidy <- dim(ph.p1[[1]])[2]
   # if(is.character(ch))
   #   ch <- as.numeric(strsplit(ch, split = " ")[[1]][3])
-  alleles <- sort(unique(as.vector(unlist(ph.p1[[1]]))))
-  if(length(alleles) < 3) var.col <- c("#E41A1C", "#377EB8") else   var.col <- brewer.pal(length(alleles), "Set1")
+  if(software == "onemap"){
+    alleles <- unique(as.vector(sapply(ph.p1, function(x) unique(unlist(x)))))
+    alleles <- sort(unique(c(alleles, as.vector(sapply(ph.p2, function(x) unique(unlist(x)))))))
+  } else alleles <- unique(as.vector(ph.p1[[1]]))
+  
+  if(length(alleles) < 3) var.col <- c("#E41A1C", "#377EB8") else   var.col <- Set1[1:length(alleles)]
   names(var.col) <- alleles
-  if(ploidy < 3) d.col <- c(NA, "#1B9E77", "#D95F02") else d.col<-c(NA, brewer.pal(ploidy, "Dark2"))
+  
+  if(ploidy < 3) d.col <- c(NA, "#1B9E77", "#D95F02") else d.col<-c(NA, Dark2[1:ploidy])
   names(d.col) <- 0:ploidy
   d.col[1]<-NA
   x <- maps.dist[[ch]]
@@ -82,10 +90,12 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
   connect.lines<-seq(x[id.left], x[id.right], length.out = length(curx))
   for(i in 1:length(connect.lines))
     lines(c(curx[i], connect.lines[i]), c(0.575, zy[1]-.05), lwd=0.3)
-  points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
-         y = zy[ploidy]+0.05+dp2[id.left:id.right]/20,
-         col = d.col[as.character(dp2[id.left:id.right])],
-         pch = 19, cex = .7)
+  if(software == "mappoly") {
+    points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
+           y = zy[ploidy]+0.05+dp2[id.left:id.right]/20,
+           col = d.col[as.character(dp2[id.left:id.right])],
+           pch = 19, cex = .7)
+  }
   corners = par("usr") 
   par(xpd = TRUE) 
   text(x = corners[1]+.5, y = mean(zy[ploidy]+0.05+(1:ploidy/20)), "Doses")
@@ -101,10 +111,12 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
            cex = 2)
   }
   mtext(text = "Parent 1", side = 2, at = mean(zy), line = -3, font = 4)
-  points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
-         y = zy[ploidy]+0.05+dp1[id.left:id.right]/20,
-         col = d.col[as.character(dp1[id.left:id.right])],
-         pch = 19, cex = .7)
+  if(software == "mappoly") {
+    points(x = seq(x[id.left], x[id.right], length.out = length(curx)),
+           y = zy[ploidy]+0.05+dp1[id.left:id.right]/20,
+           col = d.col[as.character(dp1[id.left:id.right])],
+           pch = 19, cex = .7)
+  }
   corners = par("usr") 
   par(xpd = TRUE) 
   text(x = corners[1]+.5, y = mean(zy[ploidy]+0.05+(1:ploidy/20)), "Doses")
@@ -171,6 +183,7 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' This function generates a brief summary table 
 #' 
 #' @param viewmap a list of objects of class \code{viewmap}
+#' @param software character defined from each software it comes from
 #' 
 #' @return a data frame containing a brief summary of all maps 
 #' 
@@ -179,37 +192,83 @@ map_summary<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' 
 #' 
 #' @keywords internal
-summary_maps = function(viewmap){
-  
-  simplex <- mapply(function(x,y) {
-    sum((x == 1 & y == 0) | (x == 0 & y == 1) |
-          (x == max(x) & y == (max(y) -1)) | 
-          (x == (max(x) -1) & y == max(y)))
-  }, viewmap$d.p1, viewmap$d.p2)
-  
-  double_simplex <- mapply(function(x,y) {
-    sum((x == 1 & y == 1) | (x == 3 & y == 3))
-  }, viewmap$d.p1, viewmap$d.p2)
+summary_maps = function(viewmap, software = NULL){
   
   max_gap <- sapply(viewmap$maps, function(x) max(diff(x$l.dist)))
   
-  results = data.frame("LG" = as.character(seq(1,length(viewmap$maps),1)),
-                       "Genomic sequence" = as.character(unlist(lapply(viewmap$maps, function(x) paste(unique(x$g.chr), collapse = "-")))),
-                       "Map length (cM)" = round(sapply(viewmap$maps, function(x) x$l.dist[length(x$l.dist)]),2),
-                       "Markers/cM" = round(sapply(viewmap$maps, function(x) length(x$l.dist)/x$l.dist[length(x$l.dist)]),2),
-                       "Simplex" = simplex,
-                       "Double-simplex" = double_simplex,
-                       "Multiplex" = sapply(viewmap$maps, function(x) length(x$mk.names)) - (simplex + double_simplex),
-                       "Total" = sapply(viewmap$maps, function(x) length(x$mk.names)),
-                       "Max gap" = round(max_gap,2),
-                       check.names = FALSE, stringsAsFactors = F)
-  results = rbind(results, c('Total', NA, sum(as.numeric(results$`Map length (cM)`)), 
-                             round(mean(as.numeric(results$`Markers/cM`)),2), 
-                             sum(as.numeric(results$Simplex)), 
-                             sum(as.numeric(results$`Double-simplex`)), 
-                             sum(as.numeric(results$Multiplex)), 
-                             sum(as.numeric(results$Total)), 
-                             round(mean(as.numeric(results$`Max gap`)),2)))
+  if(software == "mappoly"){
+    simplex <- mapply(function(x,y) {
+      sum((x == 1 & y == 0) | (x == 0 & y == 1) |
+            (x == max(x) & y == (max(y) -1)) | 
+            (x == (max(x) -1) & y == max(y)))
+    }, viewmap$d.p1, viewmap$d.p2)
+    
+    double_simplex <- mapply(function(x,y) {
+      sum((x == 1 & y == 1) | (x == 3 & y == 3))
+    }, viewmap$d.p1, viewmap$d.p2)
+    
+    results = data.frame("LG" = as.character(seq(1,length(viewmap$maps),1)),
+                         "Genomic sequence" = as.character(unlist(lapply(viewmap$maps, function(x) paste(unique(x$g.chr), collapse = "-")))),
+                         "Map length (cM)" = round(sapply(viewmap$maps, function(x) x$l.dist[length(x$l.dist)]),2),
+                         "Markers/cM" = round(sapply(viewmap$maps, function(x) length(x$l.dist)/x$l.dist[length(x$l.dist)]),2),
+                         "Simplex" = simplex,
+                         "Double-simplex" = double_simplex,
+                         "Multiplex" = sapply(viewmap$maps, function(x) length(x$mk.names)) - (simplex + double_simplex),
+                         "Total" = sapply(viewmap$maps, function(x) length(x$mk.names)),
+                         "Max gap" = round(max_gap,2),
+                         check.names = FALSE, stringsAsFactors = F)
+    
+    results = rbind(results, c('Total', NA, sum(as.numeric(results$`Map length (cM)`)), 
+                               round(mean(as.numeric(results$`Markers/cM`)),2), 
+                               sum(as.numeric(results$Simplex)), 
+                               sum(as.numeric(results$`Double-simplex`)), 
+                               sum(as.numeric(results$Multiplex)), 
+                               sum(as.numeric(results$Total)), 
+                               round(mean(as.numeric(results$`Max gap`)),2)))
+    
+  } else if(software == "onemap"){
+    counts <- lapply(viewmap$d.p1, function(x) 
+      as.data.frame(pivot_longer(as.data.frame(table(names(x))), cols = 2)[,-2]))
+    colnames(counts[[1]])[2] <- paste0("LG",1)
+    all_count <- counts[[1]] 
+    for(i in 2:(length(counts))){
+      colnames(counts[[i]])[2] <- paste0("LG",i)
+      all_count <- full_join(all_count, counts[[i]], by="Var1")
+    }
+    rm.na <- as.matrix(all_count[,2:4])
+    rm.na[which(is.na(rm.na))] <- 0
+    all_count <- data.frame(marker_types = all_count[,1], rm.na)
+    all_count <- t(all_count)
+    colnames(all_count) <- all_count[1,]
+    all_count <- all_count[-1,]
+    all_count <- apply(all_count, 2, as.numeric)
+    
+    LG = as.character(seq(1,length(viewmap$maps),1))
+    
+    if(any(sapply(viewmap$maps, function(x) any(is.na(x$g.chr))))){
+      warning("There are missing genomic position information in at least one of the groups")
+    }
+    
+    chr <- sapply(viewmap$maps, function(x) unique(x$g.chr[-which(is.na(x$g.chr))]))
+    if(is.list(chr)) {
+      warning("There are groups with combination of more than one genomic chromosome.")
+      chr[which(sapply(chr, length) >= 2)] <- NA
+      chr <- unlist(chr)
+    }
+    
+    results1 = data.frame(LG,
+                          "Genomic sequence" = chr,
+                          "Map length (cM)" = round(sapply(viewmap$maps, function(x) x$l.dist[length(x$l.dist)]),2),
+                          "Markers/cM" = round(sapply(viewmap$maps, function(x) length(x$l.dist)/x$l.dist[length(x$l.dist)]),2))
+    colnames(results1) <- c("LG", "Genomic sequence", "Map length (cM)", "Markers/cM")
+    
+    results2 = data.frame("Total" = sapply(viewmap$maps, function(x) length(x$mk.names)),
+                          "Max gap" = round(max_gap,2),
+                          check.names = FALSE, stringsAsFactors = F)
+    
+    results <- cbind(results1, all_count, results2)
+    results<- rbind(results, c("Total", "NA", apply(results[,3:ncol(results)], 2, sum)))
+  }
   return(results)
 }
 
