@@ -790,7 +790,7 @@ select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.
     homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
     homoprob_temp <- homoprob_temp %>% 
       group_by(map.position, LG, individual) %>% 
-      summarise(best = which(probability > 0.5))
+      reframe(best = which(probability > 0.5))
     like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx)]
     if(length(like.ind) ==0) like.ind <- NA
     like.ind.all[[i]] <-  like.ind
@@ -816,7 +816,7 @@ select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.
       homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
       homoprob_temp <- homoprob_temp %>% 
         group_by(map.position, LG, individual) %>% 
-        summarise(best = which(probability > 0.5))
+        reframe(best = which(probability > 0.5))
       like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx)]
       if(length(like.ind) ==0) like.ind <- NA
       like.ind.all[[i]] <-  like.ind
