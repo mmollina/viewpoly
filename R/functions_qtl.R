@@ -195,7 +195,7 @@ only_plot_profile <- function(pl.in){
     geom_line(data=pl.in$lines, aes(y = SIG, color = Trait), linewidth=pl.in$linesize, alpha=0.8) +
     #guides(color = guide_legend("Trait")) + 
     {if(dim(pl.in$points)[1] > 0) geom_point(data=pl.in$points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-    {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8, na.rm = TRUE)} +  #threshold
+    {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", linewidth=.5, alpha=0.8, na.rm = TRUE)} +  #threshold
     labs(y = pl.in$y.lab, x = "Linkage group") +
     annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust=1, hjust= -0.1,geom="label") +
     ylim(c(min(pl.in$lines$y.dat),max(pl.in$lines$SIG, na.rm = T) + 3)) +
@@ -466,9 +466,9 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       for(i in 1:length(pheno.col.n)){
         p[[i]] <- effects.df %>% filter(.data$pheno == unique(qtl_info$pheno)[pheno.col.n][i]) %>%  
           ggplot() +
-          geom_path(aes(x=x.axis, y=haplo, col = effect), size = 5)  +
+          geom_path(aes(x=x.axis, y=haplo, col = effect), linewidth = 5)  +
           scale_color_gradient2(low = "purple4", mid = "white",high = "seagreen") +
-          {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8, na.rm = TRUE)} +
+          {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", linewidth=.5, alpha=0.8, na.rm = TRUE)} +
           labs(y = "Haplotype", x = "Linkage group", title = unique(qtl_info$pheno)[pheno.col.n][i]) +
           annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust= 1, hjust= -0.1,geom="label") +
           coord_cartesian(ylim = c(1,8.5)) +

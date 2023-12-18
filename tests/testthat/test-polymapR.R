@@ -7,6 +7,7 @@ test_that("Tests uploaded polymapR files",{
   polymapR.map$datapath <- tempfile()
   
   if(havingIP()){
+    options(timeout=200)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polymapR_dataset.RData", destfile = input.data$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polymapR_map.RData", destfile = polymapR.map$datapath)
     

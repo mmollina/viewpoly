@@ -4,6 +4,7 @@ test_that("Tests uploaded MAPpoly files",{
   # upload MAPpoly
   temp <- tempfile()
   if(havingIP()){
+    options(timeout=200)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_MAPpoly_maps.RData", destfile = temp)
     temp.name <- load(temp)
     input.data <- get(temp.name)
@@ -29,7 +30,7 @@ test_that("Tests uploaded MAPpoly files",{
                              ch = 3,
                              maps = maps,
                              d.p1 = viewmap_mappoly$d.p1,
-                             d.p2 = viewmap_mappoly$d.p2)[[5]], 134.073, tolerance = 0.0001, )
+                             d.p2 = viewmap_mappoly$d.p2)[[5]], 134.073, tolerance = 0.0001)
     
     # Map summary table
     summary_table <- summary_maps(viewmap_mappoly, software = "mappoly")
