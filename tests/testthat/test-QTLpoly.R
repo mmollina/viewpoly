@@ -1,4 +1,5 @@
 test_that("Tests uploaded QTLpoly files",{
+  skip_on_ci() # Large files to be downloaded, continuous integration fails because of download timeout
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
 
   # upload QTLpoly
