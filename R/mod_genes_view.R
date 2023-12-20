@@ -128,6 +128,7 @@ mod_genes_view_ui <- function(id){
             ), 
             column(12,
                    column(6,
+                          numericInput(ns("port"), label = "Choose a port", value = 5000), br(),
                           actionButton(ns("create_server"), "Open JBrowseR",icon("power-off", verify_fa = FALSE))
                    ),
                    column(6,
@@ -410,7 +411,7 @@ mod_genes_view_server <- function(input, output, session,
     )
     
     if(!grepl("^http", path.fa)){
-      data_server <- serve_data(dirname(path.fa), port = 5000)
+      data_server <- serve_data(dirname(path.fa), port = input$port)
     } else data_server = NULL
     
     list(path.fa = path.fa, 
@@ -445,7 +446,7 @@ mod_genes_view_server <- function(input, output, session,
     
     if(!grepl("^http", button()$path.fa)){
       assembly <- assembly(
-        paste0("http://127.0.0.1:5000/", basename(button()$path.fa)), 
+        paste0("http://127.0.0.1:", input$port, "/", basename(button()$path.fa)), 
         bgzip = TRUE
       )
     } else {
@@ -459,7 +460,7 @@ mod_genes_view_server <- function(input, output, session,
     if(!is.null(button()$path.gff)){
       if(!grepl("^http", button()$path.gff)){
         annotations_track <- track_feature(
-          paste0("http://127.0.0.1:5000/", basename(button()$path.gff)), 
+          paste0("http://127.0.0.1:", input$port, "/", basename(button()$path.gff)), 
           assembly
         )
       } else {
@@ -473,7 +474,7 @@ mod_genes_view_server <- function(input, output, session,
     if(!is.null(button()$path.vcf)){
       if(!grepl("^http", button()$path.vcf)){
         vcf_track <- track_variant(
-          paste0("http://127.0.0.1:5000/", basename(button()$path.vcf)), 
+          paste0("http://127.0.0.1:", input$port, "/", basename(button()$path.vcf)), 
           assembly
         )
       } else {
@@ -487,7 +488,7 @@ mod_genes_view_server <- function(input, output, session,
     if(!is.null(button()$path.align)){
       if(!grepl("^http", button()$path.align)){
         align_track <- track_alignments(
-          paste0("http://127.0.0.1:5000/", basename(button()$path.align)), 
+          paste0("http://127.0.0.1:", input$port, "/", basename(button()$path.align)), 
           assembly
         )
       } else {
@@ -501,7 +502,7 @@ mod_genes_view_server <- function(input, output, session,
     if(!is.null(button()$path.wig)){
       if(!grepl("^http", button()$path.wig)){
         wiggle_track <- track_wiggle(
-          paste0("http://127.0.0.1:5000/", basename(button()$path.wig)), 
+          paste0("http://127.0.0.1:", input$port, "/", basename(button()$path.wig)), 
           assembly
         )
       } else {
