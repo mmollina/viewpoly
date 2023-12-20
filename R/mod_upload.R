@@ -934,10 +934,12 @@ mod_upload_server <- function(input, output, session, parent_session){
       if(!is.null(input_genome()$fasta) & !is.null(loadMap())){
         # keep fasta name
         for(i in 1:length(input_genome()$fasta$datapath)){
+          print(file.path(temp_dir(), input_genome()$fasta$name))
+          
           file.rename(input_genome()$fasta$datapath[i], 
                       file.path(temp_dir(), input_genome()$fasta$name[i]))
         }
-        file.path(temp_dir(), input_genome()$fasta$name[1]) 
+        file.path(temp_dir(), sort(input_genome()$fasta$name)[1]) 
       } else if(!is.null(input_genome()$fasta_server) & !is.null(loadMap())) {
         input_genome()$fasta_server
       } else if(!is.null(input_genome()$fasta) | !is.null(input_genome()$fasta_server)) {
