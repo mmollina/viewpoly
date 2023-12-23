@@ -15,7 +15,7 @@ draw_map_shiny(
   d.p1,
   d.p2,
   snp.names = TRUE,
-  software
+  software = NULL
 )
 }
 \arguments{
@@ -37,6 +37,8 @@ draw_map_shiny(
 \item{d.p2}{list containing a data.frame for each group with parent 2 dosages. See d.p1 parameter description}
 
 \item{snp.names}{logical TRUE/FALSE. If TRUE it includes the marker names in the plot}
+
+\item{software}{character defined from each software it comes from}
 
 \item{rigth.lim}{covered window in the linkage map end position}
 

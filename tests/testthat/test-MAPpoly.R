@@ -7,7 +7,7 @@ test_that("Tests uploaded MAPpoly files",{
   temp <- tempfile()
   if(havingIP()){
     options(timeout=200)
-    download.file("https://Cristianetaniguti.github.io/viewpoly_vignettes/data/tetra_MAPpoly_maps.RData", destfile = temp)
+    download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_MAPpoly_maps.RData", destfile = temp)
     temp.name <- load(temp)
     input.data <- get(temp.name)
     viewmap_mappoly <- prepare_MAPpoly(input.data)

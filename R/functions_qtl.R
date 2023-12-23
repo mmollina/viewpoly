@@ -342,13 +342,14 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             } else {
               data <- data[1:36,]
               data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
+              data$Alleles <- duo_new[match(data$Alleles, names(duo_new))]
             }
           } else if(ploidy == 6) {
             #data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
             data <- data[1:78,]
             data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,33),rep(p2,33)), Effects=c(rep("Additive",12),rep("Digenic",66)))
+            data$Alleles <- duo_new[match(data$Alleles, names(duo_new))]
           }
-          data$Alleles <- duo_new[match(data$Alleles, names(duo_new))]
           data$Parent <- factor(data$Parent, levels=unique(data$Parent))
           if(design == "bar"){
             if(software == "QTLpoly"){

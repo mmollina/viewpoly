@@ -4,7 +4,7 @@
 \alias{summary_maps}
 \title{Summary maps - adapted from MAPpoly}
 \usage{
-summary_maps(viewmap, software)
+summary_maps(viewmap, software = NULL)
 }
 \arguments{
 \item{viewmap}{a list of objects of class \code{viewmap}}
