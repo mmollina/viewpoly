@@ -155,9 +155,26 @@ test_that("Tests uploaded QTLpoly files",{
     input.haplo <- list("Trait:SG06_LG:2_Pos:77_homolog:P1.1", 
                         "Trait:SG06_LG:2_Pos:77_homolog:P1.3", "Trait:FM07_LG:5_Pos:26_homolog:P2.3")
     
-    p1.list <- select_haplo(input.haplo,
-                            viewqtl_qtlpoly$probs,
-                            viewqtl_qtlpoly$selected_mks,
+    # Plot all the verify
+    # inds <- unique(data.prob$homoprob$individual)
+    # p <- list()
+    # for(i in 1:length(inds)){
+    #   p[[i]] <- mappoly:::plot.mappoly.homoprob(x = data.prob, 
+    #                                   lg = c(2,5), 
+    #                                   ind = as.character(inds[i]),
+    #                                   use.plotly = FALSE)
+    # }
+    # 
+    # library(ggpubr)
+    # parts <- c(seq(20,158, 20), 158)
+    # for(i in 2:length(parts)){
+    #   p1 <- ggarrange(plotlist = p[(parts[i-1]-1):parts[i]], common.legend = T)
+    #   ggsave(p1, filename = paste0("part",i, ".png"), width = 15, height = 16)
+    # }
+    
+    p1.list <- select_haplo(input.haplo, 
+                                       probs = viewqtl_qtlpoly$probs, 
+                                       selected_mks = viewqtl_qtlpoly$selected_mks,
                             effects.data = p)
     p1 <- p1.list[[1]]
     

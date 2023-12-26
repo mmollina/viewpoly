@@ -19,6 +19,7 @@
 #' @param software character defined from each software it comes from
 #' 
 #' @return graphic representing selected section of a linkage group
+#' @importFrom  graphics legend
 #' 
 #' @keywords internal
 draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,

@@ -766,6 +766,7 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' @return ggplot graphic
 #' 
+#' @import dplyr tidyr
 #' 
 #' @keywords internal
 select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.haplo = NULL){
@@ -788,7 +789,7 @@ select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.
   subset <- homo.dat$homoprob[which(data_match %in% include),]
   subset <- subset[which(subset$probability > 0.5),]
   
-  counts <- subset %>% group_by(marker, individual, LG) %>% summarise(n = n())
+  counts <- subset %>% group_by(individual) %>% summarise(n = n())
   selected <- counts$individual[counts$n == length(input.haplo)]
   
   if(length(selected) == 0) stop("None of the inviduals have these combination of haplotypes")
