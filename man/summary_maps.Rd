@@ -4,10 +4,12 @@
 \alias{summary_maps}
 \title{Summary maps - adapted from MAPpoly}
 \usage{
-summary_maps(viewmap)
+summary_maps(viewmap, software = NULL)
 }
 \arguments{
 \item{viewmap}{a list of objects of class \code{viewmap}}
+
+\item{software}{character defined from each software it comes from}
 }
 \value{
 a data frame containing a brief summary of all maps

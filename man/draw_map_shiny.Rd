@@ -9,20 +9,19 @@ draw_map_shiny(
   left.lim = 0,
   right.lim = 5,
   ch = 1,
-  maps,
+  maps.dist,
   ph.p1,
   ph.p2,
   d.p1,
   d.p2,
-  snp.names = TRUE
+  snp.names = TRUE,
+  software = NULL
 )
 }
 \arguments{
 \item{left.lim}{covered window in the linkage map start position}
 
 \item{ch}{linkage group ID}
-
-\item{maps}{list containing a vector for each linkage group markers with marker positions (named with marker names)}
 
 \item{ph.p1}{list containing a data.frame for each group with parent 1 estimated phases. The data.frame contain the columns:
 1) Character vector with chromosome ID; 2) Character vector with marker ID;
@@ -39,7 +38,11 @@ draw_map_shiny(
 
 \item{snp.names}{logical TRUE/FALSE. If TRUE it includes the marker names in the plot}
 
+\item{software}{character defined from each software it comes from}
+
 \item{rigth.lim}{covered window in the linkage map end position}
+
+\item{maps}{list containing a vector for each linkage group markers with marker positions (named with marker names)}
 }
 \value{
 graphic representing selected section of a linkage group

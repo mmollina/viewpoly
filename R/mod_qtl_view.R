@@ -342,7 +342,10 @@ mod_qtl_view_server <- function(input, output, session,
       need(dim(df)[1] > 0, "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
     )
     
+    print(input$parents_name)
     parents <- unlist(strsplit(input$parents_name, ","))
+    parents <- gsub(" ", "", parents)
+    print(parents)
     
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Getting data..."))
@@ -477,7 +480,11 @@ mod_qtl_view_server <- function(input, output, session,
       need(all(input$haplo != "Select `bar` design to access this feature."), "Select `bar` design to access this feature.")
     )
     
-    list.p <- select_haplo(input$haplo, loadQTL()$probs, loadQTL()$selected_mks, effects.data(), exclude.haplo = input$haplo_exclude)
+    list.p <- select_haplo(input.haplo = as.list(input$haplo), 
+                           exclude.haplo = as.list(input$haplo_exclude),
+                           probs = loadQTL()$probs, 
+                           selected_mks = loadQTL()$selected_mks, 
+                           effects.data = effects.data())
     p <- list.p[[1]]
     inds <- list.p[[2]]
     counts <- ceiling(length(p)/3)
@@ -620,10 +627,10 @@ mod_qtl_view_server <- function(input, output, session,
     
     df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     
-    if(!grepl("Example" ,input$parents_name)) {
-      cat("here2")
-      parents <- unlist(strsplit(input$parents_name, ","))
-    } else parents <- NULL
+    print(input$parents_name)
+    parents <- unlist(strsplit(input$parents_name, ","))
+    parents <- gsub(" ", "", parents)
+    print(parents)
     
     data <- data_effects(qtl_info = loadQTL()$qtl_info, 
                          effects = loadQTL()$effects,

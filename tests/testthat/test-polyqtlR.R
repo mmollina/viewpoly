@@ -1,4 +1,6 @@
 test_that("Tests uploaded polyqtlR files",{
+  skip_on_ci() # Large files to be downloaded, continuous integration fails because of download timeout
+  
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
 
   # upload polyqtlR
@@ -8,6 +10,7 @@ test_that("Tests uploaded polyqtlR files",{
   polyqtlR_effects$datapath <- tempfile()
   
   if(havingIP()){
+    options(timeout=200)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_qtl_info.RData", destfile = polyqtlR_qtl_info$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_QTLscan.RData", destfile = polyqtlR_QTLscan_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polyqtlR_effects.RData", destfile = polyqtlR_effects$datapath)

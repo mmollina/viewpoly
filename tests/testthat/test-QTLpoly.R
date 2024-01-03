@@ -1,6 +1,7 @@
 test_that("Tests uploaded QTLpoly files",{
+  skip_on_ci() # Large files to be downloaded, continuous integration fails because of download timeout
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
-
+  
   # upload QTLpoly
   input.data <- remim.mod <- est.effects <- fitted.mod <- list()
   input.data$datapath <- tempfile()
@@ -9,6 +10,7 @@ test_that("Tests uploaded QTLpoly files",{
   fitted.mod$datapath <- tempfile()
   
   if(havingIP()){
+    options(timeout=200)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_effects.RData", destfile = est.effects$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_data.RData", destfile = input.data$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_QTLpoly_remim.RData", destfile = remim.mod$datapath)
@@ -123,7 +125,8 @@ test_that("Tests uploaded QTLpoly files",{
                        groups = 2,
                        position = 77,
                        software = "QTLpoly",
-                       design = "bar")
+                       design = "bar",
+                       parents = c("doida", "doido"))
     
     expect_equal(sum(p[[1]]$data$Estimates), 2.184058e-15, tolerance = 0.001)
     expect_equal(names(p[[1]]$data),
@@ -149,24 +152,42 @@ test_that("Tests uploaded QTLpoly files",{
     
     expect_equal(sum(data.prob$homoprob$probability), 464880, tolerance = 0.001)
     
-    input.haplo <- list("Trait:SG06_LG:2_Pos:77_homolog:P1.1", "Trait:FM07_LG:5_Pos:26_homolog:P1.3",
+    input.haplo <- list("Trait:SG06_LG:2_Pos:77_homolog:P1.1", 
                         "Trait:SG06_LG:2_Pos:77_homolog:P1.3", "Trait:FM07_LG:5_Pos:26_homolog:P2.3")
     
-    p1.list <- select_haplo(input.haplo,
-                            viewqtl_qtlpoly$probs,
-                            viewqtl_qtlpoly$selected_mks,
+    # Plot all the verify
+    # inds <- unique(data.prob$homoprob$individual)
+    # p <- list()
+    # for(i in 1:length(inds)){
+    #   p[[i]] <- mappoly:::plot.mappoly.homoprob(x = data.prob, 
+    #                                   lg = c(2,5), 
+    #                                   ind = as.character(inds[i]),
+    #                                   use.plotly = FALSE)
+    # }
+    # 
+    # library(ggpubr)
+    # parts <- c(seq(20,158, 20), 158)
+    # for(i in 2:length(parts)){
+    #   p1 <- ggarrange(plotlist = p[(parts[i-1]-1):parts[i]], common.legend = T)
+    #   ggsave(p1, filename = paste0("part",i, ".png"), width = 15, height = 16)
+    # }
+    
+    p1.list <- select_haplo(input.haplo, 
+                                       probs = viewqtl_qtlpoly$probs, 
+                                       selected_mks = viewqtl_qtlpoly$selected_mks,
                             effects.data = p)
     p1 <- p1.list[[1]]
     
     # Test exclude
-    input.haplo <- list("Trait:PY06_LG:5_Pos:29_homolog:P1.1")
-    exclude.haplo <- list("Trait:FM07_LG:5_Pos:26_homolog:P1.4")
+    input.haplo <- list("Trait:PY06_LG:5_Pos:29_homolog:P1.1", "Trait:PY06_LG:5_Pos:29_homolog:P1.3")
+    exclude.haplo <- list("Trait:PY06_LG:5_Pos:29_homolog:P2.1", "Trait:PY06_LG:5_Pos:29_homolog:P2.4")
     
     p1.list <- select_haplo(input.haplo = input.haplo,
                             exclude.haplo = exclude.haplo, 
                             probs = viewqtl_qtlpoly$probs, 
                             selected_mks = viewqtl_qtlpoly$selected_mks,
                             effects.data = p)
+    
     p1 <- p1.list[[1]]
     
     expect_equal(sum(p1[[1]]$data$probability), 431.9998, tolerance = 0.0001)

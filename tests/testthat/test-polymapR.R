@@ -1,4 +1,6 @@
 test_that("Tests uploaded polymapR files",{
+  skip_on_ci() # Large files to be downloaded, continuous integration fails because of download timeout
+  
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
 
   # upload MAPpoly
@@ -7,6 +9,7 @@ test_that("Tests uploaded polymapR files",{
   polymapR.map$datapath <- tempfile()
   
   if(havingIP()){
+    options(timeout=200)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polymapR_dataset.RData", destfile = input.data$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_polymapR_map.RData", destfile = polymapR.map$datapath)
     
@@ -35,7 +38,7 @@ test_that("Tests uploaded polymapR files",{
                              d.p2 = viewmap_polymapr$d.p2)[[5]], 96.15, tolerance = 0.0001)
     
     # Map summary table
-    summary_table <- summary_maps(viewmap_polymapr)
+    summary_table <- summary_maps(viewmap_polymapr, software = "mappoly")
     expect_equal(sum(as.numeric(summary_table$`Map length (cM)`)), 2317.84)
     expect_equal(sum(as.numeric(summary_table$Simplex)), 2028)
     expect_equal(sum(as.numeric(summary_table$`Double-simplex`)), 802)

@@ -195,7 +195,7 @@ only_plot_profile <- function(pl.in){
     geom_line(data=pl.in$lines, aes(y = SIG, color = Trait), linewidth=pl.in$linesize, alpha=0.8) +
     #guides(color = guide_legend("Trait")) + 
     {if(dim(pl.in$points)[1] > 0) geom_point(data=pl.in$points, aes(y = y.dat, color = Trait), shape = 2, size = 2, stroke = 1, alpha = 0.8)} +
-    {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8, na.rm = TRUE)} +  #threshold
+    {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", linewidth=.5, alpha=0.8, na.rm = TRUE)} +  #threshold
     labs(y = pl.in$y.lab, x = "Linkage group") +
     annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust=1, hjust= -0.1,geom="label") +
     ylim(c(min(pl.in$lines$y.dat),max(pl.in$lines$SIG, na.rm = T) + 3)) +
@@ -250,12 +250,32 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
     if(software == "QTLpoly"){
       ploidy <- max(nchar(effects$haplo))
       if(is.null(parents)) {# Multi-population still not implemented
-        p1 <- "P1"
-        p2 <- "P2" 
-      } else {
-        p1 <- parents[1]
-        p2 <- parents[2]
+        parents <- c("P1", "P2")
       }
+      
+      if(ploidy == 4){
+        p1_old <- c("a","b","c","d")
+        p2_old <- c("e","f","g", "h")
+      } else if(ploidy == 6){
+        p1_old <- c("a","b","c","d","e","f")
+        p2_old <- c("g", "h","i", "j","k","l")
+      }
+      
+      duo <- expand.grid(c(p1_old, p2_old), c(p1_old, p2_old))
+      duo <- apply(duo, 1, function(x) paste0(sort(unique(x)),collapse = ""))
+      duo <- unique(duo)
+      
+      p1 <- parents[1]
+      p2 <- parents[2]
+      p1_new <- paste0(p1,".",1:ploidy)
+      p2_new <- paste0(p2,".",1:ploidy)
+      
+      duo_new <- expand.grid(c(p1_new, p2_new), c(p1_new, p2_new))
+      duo_new <- apply(duo_new, 1, function(x) paste0(sort(unique(x)),collapse = "x"))
+      duo_new <- unique(duo_new)
+      
+      names(duo_new) <- duo
+      
     } else if(software == "diaQTL") {
       get.size <-  filter(effects, .data$pheno == unique(qtl_info$pheno)[1] & .data$qtl.id == 1 & !grepl("x",.data$haplo)) # issue if parents name has x: fixme!
       ploidy = as.numeric(table(substring(unique(get.size$haplo), 1, nchar(unique(get.size$haplo)) -2))[1])
@@ -322,33 +342,13 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
             } else {
               data <- data[1:36,]
               data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,4),rep(p2,4),rep(p1,14),rep(p2,14)), Effects=c(rep("Additive",8),rep("Digenic",28)))
-              data$Alleles <- gsub("a", paste0(p1,".1x"), data$Alleles)
-              data$Alleles <- gsub("b", paste0(p1,".2x"), data$Alleles)
-              data$Alleles <- gsub("c", paste0(p1,".3x"), data$Alleles)
-              data$Alleles <- gsub("d", paste0(p1,".4x"), data$Alleles)
-              data$Alleles <- gsub("e", paste0(p2,".1x"), data$Alleles)
-              data$Alleles <- gsub("f", paste0(p2,".2x"), data$Alleles)
-              data$Alleles <- gsub("g", paste0(p2,".3x"), data$Alleles)
-              data$Alleles <- gsub("h", paste0(p2,".4x"), data$Alleles)
-              data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
+              data$Alleles <- duo_new[match(data$Alleles, names(duo_new))]
             }
           } else if(ploidy == 6) {
             #data <- data[-c(18:23,28:33,37:42,45:50,52:63,83:88,92:97,100:105,107:133,137:142,145:150,152:178,181:186,188:214,216:278,299:1763),] # fix me
             data <- data[1:78,]
             data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,6),rep(p2,6),rep(p1,33),rep(p2,33)), Effects=c(rep("Additive",12),rep("Digenic",66)))
-            data$Alleles <- gsub("a", paste0(p1,".1x"), data$Alleles)
-            data$Alleles <- gsub("b", paste0(p1,".2x"), data$Alleles)
-            data$Alleles <- gsub("c", paste0(p1,".3x"), data$Alleles)
-            data$Alleles <- gsub("d", paste0(p1,".4x"), data$Alleles)
-            data$Alleles <- gsub("e", paste0(p1,".5x"), data$Alleles)
-            data$Alleles <- gsub("f", paste0(p1,".6x"), data$Alleles)
-            data$Alleles <- gsub("g", paste0(p2,".1x"), data$Alleles)
-            data$Alleles <- gsub("h", paste0(p2,".2x"), data$Alleles)
-            data$Alleles <- gsub("i", paste0(p2,".3x"), data$Alleles)
-            data$Alleles <- gsub("j", paste0(p2,".4x"), data$Alleles)
-            data$Alleles <- gsub("k", paste0(p2,".5x"), data$Alleles)
-            data$Alleles <- gsub("l", paste0(p2,".6x"), data$Alleles)
-            data$Alleles = substring(data$Alleles,1, nchar(data$Alleles)-1)
+            data$Alleles <- duo_new[match(data$Alleles, names(duo_new))]
           }
           data$Parent <- factor(data$Parent, levels=unique(data$Parent))
           if(design == "bar"){
@@ -356,7 +356,6 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
               lim <- max(abs(data[which(data$Effects == "Additive"),]$Estimates))
             } else 
               lim <- max(abs(c(data[which(data$Effects == "Additive"),]$CI.lower, data[which(data$Effects == "Additive"),]$CI.upper)))
-            
             plot <- ggplot(data[which(data$Effects == "Additive"),], aes(x = Alleles, y = Estimates, fill = Estimates)) +
               geom_bar(stat="identity") + ylim(c(-lim, lim)) +
               {if(software == "diaQTL") geom_errorbar(aes(ymin=CI.lower, ymax=CI.upper), width=.2, position=position_dodge(.9))} +
@@ -367,7 +366,7 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
               theme_minimal() +
               theme(plot.title = element_text(hjust = 0.5), 
                     plot.subtitle = element_text(hjust = 0.5), 
-                    axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5))
+                    axis.text.x.bottom = element_text(hjust = 1, vjust = 0.5, angle = 90))
             plots1[[q]] <- plot
             
           } else if(design == "digenic"){
@@ -466,9 +465,9 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
       for(i in 1:length(pheno.col.n)){
         p[[i]] <- effects.df %>% filter(.data$pheno == unique(qtl_info$pheno)[pheno.col.n][i]) %>%  
           ggplot() +
-          geom_path(aes(x=x.axis, y=haplo, col = effect), size = 5)  +
+          geom_path(aes(x=x.axis, y=haplo, col = effect), linewidth = 5)  +
           scale_color_gradient2(low = "purple4", mid = "white",high = "seagreen") +
-          {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", size=.5, alpha=0.8, na.rm = TRUE)} +
+          {if(length(vlines) > 1) geom_vline(xintercept=vlines, linetype="dashed", linewidth=.5, alpha=0.8, na.rm = TRUE)} +
           labs(y = "Haplotype", x = "Linkage group", title = unique(qtl_info$pheno)[pheno.col.n][i]) +
           annotate(x=vlines,y=+Inf,label= paste0("LG", names(vlines)),vjust= 1, hjust= -0.1,geom="label") +
           coord_cartesian(ylim = c(1,8.5)) +
@@ -767,79 +766,61 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 #' 
 #' @return ggplot graphic
 #' 
+#' @import dplyr tidyr
 #' 
 #' @keywords internal
 select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.haplo = NULL){
   LG <- map.position <- individual <- probability <- NULL
   
-  # Include haplo
-  lgs <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("LG", x)])
-  lgs <- gsub("LG:", "", lgs)
+  include <- strsplit(unlist(input.haplo), "_")
+  if(!is.null(exclude.haplo)) exclude <- strsplit(unlist(exclude.haplo), "_") else exclude <- NULL
+  
+  lgs <- c(sapply(include, "[[", 2), sapply(exclude, "[[", 2))
+  lgs <- gsub("LG:", "", unique(lgs))
+  
   homo.dat <- calc_homologprob(probs = probs, selected_mks = selected_mks, selected_lgs = lgs)
-  pos <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("Pos", x)])
-  pos <- gsub("Pos:", "", pos)
-  homo <- sapply(strsplit(unlist(input.haplo), "_"),function(x) x[grep("homolog", x)])
-  homo <- gsub("homolog:", "", homo)
-  alleles <- effects.data[[1]]$data$Alleles[!grepl("_",effects.data[[1]]$data$Alleles)]
-  alleles <- rep(alleles, length(homo))
-  like.ind.all <- list()
-  for(i in 1:length(pos)){
-    idx <- match(homo[i], sort(unique(alleles)))
-    homoprob_temp <- homo.dat$homoprob %>% 
-      filter(round(map.position,2) %in% round(as.numeric(pos[i]),2)) %>% filter(LG %in% lgs[i])
-    homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
-    homoprob_temp <- homoprob_temp %>% 
-      group_by(map.position, LG, individual) %>% 
-      summarise(best = which(probability > 0.5))
-    like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx)]
-    if(length(like.ind) ==0) like.ind <- NA
-    like.ind.all[[i]] <-  like.ind
-  }
-  like.intersect <- Reduce(intersect, like.ind.all)
+  data_match <- paste0("LG:",homo.dat$homoprob$LG, "_Pos:", 
+                       round(homo.dat$homoprob$map.position,0), 
+                       "_homolog:", homo.dat$homoprob$homolog)
   
-  ## Exclude haplo
+  # Include haplo
+  include <- sapply(include, function(x) paste0(x[-1], collapse = "_"))
+  
+  subset <- homo.dat$homoprob[which(data_match %in% include),]
+  subset <- subset[which(subset$probability > 0.5),]
+  
+  counts <- subset %>% group_by(individual) %>% summarise(n = n())
+  selected <- counts$individual[counts$n == length(input.haplo)]
+  
+  if(length(selected) == 0) stop("None of the inviduals have these combination of haplotypes")
+  
+  # Exclude haplo
   if(!is.null(exclude.haplo)){
-    lgs1 <- sapply(strsplit(unlist(exclude.haplo), "_"),function(x) x[grep("LG", x)])
-    lgs1 <- gsub("LG:", "", lgs1)
-    homo.dat1 <- calc_homologprob(probs = probs, selected_mks = selected_mks, selected_lgs = lgs1)
-    pos1 <- sapply(strsplit(unlist(exclude.haplo), "_"),function(x) x[grep("Pos", x)])
-    pos1 <- gsub("Pos:", "", pos1)
-    homo <- sapply(strsplit(unlist(exclude.haplo), "_"),function(x) x[grep("homolog", x)])
-    homo <- gsub("homolog:", "", homo)
-    alleles <- effects.data[[1]]$data$Alleles[!grepl("_",effects.data[[1]]$data$Alleles)]
-    alleles <- rep(alleles, length(homo))
-    like.ind.all <- list()
-    for(i in 1:length(pos1)){
-      idx <- match(homo[i], sort(unique(alleles)))
-      homoprob_temp <- homo.dat1$homoprob %>% 
-        filter(round(map.position,2) %in% round(as.numeric(pos1[i]),2)) %>% filter(LG %in% lgs1[i])
-      homoprob_temp <- homoprob_temp[order(homoprob_temp$individual, homoprob_temp$homolog),]
-      homoprob_temp <- homoprob_temp %>% 
-        group_by(map.position, LG, individual) %>% 
-        summarise(best = which(probability > 0.5))
-      like.ind <-  homoprob_temp$individual[which(homoprob_temp$best %in% idx)]
-      if(length(like.ind) ==0) like.ind <- NA
-      like.ind.all[[i]] <-  like.ind
-    }
-    like.intersect.exclude <- Reduce(intersect, like.ind.all)
-    like.intersect <- like.intersect[-which(like.intersect %in% like.intersect.exclude)]
-    # For vertical lines
-    idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% c(paste0(round(as.numeric(pos),2), "_", lgs), paste0(round(as.numeric(pos1),2), "_", lgs1)))
-  } else {
-    idx <- which(paste0(round(homo.dat$homoprob$map.position,2), "_", homo.dat$homoprob$LG) %in% paste0(round(as.numeric(pos),2), "_", lgs))
+    exclude <- sapply(exclude, function(x) paste0(x[-1], collapse = "_"))
+    
+    subset <- homo.dat$homoprob[which(data_match %in% exclude),]
+    subset <- subset[which(subset$probability > 0.5),]
+    
+    selected <- selected[-which(selected %in% unique(subset$individual))]
   }
   
-  if(length(like.intersect) == 0 | all(is.na(like.intersect))) stop(safeError("No individual in the progeny was found containing the combination of all the selected homolog/s. Please, select another combination of homolog/s."))
+  if(length(selected) == 0) stop("None of the inviduals have these combination of haplotypes")
+  
+  dashline <- strsplit(c(unlist(input.haplo), unlist(exclude.haplo)), "_")
+  dashline <- sapply(dashline, function(x) paste0(x[-c(1,4)], collapse = "_"))
+  
+  data_match <- sapply(strsplit(data_match, "_"), function(x) paste0(x[-length(x)], collapse = "_"))
+  
   homo.dat$homoprob$qtl <- NA
-  homo.dat$homoprob$qtl[idx] <- homo.dat$homoprob$map.position[idx] # vertical lines
+  homo.dat$homoprob$qtl[which(data_match %in% dashline)] <- homo.dat$homoprob$map.position[which(data_match %in% dashline)]
   
   p <- list()
-  for(i in 1:length(like.intersect)){
+  for(i in 1:length(selected)){
     p[[i]] <- plot.mappoly.homoprob(x = homo.dat, 
-                                               lg = unique(as.numeric(lgs)), 
-                                               ind = as.character(like.intersect)[i],
-                                               use.plotly = FALSE)
+                                    lg = unique(as.numeric(lgs)), 
+                                    ind = as.character(selected)[i],
+                                    use.plotly = FALSE)
   }
-  return(list(p, inds = as.character(like.intersect)))
+  return(list(p, inds = as.character(selected)))
 }
 

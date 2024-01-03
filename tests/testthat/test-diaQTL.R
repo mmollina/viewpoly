@@ -1,4 +1,5 @@
 test_that("Tests uploaded diaQTL files",{
+  skip_on_ci() # Large files to be downloaded, continuous integration fails because of download timeout
   source(system.file("ext/functions4tests.R", package = "viewpoly"))
 
   # upload diaQTL
@@ -9,6 +10,7 @@ test_that("Tests uploaded diaQTL files",{
   BayesCI_list_temp$datapath <- tempfile()
   
   if(havingIP()){
+    options(timeout=200)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_BayesCI_list_0.RData", destfile = BayesCI_list_temp$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_scan1_list.RData", destfile = scan1_list$datapath)
     download.file("https://www.polyploids.org/sites/default/files/2022-04/tetra_diaQTL_scan1_summaries_list.RData", destfile = scan1_summaries_list$datapath)
