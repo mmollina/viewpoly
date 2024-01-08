@@ -10,7 +10,7 @@
   
 # VIEWpoly <img src="https://user-images.githubusercontent.com/7572527/145726577-7b01d48b-ca1d-446b-b9c8-aff8c3c9877b.png" align="right" width="230"/>
 
-`VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://CRAN.R-project.org/package=polymapR), [MAPpoly](https://CRAN.R-project.org/package=mappoly) , [polyqtlR](https://CRAN.R-project.org/package=polyqtlR), [QTLpoly](https://CRAN.R-project.org/package=qtlpoly), 
+`VIEWpoly` is a shiny app and R package for visualizing and exploring results from [polyploid computational tools](https://www.polyploids.org/) using an interactive graphical user interface. The package allows users to directly upload output files from [polymapR](https://CRAN.R-project.org/package=polymapR), [MAPpoly](https://CRAN.R-project.org/package=mappoly) , [OneMap](https://github.com/Cristianetaniguti/onemap), [polyqtlR](https://CRAN.R-project.org/package=polyqtlR), [QTLpoly](https://CRAN.R-project.org/package=qtlpoly), 
 [diaQTL](https://github.com/jendelman/diaQTL), [GWASpoly](https://github.com/jendelman/GWASpoly), [HIDECAN](https://cran.r-project.org/web/packages/hidecan/index.html), and genomic assembly, variants, annotation and alignment files. VIEWpoly uses [shiny](https://CRAN.R-project.org/package=shiny), [golem](https://CRAN.R-project.org/package=golem), [ggplot2](https://CRAN.R-project.org/package=ggplot2), [plotly](https://CRAN.R-project.org/package=plotly), and [JBrowseR]( https://CRAN.R-project.org/package=JBrowseR) libraries to graphically display the QTL profiles, positions, alleles estimated effects, progeny individuals containing specific haplotypes and their breeding values. It is also possible to access marker dosage and parental phase from the linkage map. If genomic information is available, the corresponding QTL positions are interactively explored using JBrowseR interface, allowing the search for candidate genes. It also provides features to download specific information into comprehensive tables and images for further analysis and presentation.
 
 ### Quick Start
@@ -45,8 +45,8 @@ NOTE: Windows users may need to install the `Rtools` before compiling the packag
 You can also access `VIEWpoly` though the Docker image:
 
 ```{bash}
-docker pull cristaniguti/viewpoly:0.2.1  
-docker run --rm -e USERID=$(id -u) -e GROUPID=$(id -g) -p 8085:80 -e DISABLE_AUTH=true cristaniguti/viewpoly:0.2.1
+docker pull cristaniguti/viewpoly:0.2.2  
+docker run --rm -e USERID=$(id -u) -e GROUPID=$(id -g) -p 8085:80 -e DISABLE_AUTH=true cristaniguti/viewpoly:0.2.2
 ```
 
 This will make the container available in port 8085 (choose other if you prefer). After, you just need to go to your favorite browser and search for <your_localhost>:8085 (example: 127.0.0.1:8085). That is it! Everything you need is there.
@@ -57,6 +57,7 @@ The `Input data` tab has options for several types of inputs. You can upload dir
 
 * [MAPpoly](https://CRAN.R-project.org/package=mappoly)
 * [polymapR](https://CRAN.R-project.org/package=polymapR)
+* [OneMap](https://github.com/Cristianetaniguti/onemap)
 * [polyqtlR](https://CRAN.R-project.org/package=polyqtlR)
 * [QTLpoly](https://CRAN.R-project.org/package=qtlpoly)
 * [diaQTL](https://github.com/jendelman/diaQTL)
@@ -98,6 +99,8 @@ Amadeu RR, Muñoz PR , Zheng C, Endelman JB. 2021."QTL mapping in outbred tetrap
 Bourke PM , van Geest G, Voorrips RE, Jansen J, Kranenburg T, Shahin A, Visser RGF , Arens P, Smulders MJM , Maliepaard C. 2018."polymapR—linkage analysis and genetic map construction from F1 populations of outcrossing polyploids." Bioinformatics, 34 (20): 3496–3502, https://doi.org/10.1093/bioinformatics/bty371
 
 Bourke PM, Voorrips RE, Hackett CA, van Geest G, Willemsen JH, Arens P, Smulders MJM, Visser RGF, Maliepaard C. 2021."Detecting quantitative trait loci and exploring chromosomal pairing in autopolyploids using polyqtlR." Bioinformatics, 37 (21): 3822–3829, https://doi.org/10.1093/bioinformatics/btab574
+
+Taniguti, C. H.; Taniguti, L. M.; Amadeu, R. R.; Lau, J.; de Siqueira Gesteira, G.; Oliveira, T. de P.; Ferreira, G. C.; Pereira, G. da S.;  Byrne, D.;  Mollinari, M.; Riera-Lizarazu, O.; Garcia, A. A. F. Developing best practices for genotyping-by-sequencing analysis in the construction of linkage maps. GigaScience, 12, giad092. https://doi.org/10.1093/gigascience/giad092
 
 ### Acknowledgment
 

@@ -11,8 +11,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="169.12946mm"
-   height="206.03154mm"
-   viewBox="0 0 169.12946 206.03154"
+   height="208.61787mm"
+   viewBox="0 0 169.12946 208.61787"
    version="1.1"
    id="svg5956"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
@@ -369,15 +369,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="409.29143"
-     inkscape:cy="93.193328"
+     inkscape:cx="108.04419"
+     inkscape:cy="295.7397"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1094"
-     inkscape:window-x="-11"
-     inkscape:window-y="-11"
+     inkscape:window-width="2880"
+     inkscape:window-height="1694"
+     inkscape:window-x="2869"
+     inkscape:window-y="261"
      inkscape:window-maximized="1"
      inkscape:snap-global="false"
      fit-margin-top="0"
@@ -444,7 +444,7 @@
        width="6.180377"
        style="overflow:visible;stroke-width:0.26458332;stroke-miterlimit:9.50395012;stroke-dasharray:0.26458333, 0.26458333;stroke-dashoffset:0;enable-background:new"
        x="97.71302"
-       y="163.30684"
+       y="166.4818"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001" />
@@ -466,7 +466,7 @@
        width="6.4810514"
        style="overflow:visible;stroke-width:0.26458332;stroke-miterlimit:9.50395012;stroke-dasharray:0.26458333, 0.26458333;stroke-dashoffset:0;enable-background:new"
        x="103.89507"
-       y="163.00647"
+       y="166.18143"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001" />
@@ -520,34 +520,34 @@
        y="133.83768"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
-       inkscape:export-ydpi="321.60001">Contains:</text>
+       inkscape:export-ydpi="321.60001" />
     <text
        style="font-size:2.26472044px;font-family:MyriadPro-Regular;fill:#010101;stroke-width:0.0328029;stroke-miterlimit:9.50395012;stroke-dasharray:0.0328029, 0.0328029;stroke-dashoffset:0"
        id="text1056"
        class="st30 st2 st31"
-       x="133.17691"
-       y="136.66862"
+       x="133.22415"
+       y="133.88106"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
-       inkscape:export-ydpi="321.60001">- Map data</text>
+       inkscape:export-ydpi="321.60001">Map data</text>
     <text
        style="font-size:2.26472044px;font-family:MyriadPro-Regular;fill:#010101;stroke-width:0.0328029;stroke-miterlimit:9.50395012;stroke-dasharray:0.0328029, 0.0328029;stroke-dashoffset:0"
        id="text1058"
        class="st30 st2 st31"
-       x="133.17691"
-       y="139.49957"
+       x="133.31815"
+       y="137.22049"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
-       inkscape:export-ydpi="321.60001">- QTL data</text>
+       inkscape:export-ydpi="321.60001">QTL data</text>
     <text
        style="font-size:2.26472044px;font-family:MyriadPro-Regular;fill:#010101;stroke-width:0.0328029;stroke-miterlimit:9.50395012;stroke-dasharray:0.0328029, 0.0328029;stroke-dashoffset:0"
        id="text1060"
        class="st30 st2 st31"
-       x="133.17691"
-       y="142.33038"
+       x="133.22415"
+       y="140.74957"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
-       inkscape:export-ydpi="321.60001">- HIDECAN data</text>
+       inkscape:export-ydpi="321.60001">HIDECAN data</text>
     <path
        style="fill:none;stroke:#67308f;stroke-width:0.05801463;stroke-miterlimit:9.50395012;stroke-dasharray:0.05801463, 0.05801463;stroke-dashoffset:0"
        inkscape:connector-curvature="0"
@@ -589,14 +589,14 @@
        id="text1069"
        class="st30 st2 st31"
        x="93.825272"
-       y="159.95952"
+       y="160.23088"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001">polymapR</text>
     <path
-       style="fill:none;stroke:#67308f;stroke-width:0.05429209;stroke-miterlimit:9.50395012;stroke-dasharray:0.05429209, 0.05429209;stroke-dashoffset:0"
+       style="fill:none;stroke:#67308f;stroke-width:0.06248041;stroke-miterlimit:9.50395012;stroke-dasharray:0.06248041, 0.06248041;stroke-dashoffset:0"
        inkscape:connector-curvature="0"
-       d="m 94.853513,152.6477 h 20.258277 c 1.16789,0 2.11509,0.9472 2.11509,2.11509 v 4.58972 c 0,1.16789 -0.9472,2.11509 -2.11509,2.11509 H 94.853513 c -1.167889,0 -2.115093,-0.9472 -2.115093,-2.11509 v -4.58972 c 0,-1.16789 0.945966,-2.11509 2.115093,-2.11509 z"
+       d="m 94.8569,152.65179 h 20.2515 c 1.1675,0 2.11439,1.25488 2.11439,2.80214 v 6.08059 c 0,1.54726 -0.94689,2.80213 -2.11439,2.80213 H 94.8569 c -1.167499,0 -2.114386,-1.25487 -2.114386,-2.80213 v -6.08059 c 0,-1.54726 0.94565,-2.80214 2.114386,-2.80214 z"
        class="st40"
        id="rect4283-7"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
@@ -634,7 +634,7 @@
        id="text1077"
        class="st30 st2 st31"
        x="122.48454"
-       y="159.9926"
+       y="160.25198"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001">polyqtlR</text>
@@ -643,7 +643,7 @@
        id="text1079"
        class="st30 st2 st31"
        x="122.48454"
-       y="162.82355"
+       y="163.35271"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001">diaQTL</text>
@@ -1608,7 +1608,7 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.93888855px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.07000434;stroke-miterlimit:9.50395012;stroke-dasharray:0.07000434, 0.07000434;stroke-dashoffset:0"
        x="151.60344"
-       y="159.77002"
+       y="160.03459"
        id="text3463"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
@@ -1616,18 +1616,18 @@
          sodipodi:role="line"
          id="tspan3461"
          x="151.60344"
-         y="159.77002"
+         y="160.03459"
          style="font-size:2.11666656px;line-height:0;stroke-width:0.07000434;stroke-miterlimit:9.50395012;stroke-dasharray:0.07000434, 0.07000434;stroke-dashoffset:0">Diferential expression (DE)</tspan><tspan
          sodipodi:role="line"
          x="151.60344"
-         y="165.94363"
+         y="166.20821"
          style="font-size:2.11666656px;line-height:0;stroke-width:0.07000434;stroke-miterlimit:9.50395012;stroke-dasharray:0.07000434, 0.07000434;stroke-dashoffset:0"
          id="tspan3465" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.93888855px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.07000434;stroke-miterlimit:9.50395012;stroke-dasharray:0.07000434, 0.07000434;stroke-dashoffset:0"
        x="151.69128"
-       y="162.8038"
+       y="163.33296"
        id="text3469"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
@@ -1635,7 +1635,7 @@
          sodipodi:role="line"
          id="tspan3467"
          x="151.69128"
-         y="162.8038"
+         y="163.33296"
          style="font-size:2.11666656px;stroke-width:0.07000434;stroke-miterlimit:9.50395012;stroke-dasharray:0.07000434, 0.07000434;stroke-dashoffset:0">Candidate genes (CAN)</tspan></text>
     <image
        y="165.77255"
@@ -1733,14 +1733,14 @@
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001" />
     <text
-       y="144.97618"
-       x="133.17691"
+       y="144.07849"
+       x="133.31815"
        class="st30 st2 st31"
        id="text7420"
        style="font-size:2.26472044px;font-family:MyriadPro-Regular;fill:#010101;stroke-width:0.0328029;stroke-miterlimit:9.50395012;stroke-dasharray:0.0328029, 0.0328029;stroke-dashoffset:0"
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
-       inkscape:export-ydpi="321.60001">- Genomic data</text>
+       inkscape:export-ydpi="321.60001">Genomic data</text>
     <path
        style="fill:none;stroke:#6e94c8;stroke-width:0.2269779;stroke-miterlimit:11.33860016;stroke-opacity:1"
        inkscape:connector-curvature="0"
@@ -1901,5 +1901,14 @@
        inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
        inkscape:export-xdpi="321.60001"
        inkscape:export-ydpi="321.60001" />
+    <text
+       style="font-size:2.26472044px;font-family:MyriadPro-Regular;fill:#010101;stroke-width:0.0328029;stroke-miterlimit:9.50395012;stroke-dasharray:0.0328029, 0.0328029;stroke-dashoffset:0"
+       id="text1069-5"
+       class="st30 st2 st31"
+       x="93.912651"
+       y="163.31308"
+       inkscape:export-filename="C:\Users\chtan\Documents\github\viewpoly\www\flow_chart.png"
+       inkscape:export-xdpi="321.60001"
+       inkscape:export-ydpi="321.60001">OneMap</text>
   </g>
 </svg>
