@@ -342,11 +342,9 @@ mod_qtl_view_server <- function(input, output, session,
       need(dim(df)[1] > 0, "Select at least one triangle on the bottom of the QTL profile graphic. The triangles refer to QTL peaks detected. You can click and brush your cursor to select more than one.")
     )
     
-    print(input$parents_name)
     parents <- unlist(strsplit(input$parents_name, ","))
     parents <- gsub(" ", "", parents)
-    print(parents)
-    
+
     withProgress(message = 'Working:', value = 0, {
       incProgress(0.5, detail = paste("Getting data..."))
       data <- data_effects(qtl_info = loadQTL()$qtl_info, 
@@ -627,11 +625,9 @@ mod_qtl_view_server <- function(input, output, session,
     
     df <- brushedPoints(qtl.data()[[2]], input$plot_brush, xvar = "x", yvar = "y.dat")
     
-    print(input$parents_name)
     parents <- unlist(strsplit(input$parents_name, ","))
     parents <- gsub(" ", "", parents)
-    print(parents)
-    
+
     data <- data_effects(qtl_info = loadQTL()$qtl_info, 
                          effects = loadQTL()$effects,
                          pheno.col = as.character(df$Trait), 

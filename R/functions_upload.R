@@ -11,8 +11,8 @@
 prepare_examples <- function(example){
   viewmap_tetra <- viewqtl_tetra <- NULL
   if(example == "tetra_map"){
-    load(system.file("ext/viewmap_tetra.rda", package = "viewpoly"))
-    load(system.file("ext/viewqtl_tetra.rda", package = "viewpoly"))
+    viewmap_tetra <- readRDS(system.file("ext/viewmap_tetra.rds", package = "viewpoly"))
+    viewqtl_tetra <- readRDS(system.file("ext/viewqtl_tetra.rds", package = "viewpoly"))
     
     structure(list(map=viewmap_tetra, 
                    qtl=viewqtl_tetra,

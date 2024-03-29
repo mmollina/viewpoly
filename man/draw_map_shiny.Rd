@@ -21,6 +21,8 @@ draw_map_shiny(
 \arguments{
 \item{left.lim}{covered window in the linkage map start position}
 
+\item{right.lim}{covered window in the linkage map end position}
+
 \item{ch}{linkage group ID}
 
 \item{ph.p1}{list containing a data.frame for each group with parent 1 estimated phases. The data.frame contain the columns:
@@ -39,8 +41,6 @@ draw_map_shiny(
 \item{snp.names}{logical TRUE/FALSE. If TRUE it includes the marker names in the plot}
 
 \item{software}{character defined from each software it comes from}
-
-\item{rigth.lim}{covered window in the linkage map end position}
 
 \item{maps}{list containing a vector for each linkage group markers with marker positions (named with marker names)}
 }

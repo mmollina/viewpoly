@@ -27,7 +27,7 @@ mod_upload_ui <- function(id){
       column(width = 12,
              fluidPage(
                box(id= ns("box_example"), width = 12, solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE, status="primary", title = actionLink(inputId = ns("exampleID"), label = tags$b("Available example datasets")),
-                   radioButtons(ns("example_map"), label = p("They contain the entire linkage map and QTL analysis but just a subset of individuals."), 
+                   radioButtons(ns("example_map"), label = p("They contain a results for a subset of tetraploid potato linkage map and QTL analysis."), 
                                 choices = c("Potato - Atlantic x B1829-5" = "tetra_map"),
                                 selected = "tetra_map"), br(), br(), hr(),
                    tags$p("Access complete example datasets ", 
