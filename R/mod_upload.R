@@ -261,7 +261,7 @@ mod_upload_ui <- function(id){
                        div(style = "position:absolute;right:1em;",
                        ), br(), br(),
                        p("Object of class GWASpoly.thresh obtained with the GWASpoly::set.threshold():"), br(),
-                       fileInput(ns("gwaspoly"), label = h6("File: gwaspoly_res_thr.rda"), multiple = F),
+                       fileInput(ns("gwaspoly"), label = h6("File: gwaspoly_res_thr.rda"), multiple = T),
                        p("or"),
                        fileInput(ns("gwas"), label = h6("File: gwas.csv"), multiple = T)
                    ),
@@ -701,10 +701,27 @@ mod_upload_server <- function(input, output, session, parent_session){
       validate(
         need(!all(c(is.null(input$gwas),is.null(input$gwaspoly))), "Upload GWAS results file before submit")
       )
+      
       if(!is.null(input$gwaspoly)) {
-        temp <- load(input$gwaspoly$datapath)
-        gwaspoly <- get(temp)
-        gwaspoly <- GWAS_data_from_gwaspoly(gwaspoly)
+        
+        for(i in 1:length(input$gwaspoly$datapath)){
+          temp <- load(input$gwaspoly$datapath[i])
+          gwaspoly_temp <- get(temp)
+          gwaspoly_list <- GWAS_data_from_gwaspoly(gwaspoly_temp)
+
+          if(i == 1) gwaspoly <- gwaspoly_list else {
+            if(!all(gwaspoly$chrom_length == gwaspoly_list$chrom_length)) {
+              # If same chromosome but different chromosomes length - keep the maximum
+              if(all(gwaspoly$chrom_length$chromosome == gwaspoly_list$chrom_length$chromosome)){
+                idx <- which(gwaspoly$chrom_length$length < gwaspoly_list$chrom_length$length)
+                if(length(idx) > 0)
+                  gwaspoly$chrom_length$length[idx] <-  gwaspoly_list$chrom_length$length[idx]
+              } else stop("Not same reference genome used")
+            }
+            gwaspoly$gwas_data_list <- c(gwaspoly$gwas_data_list, gwaspoly_list$gwas_data_list)
+            gwaspoly$gwas_data_thr_list <- c(gwaspoly$gwas_data_thr_list, gwaspoly_list$gwas_data_thr_list)
+          }
+        }
         
       } else gwaspoly <- NULL
       
