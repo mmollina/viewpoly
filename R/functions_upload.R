@@ -26,26 +26,6 @@ prepare_examples <- function(example){
   }
 }
 
-#' Upload hidecan example files
-#' 
-#' @param example character indicating the example dataset selected
-#' 
-#' @return object of class \code{viewpoly}
-#' 
-#' @import hidecan
-#' 
-#' @keywords internal
-prepare_hidecan_examples <- function(example){
-  gwas <- read.csv(system.file("ext/gwas.csv", package = "viewpoly"))
-  de <- read.csv(system.file("ext/de.csv", package = "viewpoly"))
-  can <- read.csv(system.file("ext/can.csv", package = "viewpoly"))
-  
-  structure(list(GWASpoly = NULL,
-                 GWAS= gwas, 
-                 DE= de,
-                 CAN = can))
-}
-
 #' Converts map information in custom format files to viewmap object
 #' 
 #' 

@@ -10,6 +10,8 @@ map_summary(left.lim = 0, right.lim = 5, ch = 1, maps, d.p1, d.p2)
 \arguments{
 \item{left.lim}{covered window in the linkage map start position}
 
+\item{right.lim}{covered window in the linkage map end position}
+
 \item{ch}{linkage group ID}
 
 \item{maps}{list containing a vector for each linkage group markers with marker positions (named with marker names)}
@@ -20,8 +22,6 @@ map_summary(left.lim = 0, right.lim = 5, ch = 1, maps, d.p1, d.p2)
 4) numerical vector with dosage}
 
 \item{d.p2}{list containing a data.frame for each group with parent 2 dosages. See d.p1 parameter description}
-
-\item{rigth.lim}{covered window in the linkage map end position}
 }
 \value{
 list with linkage map information: doses;  number snps by group; cM per snp; map size; number of linkage groups

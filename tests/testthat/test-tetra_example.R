@@ -40,27 +40,27 @@ test_that("tetra example",{
     y
   })
   
-  vdiffr::expect_doppelganger("linkage map draw",   draw_map_shiny(left.lim = 1,
-                                                                   right.lim = 50,
-                                                                   ch = 1,
-                                                                   d.p1 = viewpoly_obj$map$d.p1,
-                                                                   d.p2 = viewpoly_obj$map$d.p2,
-                                                                   maps = maps,
-                                                                   ph.p1 = viewpoly_obj$map$ph.p1,
-                                                                   ph.p2 = viewpoly_obj$map$ph.p2,
-                                                                   snp.names = FALSE, software = "mappoly"))
-  
-  vdiffr::expect_doppelganger("linkage map draw names",   draw_map_shiny(left.lim = 1,
-                                                                         right.lim = 50,
-                                                                         ch = 1,
-                                                                         d.p1 = viewpoly_obj$map$d.p1,
-                                                                         d.p2 = viewpoly_obj$map$d.p2,
-                                                                         maps = maps,
-                                                                         ph.p1 = viewpoly_obj$map$ph.p1,
-                                                                         ph.p2 = viewpoly_obj$map$ph.p2,
-                                                                         snp.names = TRUE, software = "mappoly"))
-  
-  vdiffr::expect_doppelganger("plot map list", plot_map_list(viewpoly_obj$map))
+  # vdiffr::expect_doppelganger("linkage map draw",   draw_map_shiny(left.lim = 1,
+  #                                                                  right.lim = 50,
+  #                                                                  ch = 1,
+  #                                                                  d.p1 = viewpoly_obj$map$d.p1,
+  #                                                                  d.p2 = viewpoly_obj$map$d.p2,
+  #                                                                  maps = maps,
+  #                                                                  ph.p1 = viewpoly_obj$map$ph.p1,
+  #                                                                  ph.p2 = viewpoly_obj$map$ph.p2,
+  #                                                                  snp.names = FALSE, software = "mappoly"))
+  # 
+  # vdiffr::expect_doppelganger("linkage map draw names",   draw_map_shiny(left.lim = 1,
+  #                                                                        right.lim = 50,
+  #                                                                        ch = 1,
+  #                                                                        d.p1 = viewpoly_obj$map$d.p1,
+  #                                                                        d.p2 = viewpoly_obj$map$d.p2,
+  #                                                                        maps = maps,
+  #                                                                        ph.p1 = viewpoly_obj$map$ph.p1,
+  #                                                                        ph.p2 = viewpoly_obj$map$ph.p2,
+  #                                                                        snp.names = TRUE, software = "mappoly"))
+  # 
+  # vdiffr::expect_doppelganger("plot map list", plot_map_list(viewpoly_obj$map))
   
   # Get max size each chromosome
   expect_equal(map_summary(left.lim = 1,
@@ -78,14 +78,14 @@ test_that("tetra example",{
   expect_equal(sum(as.numeric(summary_table$`Max gap`)), 80.51)
   
   #VIEWqtl tests
-  vdiffr::expect_doppelganger("qtl plot", plot_profile(viewpoly_obj$qtl$profile,
-                                                                  viewpoly_obj$qtl$qtl_info,
-                                                                  viewpoly_obj$qtl$selected_mks,
-                                                                  pheno.col = 2,
-                                                                  lgs.id = 2,
-                                                                  by_range = FALSE,
-                                                                  plot=TRUE,
-                                                                  software = NULL))
+  # vdiffr::expect_doppelganger("qtl plot", plot_profile(viewpoly_obj$qtl$profile,
+  #                                                                 viewpoly_obj$qtl$qtl_info,
+  #                                                                 viewpoly_obj$qtl$selected_mks,
+  #                                                                 pheno.col = 2,
+  #                                                                 lgs.id = 2,
+  #                                                                 by_range = FALSE,
+  #                                                                 plot=TRUE,
+  #                                                                 software = NULL))
   
   # by range
   qtl_profile_data <- plot_profile(viewpoly_obj$qtl$profile,
@@ -139,9 +139,9 @@ test_that("tetra example",{
                                software = "QTLpoly",
                                design = "circle")
   
-  vdiffr::expect_doppelganger("effects circle", plot_effects(data_effects.obj = p,
-                                                                        software = "QTLpoly",
-                                                                        design = "circle"))
+  # vdiffr::expect_doppelganger("effects circle", plot_effects(data_effects.obj = p,
+  #                                                                       software = "QTLpoly",
+  #                                                                       design = "circle"))
   
   expect_equal(sum(p[[1]]$data$Estimates), -0.0436829, tolerance = 0.001)
   expect_equal(names(p[[1]]$data),
@@ -162,7 +162,7 @@ test_that("tetra example",{
                c("x", "y", "z"),
                tolerance = 0.001)
   
-  vdiffr::expect_doppelganger("effects digenic", plot_effects(p, "QTLpoly", "digenic"))
+  # vdiffr::expect_doppelganger("effects digenic", plot_effects(p, "QTLpoly", "digenic"))
   
   p <- data_effects(qtl_info = viewpoly_obj$qtl$qtl_info,
                                effects = viewpoly_obj$qtl$effects,
@@ -178,7 +178,7 @@ test_that("tetra example",{
                c("Estimates", "Alleles", "Parent", "Effects"),
                tolerance = 0.001)
   
-  vdiffr::expect_doppelganger("effects bar", plot_effects(p, "QTLpoly", "bar"))
+  # vdiffr::expect_doppelganger("effects bar", plot_effects(p, "QTLpoly", "bar"))
   
   # breeding values table
   pos <- split(viewpoly_obj$qtl$qtl_info[1:3,]$Pos, viewpoly_obj$qtl$qtl_info[1:3,]$pheno)

@@ -253,7 +253,10 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
         parents <- c("P1", "P2")
       }
       
-      if(ploidy == 4){
+      if(ploidy == 2){
+        p1_old <- c("a","b")
+        p2_old <- c("c","d")
+      } else if(ploidy == 4){
         p1_old <- c("a","b","c","d")
         p2_old <- c("e","f","g", "h")
       } else if(ploidy == 6){
@@ -332,7 +335,19 @@ data_effects <- function(qtl_info, effects, pheno.col = NULL,
         count.q <- 1
         for(q in group.idx[[p]]) {
           data <- filter(effects.sub, qtl.id == q)
-          if(ploidy == 4) {
+          if(ploidy == 2){
+            if(software == "diaQTL"){
+              if(any(data$type == "Digenic")){
+                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(parents, each = ploidy),rep(NA,dim(data)[1]-n.parents*ploidy)), Effects=c(rep("Additive",n.parents*ploidy),rep("Digenic",dim(data)[1]-n.parents*ploidy)))
+              } else  {
+                data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=rep(parents, each = ploidy), Effects="Additive")
+              }
+            } else {
+              data <- data[1:8,]
+              data <- data.frame(Estimates=as.numeric(data$effect), Alleles=data$haplo, Parent=c(rep(p1,2),rep(p2,2),rep(p1,2),rep(p2,2)), Effects=c(rep("Additive",4),rep("Digenic",4)))
+              data$Alleles <- duo_new[match(data$Alleles, names(duo_new))]
+            }
+          } else if(ploidy == 4) {
             if(software == "diaQTL"){
               if(any(data$type == "Digenic")){
                 data <- data.frame(Estimates=as.numeric(data$effect), CI.lower = data$CI.lower, CI.upper = data$CI.upper, Alleles=data$haplo, Parent=c(rep(parents, each = ploidy),rep(NA,dim(data)[1]-n.parents*ploidy)), Effects=c(rep("Additive",n.parents*ploidy),rep("Digenic",dim(data)[1]-n.parents*ploidy)))
@@ -634,7 +649,13 @@ calc_homologprob  <- function(probs, selected_mks, selected_lgs){
     df.hom$LG <- names(pos)[j]
     df.res <- rbind(df.res, df.hom)
   }
-  if(ploidy == 4){
+  if(ploidy == 2){
+    df.res$homolog <- gsub("a", paste0("P1.1_"), df.res$homolog)
+    df.res$homolog <- gsub("b", paste0("P1.2_"), df.res$homolog)
+    df.res$homolog <- gsub("c", paste0("P2.1_"), df.res$homolog)
+    df.res$homolog <- gsub("d", paste0("P2.2_"), df.res$homolog)
+    df.res$homolog = substring(df.res$homolog,1, nchar(df.res$homolog)-1)
+  } else if(ploidy == 4){
     df.res$homolog <- gsub("a", paste0("P1.1_"), df.res$homolog)
     df.res$homolog <- gsub("b", paste0("P1.2_"), df.res$homolog)
     df.res$homolog <- gsub("c", paste0("P1.3_"), df.res$homolog)
@@ -772,11 +793,18 @@ plot.mappoly.homoprob <- function(x, stack = FALSE, lg = NULL,
 select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.haplo = NULL){
   LG <- map.position <- individual <- probability <- NULL
   
-  include <- strsplit(unlist(input.haplo), "_")
-  if(!is.null(exclude.haplo)) exclude <- strsplit(unlist(exclude.haplo), "_") else exclude <- NULL
+  include <- strsplit(unlist(input.haplo), "LG:")
+  include.lgs <- sapply(include, "[[", 2) |> strsplit(split =  "_") |> sapply("[[",1)
   
-  lgs <- c(sapply(include, "[[", 2), sapply(exclude, "[[", 2))
-  lgs <- gsub("LG:", "", unique(lgs))
+  if(length(exclude.haplo) ==0) exclude.haplo <- NULL
+  if(!is.null(exclude.haplo)){ 
+    exclude <- strsplit(unlist(exclude.haplo), "LG:")  
+    exclude.lgs <- sapply(exclude, "[[", 2) |> strsplit(split =  "_") |> sapply("[[",1)
+    lgs <- c(include.lgs, exclude.lgs)
+  } else {
+    exclude <- NULL
+    lgs <- include.lgs
+  }
   
   homo.dat <- calc_homologprob(probs = probs, selected_mks = selected_mks, selected_lgs = lgs)
   data_match <- paste0("LG:",homo.dat$homoprob$LG, "_Pos:", 
@@ -784,7 +812,7 @@ select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.
                        "_homolog:", homo.dat$homoprob$homolog)
   
   # Include haplo
-  include <- sapply(include, function(x) paste0(x[-1], collapse = "_"))
+  include <- sapply(include, function(x) paste0("LG:",x[2]))
   
   subset <- homo.dat$homoprob[which(data_match %in% include),]
   subset <- subset[which(subset$probability > 0.5),]
@@ -796,7 +824,7 @@ select_haplo <- function(input.haplo,probs, selected_mks, effects.data, exclude.
   
   # Exclude haplo
   if(!is.null(exclude.haplo)){
-    exclude <- sapply(exclude, function(x) paste0(x[-1], collapse = "_"))
+    exclude <- sapply(exclude, function(x) paste0("LG:",x[2]))
     
     subset <- homo.dat$homoprob[which(data_match %in% exclude),]
     subset <- subset[which(subset$probability > 0.5),]

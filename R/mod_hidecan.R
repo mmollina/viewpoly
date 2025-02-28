@@ -39,6 +39,7 @@ mod_hidecan_view_ui <- function(id){
                                         selected = "This will be updated",
                                         options = list(
                                           `actions-box` = TRUE, 
+                                          `live-search`=TRUE,
                                           size = 10,
                                           `selected-text-format` = "count > 3"
                                         ), 
@@ -49,6 +50,7 @@ mod_hidecan_view_ui <- function(id){
                                         selected = "This will be updated",
                                         options = list(
                                           `actions-box` = TRUE, 
+                                          `live-search`=TRUE,
                                           size = 10,
                                           `selected-text-format` = "count > 3"
                                         ), 
@@ -68,15 +70,19 @@ mod_hidecan_view_ui <- function(id){
                             textInput(ns("title"), "Title"),
                             textInput(ns("subtitle"), "Subtitle"),
                             fluidRow(
-                              column(6,
+                              column(4,
                                      numericInput(ns("nrows"), "Number of rows", value = NULL, min = 1, max = Inf)),
-                              column(6,
-                                     numericInput(ns("ncols"), "Number of columns", value = 2, min = 1, max = Inf))
+                              column(4,
+                                     numericInput(ns("ncols"), "Number of columns", value = 2, min = 1, max = Inf)),
+                              column(4,
+                                     numericInput(ns("height"), "Graphic height (px)", value = NULL, min = 100, max = Inf))
                             ),
                             selectInput(ns("legend_position"), "Legend position", c("bottom", "top", "left", "right", "none")),
                             fluidRow(
                               column(6,
-                                     numericInput(ns("point_size"), "Point size", value = 3, min = 0, max = Inf))
+                                     numericInput(ns("point_size"), "Point size", value = 3, min = 0, max = Inf)),
+                              column(6,
+                                     numericInput(ns("font_size"), "Font size", value =12, min = 1, max = Inf))
                             ),
                             fluidRow(
                               column(6,
@@ -86,7 +92,8 @@ mod_hidecan_view_ui <- function(id){
                             ), br(),
                             textInput(ns("data_names"), label = "No inputs detected", value = NULL), br(),
                             checkboxInput(ns("colour_genes_by_score"), "Colour genes by score?", value = TRUE),
-                            checkboxInput(ns("remove_empty_chrom"), "Remove empty chromosomes?", value = TRUE)
+                            checkboxInput(ns("remove_empty_chrom"), "Remove empty chromosomes?", value = TRUE),
+                            checkboxInput(ns("remove_empty_traits"), "Remove empty traits?", value = FALSE)
                         )
                  )
           ),
@@ -312,7 +319,7 @@ mod_hidecan_view_server <- function(input, output, session,
     updatePickerInput(session, "tracks",
                       label = "Select data sets to be displayed as tracks:",
                       choices = track_choices,
-                      selected=unlist(track_choices))
+                      selected=unlist(track_choices)[1])
     
     chrom_choices <- as.list(unique(hidecan_data()[[2]]$chromosome))
     names(chrom_choices) <- unique(hidecan_data()[[2]]$chromosome)
@@ -364,6 +371,14 @@ mod_hidecan_view_server <- function(input, output, session,
       names(x) <- names(x)
     } 
     
+    if(input$remove_empty_traits){
+      x <- x[-which(sapply(x, nrow) == 0)]
+    }
+    
+    validate(
+      need(any(sapply(x, nrow) != 0), "No QTL found")
+    )
+    
     p <- create_hidecan_plot(x,
                              chrom_length,
                              colour_genes_by_score = input$colour_genes_by_score,
@@ -389,7 +404,11 @@ mod_hidecan_view_server <- function(input, output, session,
     ## Also use the number of tracks on the y axis
     n.ytracks <- length(unique(hidecan_plot()$data$dataset))
     
-    size <- (n.ytracks * n.chr/input$ncols)*80
+    if(!(is.null(input$height) | is.na(input$height))){
+      size <- input$height
+    } else if(n.chr == 1 & n.ytracks == 1) {
+      size <- 240 
+    } else  size <- (n.ytracks * n.chr/input$ncols)*240
     
     size
   })
@@ -398,11 +417,11 @@ mod_hidecan_view_server <- function(input, output, session,
     validate(
       need(!is.null(loadHidecan()), "Upload HIDECAN information in the upload session to access this feature.")
     )
-    hidecan_plot()
+    hidecan_plot() +  theme(text = element_text(size = input$font_size)) 
   })
   
   output$plot.ui <- renderUI({
-    plotOutput(ns("plot_hidecan"), height =  plotHeight())
+    plotOutput(ns("plot_hidecan"), height =  paste0(plotHeight(),"px"))
   })
   
   # HIDECAN download
