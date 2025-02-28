@@ -3,7 +3,7 @@
 #' Adapted from MAPpoly
 #' 
 #' @param left.lim covered window in the linkage map start position 
-#' @param rigth.lim covered window in the linkage map end position
+#' @param right.lim covered window in the linkage map end position
 #' @param ch linkage group ID 
 #' @param maps list containing a vector for each linkage group markers with marker positions (named with marker names)
 #' @param ph.p1 list containing a data.frame for each group with parent 1 estimated phases. The data.frame contain the columns:
@@ -137,7 +137,7 @@ draw_map_shiny<-function(left.lim = 0, right.lim = 5, ch = 1,
 #' Adapted from MAPpoly
 #' 
 #' @param left.lim covered window in the linkage map start position 
-#' @param rigth.lim covered window in the linkage map end position
+#' @param right.lim covered window in the linkage map end position
 #' @param ch linkage group ID 
 #' @param maps list containing a vector for each linkage group markers with marker positions (named with marker names)
 #' @param d.p1 list containing a data.frame for each group with parent 1 dosages. The data.frame contain the columns: 
