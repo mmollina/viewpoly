@@ -44,3 +44,13 @@ Main modifications made during JOSS review:
 # viewpoly 0.3.2
 
 * CRAN version without all testthat tests
+
+# viewpoly 0.4.0
+
+* All testthat back
+* Add HIDECAN module
+
+# viewpoly 0.4.2
+
+* HIDECAN module now supports multiple GWASpoly output files
+* Support for diploid QTL results in the QTL module

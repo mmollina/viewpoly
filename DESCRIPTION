@@ -1,6 +1,6 @@
 Package: viewpoly
 Title: A Shiny App to Visualize Genetic Maps and QTL Analysis in Polyploid Species
-Version: 0.4.1
+Version: 0.4.2
 Authors@R: c(
            person(given = "Cristiane",
                   family = "Taniguti",
